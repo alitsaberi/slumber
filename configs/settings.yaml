@@ -1,0 +1,41 @@
+logging:
+  version: 1
+  disable_existing_loggers: false
+  formatters:
+    simple:
+      format: '%(levelname)s | %(message)s'
+      datefmt: '%Y-%m-%dT%H:%M:%S%z'
+    json:
+      (): slumber.utils.logger.JSONFormatter
+      fmt_keys:
+        level: levelname
+        message: message
+        timestamp: timestamp
+        module: module
+        function: funcName
+        line: lineno
+        thread_name: threadName
+  handlers:
+    stderr:
+      class: logging.StreamHandler
+      level: INFO
+      formatter: simple
+      stream: ext://sys.stderr
+    file:
+      class: logging.handlers.RotatingFileHandler
+      level: DEBUG
+      filename: logs/slumber.log.jsonl
+      formatter: json
+      maxBytes: 50000000 
+      backupCount: 3
+  loggers:
+    slumber:
+      level: DEBUG
+      handlers:
+      - stderr
+      - file
+      propagate: no
+    root:
+      level: WARNING
+      handlers:
+      - stderr
