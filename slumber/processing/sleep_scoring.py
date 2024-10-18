@@ -1,0 +1,409 @@
+import copy
+import logging
+from dataclasses import dataclass
+from datetime import timedelta
+from pathlib import Path
+
+import numpy as np
+from psg_utils.preprocessing import apply_scaling, quality_control_funcs
+from tensorflow.keras.models import Model
+from utime import Defaults
+from utime.bin.evaluate import get_and_load_model
+from utime.hyperparameters import YAMLHParams
+
+from slumber.processing.sampling import resample
+
+logger = logging.getLogger("slumber")
+
+
+def read_hyperparameters_file(path: Path) -> YAMLHParams:
+    """
+    Read hyperparameters from a YAML file.
+    """
+    return YAMLHParams(path, no_version_control=True)
+
+
+@dataclass
+class Data:
+    array: np.ndarray
+    sample_rate: int
+
+    @property
+    def length(self) -> int:
+        """Returns the number of samples in data"""
+        return self.array.shape[0]
+
+    @property
+    def n_channels(self) -> int:
+        """Returns the number of channels in data"""
+        return self.array.shape[1]
+
+    @property
+    def duration(self) -> int:
+        """Returns the duration of data in timedelta format"""
+        return timedelta(seconds=self.length / self.sample_rate)
+
+    def get_all_periods_by_period_length(
+        self, period_length: int, channel_indices: list[int] | None = None
+    ) -> np.ndarray:
+        """
+        Returns all periods in data.
+        Args:
+            period_length (int): The length of each period in seconds.
+            channel_indices (list[int]): A list of channel indices to return.
+        Returns:
+            np.ndarray: An numpy array.
+                        Shape (n_periods, n_samples_per_period, n_channels)
+        """
+        n_samples_per_period = period_length * self.sample_rate
+        return self.get_all_periods(n_samples_per_period, channel_indices)
+
+    def get_all_periods(
+        self, n_samples_per_period: int, channel_indices: list[int] | None = None
+    ) -> np.ndarray:
+        """
+        Returns all periods in data.
+        Args:
+            n_samples_per_period (int): The number of samples in each period.
+            channel_indices (list[int]): A list of channel indices to return.
+        Returns:
+            np.ndarray: An numpy array.
+                        Shape (n_periods, n_samples_per_period, n_channels)
+        """
+        return self.get_periods_by_index(0, n_samples_per_period, channel_indices)
+
+    def get_periods_by_index(
+        self,
+        start_index: int,
+        n_samples_per_period: int,
+        n_periods: int | None = None,
+        channel_indices: list[int] | None = None,
+    ) -> np.ndarray:
+        """
+        Returns a number of periods in data starting from a given index.
+
+        Args:
+            start_index (int): The index of the first period to return.
+            n_samples_per_period (int): The number of samples in each period.
+            n_periods (int): The number of periods to return. If None,
+                             all periods from the start index to the end of
+                             the data are returned.
+            channel_indices (list[int]): A list of channel indices to return.
+
+        Returns:
+            np.ndarray: An numpy array
+                        Shape: (n_periods, n_samples_per_period, n_channels)
+
+        Raises:
+            ValueError: If the requested number of periods exceeds
+                        the length of the data.
+        """
+
+        if start_index < 0 or start_index >= self.length // n_samples_per_period:
+            raise ValueError(f"Invalid start_index: {start_index}")
+
+        if n_samples_per_period <= 0 or n_samples_per_period > self.length:
+            raise ValueError(f"Invalid n_samples_per_period: {n_samples_per_period}")
+
+        start_sample_index = start_index * n_samples_per_period
+        n_available_samples = self.length - start_sample_index
+
+        if n_periods is None:
+            if self.length % n_samples_per_period != 0:
+                raise ValueError(
+                    f"Data length {self.length} is not a multiple of"
+                    f" {n_samples_per_period}."
+                )
+            n_periods = n_available_samples // n_samples_per_period
+
+        end_sample_index = start_sample_index + (n_samples_per_period * n_periods)
+
+        if end_sample_index > self.length:
+            raise ValueError(
+                f"Requested {n_periods} periods, but only"
+                f" {n_available_samples // n_samples_per_period}"
+                " periods are available."
+            )
+
+        data = self.array[start_sample_index:end_sample_index, :]
+
+        if channel_indices is not None:
+            data = data[:, channel_indices]
+
+        return data.reshape(n_periods, n_samples_per_period, -1)
+
+
+class UTimeModel:
+    def __init__(
+        self,
+        model_dir: Path,
+        weight_file_name: str | None = None,
+        n_periods: int | None = None,
+        n_samples_per_prediction: int | None = None,
+    ):
+        """
+        Initializes a UTimeModel object.
+        Args:
+            model_dir (Path): The utime project directory.
+            weight_file_name (str): The name of the weight file in models directory.
+            n_periods (int): The number of periods to use for prediction.
+                             If None, the number used for training is used.
+            n_samples_per_prediction (int): Number of samples that should make up
+                                            each sleep stage scoring.
+                                            Defaults to sample_rate * 30,
+                                            giving 1 segmentation per 30 seconds
+                                            of signal. Set this to 1 to score
+                                            every data point in the signal.
+            dataset (str): The name of the dataset to use for loading preprocessing
+                           configurations. If not set, the first dataset will be used.
+        """
+
+        self._model_dir = model_dir
+        self._weight_file_name = weight_file_name
+        self._n_periods = n_periods
+        self._n_samples_per_prediction = n_samples_per_prediction
+        self._dataset = None
+        self._hyperparameters = self._load_hyperparameters()
+        self._model = self._load_model()
+
+    @property
+    def name(self) -> str:
+        return self._model_dir.name
+
+    @property
+    def hyperparameters(self) -> YAMLHParams:
+        return self._hyperparameters
+
+    @property
+    def model(self) -> Model:
+        return self._model
+
+    @property
+    def n_samples_per_prediction(self) -> int:
+        return self._n_samples_per_prediction
+
+    @property
+    def input_shape(self) -> tuple[int, ...]:
+        """
+        Returns the input shape of the model.
+        n_periods, n_samples_per_periods, n_channels
+        """
+        return self._model.layers[0].input_shape[0][1:]
+
+    def _load_hyperparameters(self) -> YAMLHParams:
+        """
+        Loads the hyperparameters from the model directory.
+        """
+        hyperparameters_path = Defaults.get_hparams_path(self._model_dir)
+        hyperparameters = read_hyperparameters_file(hyperparameters_path)
+
+        self._update_build_hyperparameters(hyperparameters)
+
+        if datasets := hyperparameters.get("datasets"):
+            self._dataset = list(datasets.keys())[0]
+            self._update_dataset_hyperparameters(hyperparameters)
+
+        return hyperparameters
+
+    def _update_build_hyperparameters(self, hyperparameters: YAMLHParams) -> None:
+        if hyperparameters["build"].get("batch_shape") is None:
+            logger.debug(
+                "Build hyperparameters batch_shape not set, checking for preprocessed"
+                " hyperparameters"
+            )
+            preprocessed_hyperparameters_path = Path(
+                Defaults.get_pre_processed_hparams_path(self._model_dir)
+            )
+
+            if not preprocessed_hyperparameters_path.exists():
+                raise ValueError(
+                    f"Failed to set batch_shape for model {self.name}: Could not find"
+                    " preprocessed hyperparameters at"
+                    f" {preprocessed_hyperparameters_path} to set batch_shape"
+                )
+
+            preprocessed_hyperparameters = read_hyperparameters_file(
+                preprocessed_hyperparameters_path
+            )
+
+            if preprocessed_hyperparameters["build"].get("batch_shape") is None:
+                raise ValueError(
+                    f"Failed to set batch_shape for model {self.name}:"
+                    " no batch_shape found in hyperparameters"
+                )
+
+            hyperparameters["build"]["batch_shape"] = preprocessed_hyperparameters[
+                "build"
+            ]["batch_shape"]
+
+        if self._n_periods is not None:
+            hyperparameters["build"]["batch_shape"][1] = self._n_periods
+
+        if self._n_samples_per_prediction is not None:
+            hyperparameters["build"]["data_per_prediction"] = (
+                self._n_samples_per_prediction
+            )
+
+    def _update_dataset_hyperparameters(self, hyperparameters: YAMLHParams) -> None:
+        """
+        Updates the dataset hyperparameters with the dataset configuration.
+        """
+        dataset_configuration_path = Path(hyperparameters["datasets"][self._dataset])
+
+        if not dataset_configuration_path.is_absolute():
+            dataset_configuration_path = (
+                Defaults.get_hparams_dir(self._model_dir) / dataset_configuration_path
+            )
+
+        logger.debug(f"Loading dataset configuration from {dataset_configuration_path}")
+
+        dataset_configuration = read_hyperparameters_file(dataset_configuration_path)
+        hyperparameters.update(dataset_configuration)
+
+    def _load_model(self) -> Model:
+        """
+        Loads the model from the model directory.
+        """
+        return get_and_load_model(
+            self._model_dir,
+            self.hyperparameters,
+            self._weight_file_name,
+            clear_previous=True,
+        )
+
+    def prepare_data(self, data: Data) -> np.ndarray:
+        """
+        Prepares the data for prediction.
+        """
+
+        data = copy.deepcopy(data)
+
+        if (
+            model_sample_rate := self.hyperparameters.get("set_sample_rate")
+        ) and data.sample_rate != model_sample_rate:
+            _apply_resampling(data, model_sample_rate)
+
+        if quality_control := self.hyperparameters.get("quality_control_func"):
+            # Run over epochs and assess if epoch-specific changes should be
+            # made to limit the influence of very high noise level ecochs etc.
+            _apply_quality_control(
+                data,
+                **quality_control,
+                period_length_sec=self.input_shape[1] / data.sample_rate,
+            )
+
+        if scaler := self.hyperparameters.get("scaler"):
+            _apply_scaling(data, scaler)
+
+        periods = data.get_all_periods(self.input_shape[1])
+
+        if periods.shape[0] != self.input_shape[0]:
+            raise ValueError(
+                f"Expected {self.input_shape[0]} periods,"
+                f" but got {periods.shape[0]} periods"
+            )
+
+        return np.expand_dims(periods, 0).astype(np.float32)
+
+    def predict(self, data: np.ndarray, channel_groups: list[list[int]]) -> np.ndarray:
+        """
+        Predicts the sleep stage for the given data.
+
+        Args:
+            data (np.ndarray): The data to predict on.
+            channel_groups (list[list[int]]): A list of channel groups.
+                                              Each group contains the indices
+                                              of the channels to be used for
+                                              prediction. The final prediction
+                                              is the sum of the predictions
+                                              for each group.
+        """
+
+        self._assert_channel_groups(channel_groups)
+
+        predictions_list = []
+
+        for i, channel_group in enumerate(channel_groups):
+            logger.debug(
+                f"Predicting for channel group {i} with channels {channel_group}"
+            )
+            current_predictions = self.model.predict_on_batch(data[..., channel_group])
+            predictions_list.append(current_predictions)
+
+        predictions = (
+            np.sum(predictions_list, axis=0)
+            if len(predictions_list) > 1
+            else predictions_list[0]
+        )
+        logger.debug(f"Predictions shape: {predictions.shape}")
+        predictions = predictions.reshape(-1, predictions.shape[-1])
+        logger.debug(f"Reshaped predictions shape: {predictions.shape}")
+        return predictions
+
+    def _assert_channel_groups(self, channel_groups: list[list[int]]) -> None:
+        """
+        Asserts that the channel groups are valid.
+        """
+        if not channel_groups:
+            raise ValueError("No channel groups provided")
+
+        for i, group in enumerate(channel_groups):
+            if len(group) == 0:
+                raise ValueError(f"Channel group {i} is empty.")
+
+            if len(group) != self.input_shape[-1]:
+                raise ValueError(
+                    f"Channel group {group} includes more channels than the expected"
+                    f" input shape {self.input_shape}"
+                )
+
+
+def _apply_quality_control(data: Data, quality_control_func: str, **kwargs) -> Data:
+    quality_control_function = getattr(quality_control_funcs, quality_control_func)
+    data.array, indices = quality_control_function(
+        psg=data.array,
+        sample_rate=data.sample_rate,
+        **kwargs,
+    )
+
+    for i, affected_periods in enumerate(indices):
+        logger.info(
+            f"Quality control affected {len(affected_periods)}"
+            f" periods in channel {i}"
+        )
+
+    return data
+
+
+def _apply_resampling(data: Data, new_sampling_rate: int) -> Data:
+    data.array = resample(data.array, new_sampling_rate, data.sample_rate)
+    data.sample_rate = new_sampling_rate
+    return data
+
+
+def _apply_scaling(data: Data, scaler: str) -> Data:
+    data.array, _ = apply_scaling(data.array, scaler)
+    return data
+
+
+def score(
+    data: Data,
+    model: UTimeModel,
+    channel_groups: list[list[int]] | None = None,
+    arg_max: bool = True,
+) -> np.ndarray:
+    if not channel_groups:
+        logger.info("No channel groups provided, using all channels")
+        channel_groups = [list(range(data.n_channels))]
+
+    logger.info(f"Preparing data for sleep staging using model {model}")
+    data = model.prepare_data(data)
+    logger.info(f"Predicting sleep stages for data with shape {data.shape}")
+    predictions = model.predict(data, channel_groups)
+
+    if arg_max:
+        logger.info("Applying argmax")
+        predictions = np.argmax(predictions, axis=-1)
+        logger.debug(f"Argmax applied, new shape: {predictions.shape}")
+
+    return predictions

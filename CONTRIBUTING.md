@@ -9,7 +9,7 @@ This document outlines the process for contributing to the project, including ou
 
 ## Setup
 ### Requirements
-- Python 3.11
+- Python 3.10
 ### Installation
 1. Create a virtual environment and activate it
 ```

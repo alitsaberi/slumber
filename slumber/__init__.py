@@ -1,4 +1,4 @@
-import importlib
+import importlib.resources
 
 from slumber.utils.helpers import load_yaml
 
