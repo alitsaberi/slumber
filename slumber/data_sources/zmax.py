@@ -15,6 +15,7 @@ logger = logging.getLogger("slumber")
 _PACKET_TYPE_BUFFER_POSITION = 0
 _VALID_PACKET_TYPES = range(1, 12)
 _EXPECTED_BUFFER_LENGTH = 119
+SAMPLE_RATE = 256
 
 
 def get_word_at(buffer: str, index: int) -> int:
@@ -86,39 +87,50 @@ class DataType(Enum):
 
 
 class ZMax:
-    def __init__(self, ip: str, port: int):
+    def __init__(
+        self,
+        ip: str,
+        port: int,
+        socket_timeout: int = settings["zmax"]["socket_timeout"],
+    ) -> None:
         self._ip = ip
         self._port = port
         self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self._socket.settimeout(socket_timeout)
 
-    def __enter__(self):
-        self._connect_with_retry()
+    def __enter__(self) -> "ZMax":
+        self.connect()
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
         self.close()
 
-    def close(self):
+    def close(self) -> None:
         if self._socket:
             self._socket.close()
 
-    def _connect_with_retry(self):
-        for attempt in range(settings["zmax"]["retry_attempts"]):
+    def connect(
+        self,
+        retry_attempts: int = settings["zmax"]["retry_attempts"],
+        retry_delay: int = settings["zmax"]["retry_delay"],
+    ) -> None:
+        for attempt in range(retry_attempts):
             try:
                 self._socket.connect((self._ip, self._port))
+                self.send_string("HELLO\n")  # ?
                 logger.info(f"Connected to ZMax at {self._ip}:{self._port}")
                 return
             except OSError as e:
-                if attempt == settings["zmax"]["retry_attempts"] - 1:
+                if attempt == retry_attempts - 1:
                     logger.error(
                         "Failed to connect to ZMax after"
-                        f" {settings['zmax']['retry_attempts']} attempts: {e}"
+                        f" {retry_attempts} attempts: {e}"
                     )
                     raise ConnectionError(
                         f"Unable to connect to ZMax at {self._ip}:{self._port}"
                     ) from None
                 logger.warning(f"Connection attempt {attempt + 1} failed, retrying...")
-                sleep(settings["zmax"]["retry_delay"])
+                sleep(retry_delay)
 
     def is_connnected(self) -> bool:
         try:
@@ -162,11 +174,8 @@ class ZMax:
                 continue
 
             data_types = data_types or list(DataType)
-            return np.expand_dims(
-                np.array(
-                    [data_type.value.get_value(buffer) for data_type in data_types]
-                ),
-                0,
+            return np.array(
+                [data_type.value.get_value(buffer) for data_type in data_types]
             )
 
     def send_string(self, message: str) -> None:

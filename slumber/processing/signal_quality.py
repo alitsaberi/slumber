@@ -14,22 +14,22 @@ def compute_snr(
     snr_threshold_db: float = 0,
 ) -> bool:
     """
-    Calculate whether the signal-to-noise ratio (SNR) of the EEG signal is 
+    Calculate whether the signal-to-noise ratio (SNR) of the EEG signal is
     below a given threshold.
 
     Args:
         eeg_data (np.ndarray): The EEG channel to analyze.
 
-        sampling_rate (float): The sampling rate of the EEG data in Hz 
+        sampling_rate (float): The sampling rate of the EEG data in Hz
                                 (default: 256 Hz).
 
-        signal_band (tuple): The frequency range for the signal band 
+        signal_band (tuple): The frequency range for the signal band
                                 (default: (0.5, 30) Hz).
 
-        noise_band (tuple): The frequency range for the noise band 
+        noise_band (tuple): The frequency range for the noise band
                                 (default: (30, 100) Hz).
 
-        snr_threshold_db (float): The threshold for the SNR in dB 
+        snr_threshold_db (float): The threshold for the SNR in dB
                                 (default: 0 dB).
 
     Returns:
@@ -70,13 +70,14 @@ def detect_flatline(
     Args:
         eeg_data (numpy.ndarray): The EEG channel to analyze.
 
-        sampling_rate (float): The sampling rate of the EEG data in Hz 
+        sampling_rate (float): The sampling rate of the EEG data in Hz
                                     (default: 256 Hz).
 
-        flatline_threshold (float): Maximum allowed change between consecutive samples
-                                    to be considered flat (default: 1e-6).
+        flatline_threshold (float):
+            Maximum allowed change between consecutive samples
+            to be considered flat (default: 1e-6).
 
-        flatline_duration (float): Minimum duration of a flatline in seconds 
+        flatline_duration (float): Minimum duration of a flatline in seconds
                                     (default: 5).
 
     Returns:

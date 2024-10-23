@@ -3,7 +3,7 @@ from datetime import timedelta
 import numpy as np
 import pytest
 
-from slumber.processing.sleep_scoring import Data
+from slumber.utils.data import Data
 
 
 @pytest.fixture

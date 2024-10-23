@@ -1,10 +1,10 @@
 storage:
-  default_compression: gzip
+  compression: gzip
 
 zmax:
   retry_attempts: 3
   retry_delay: 1
-  socket_timeout: 5
+  socket_timeout: 10
 
 logging:
   version: 1

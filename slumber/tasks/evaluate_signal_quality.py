@@ -32,7 +32,7 @@ def evaluate_signal_quality(
     # TODO: Change 0 and 1 to channel names (e.g., EEG_L and EEG_R)
     # TODO: Check to only include measurements that are recorded (e.g., EEG,
     #       heart rate, etc.)
-    # TODO: Determine whether to add the thresholds for SNR and flatline detection 
+    # TODO: Determine whether to add the thresholds for SNR and flatline detection
     #       in this function
 
     # Compute SNR for both channels

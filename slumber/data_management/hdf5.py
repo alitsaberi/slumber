@@ -13,9 +13,9 @@ logger = logging.getLogger("slumber")
 class HDF5Manager:
     def __init__(self, file_path: Path):
         self._file_path = file_path
+        self._file = h5py.File(self._file_path, "a")
 
     def __enter__(self) -> "HDF5Manager":
-        self._file = h5py.File(self._file_path, "a")
         return self
 
     def __exit__(
@@ -24,7 +24,11 @@ class HDF5Manager:
         exc_val: BaseException | None,
         exc_tb: types.TracebackType | None,
     ) -> None:
-        self._file.close()
+        self.close()
+
+    def close(self) -> None:
+        if self._file.id:
+            self._file.close()
 
     @property
     def groups(self) -> list[str]:
@@ -43,7 +47,7 @@ class HDF5Manager:
         shape: tuple[int, ...] | None = None,
         dtype: str | list[tuple[str, str]] | None = None,
         max_shape: tuple[int | None, ...] | None = None,
-        compression: str = settings["storage"]["default_compression"],
+        compression: str = settings["storage"]["compression"],
         **attributes,
     ) -> h5py.Dataset:
         """
@@ -63,7 +67,7 @@ class HDF5Manager:
             max_shape (tuple[int | None, ...] | None, optional):
                 The maximum shape of the dataset. Defaults to None.
             compression (str, optional): The compression algorithm to use.
-                Defaults to settings["storage"]["default_compression"].
+                Defaults to settings["storage"]["compression"].
             **attributes (dict, optional):
             Additional attributes to store in the dataset.
 

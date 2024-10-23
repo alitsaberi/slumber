@@ -8,12 +8,15 @@ include = ["configs/*"]
 
 [tool.poetry.dependencies]
 python = ">=3.10,<3.11"
-utime = {git = "https://github.com/alitsaberi/U-Time.git"}
+utime = {git = "https://github.com/alitsaberi/U-Time.git"} # TODO: remove this when the package is published
 numpy = "~1.23"
 tensorflow = {version = ">=2.10.0, <2.11", markers = "sys_platform != 'darwin'"}
 tensorflow-macos = {version = ">=2.10.0, <2.11", platform = "darwin"}
 psg-utils = "^0.1.6"
 h5py = "^3.12.1"
+ezmsg = "^3.5.0"
+pydantic = "^2.9.2"
+mne = "^1.8.0"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.6.9"

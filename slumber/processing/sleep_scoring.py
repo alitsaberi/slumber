@@ -1,7 +1,5 @@
 import copy
 import logging
-from dataclasses import dataclass
-from datetime import timedelta
 from pathlib import Path
 
 import numpy as np
@@ -12,6 +10,7 @@ from utime.bin.evaluate import get_and_load_model
 from utime.hyperparameters import YAMLHParams
 
 from slumber.processing.sampling import resample
+from slumber.utils.data import Data
 
 logger = logging.getLogger("slumber")
 
@@ -21,116 +20,6 @@ def read_hyperparameters_file(path: Path) -> YAMLHParams:
     Read hyperparameters from a YAML file.
     """
     return YAMLHParams(path, no_version_control=True)
-
-
-@dataclass
-class Data:
-    array: np.ndarray
-    sample_rate: int
-
-    @property
-    def length(self) -> int:
-        """Returns the number of samples in data"""
-        return self.array.shape[0]
-
-    @property
-    def n_channels(self) -> int:
-        """Returns the number of channels in data"""
-        return self.array.shape[1]
-
-    @property
-    def duration(self) -> int:
-        """Returns the duration of data in timedelta format"""
-        return timedelta(seconds=self.length / self.sample_rate)
-
-    def get_all_periods_by_period_length(
-        self, period_length: int, channel_indices: list[int] | None = None
-    ) -> np.ndarray:
-        """
-        Returns all periods in data.
-        Args:
-            period_length (int): The length of each period in seconds.
-            channel_indices (list[int]): A list of channel indices to return.
-        Returns:
-            np.ndarray: An numpy array.
-                        Shape (n_periods, n_samples_per_period, n_channels)
-        """
-        n_samples_per_period = period_length * self.sample_rate
-        return self.get_all_periods(n_samples_per_period, channel_indices)
-
-    def get_all_periods(
-        self, n_samples_per_period: int, channel_indices: list[int] | None = None
-    ) -> np.ndarray:
-        """
-        Returns all periods in data.
-        Args:
-            n_samples_per_period (int): The number of samples in each period.
-            channel_indices (list[int]): A list of channel indices to return.
-        Returns:
-            np.ndarray: An numpy array.
-                        Shape (n_periods, n_samples_per_period, n_channels)
-        """
-        return self.get_periods_by_index(0, n_samples_per_period, channel_indices)
-
-    def get_periods_by_index(
-        self,
-        start_index: int,
-        n_samples_per_period: int,
-        n_periods: int | None = None,
-        channel_indices: list[int] | None = None,
-    ) -> np.ndarray:
-        """
-        Returns a number of periods in data starting from a given index.
-
-        Args:
-            start_index (int): The index of the first period to return.
-            n_samples_per_period (int): The number of samples in each period.
-            n_periods (int): The number of periods to return. If None,
-                             all periods from the start index to the end of
-                             the data are returned.
-            channel_indices (list[int]): A list of channel indices to return.
-
-        Returns:
-            np.ndarray: An numpy array
-                        Shape: (n_periods, n_samples_per_period, n_channels)
-
-        Raises:
-            ValueError: If the requested number of periods exceeds
-                        the length of the data.
-        """
-
-        if start_index < 0 or start_index >= self.length // n_samples_per_period:
-            raise ValueError(f"Invalid start_index: {start_index}")
-
-        if n_samples_per_period <= 0 or n_samples_per_period > self.length:
-            raise ValueError(f"Invalid n_samples_per_period: {n_samples_per_period}")
-
-        start_sample_index = start_index * n_samples_per_period
-        n_available_samples = self.length - start_sample_index
-
-        if n_periods is None:
-            if self.length % n_samples_per_period != 0:
-                raise ValueError(
-                    f"Data length {self.length} is not a multiple of"
-                    f" {n_samples_per_period}."
-                )
-            n_periods = n_available_samples // n_samples_per_period
-
-        end_sample_index = start_sample_index + (n_samples_per_period * n_periods)
-
-        if end_sample_index > self.length:
-            raise ValueError(
-                f"Requested {n_periods} periods, but only"
-                f" {n_available_samples // n_samples_per_period}"
-                " periods are available."
-            )
-
-        data = self.array[start_sample_index:end_sample_index, :]
-
-        if channel_indices is not None:
-            data = data[:, channel_indices]
-
-        return data.reshape(n_periods, n_samples_per_period, -1)
 
 
 class UTimeModel:
@@ -150,8 +39,8 @@ class UTimeModel:
                              If None, the number used for training is used.
             n_samples_per_prediction (int): Number of samples that should make up
                                             each sleep stage scoring.
-                                            Defaults to sample_rate * 30,
-                                            giving 1 segmentation per 30 seconds
+                                            Defaults to n_samples_per_periods,
+                                            giving 1 segmentation per period
                                             of signal. Set this to 1 to score
                                             every data point in the signal.
             dataset (str): The name of the dataset to use for loading preprocessing
@@ -180,7 +69,7 @@ class UTimeModel:
 
     @property
     def n_samples_per_prediction(self) -> int:
-        return self._n_samples_per_prediction
+        return self._model.data_per_prediction
 
     @property
     def input_shape(self) -> tuple[int, ...]:
@@ -189,6 +78,18 @@ class UTimeModel:
         n_periods, n_samples_per_periods, n_channels
         """
         return self._model.layers[0].input_shape[0][1:]
+
+    @property
+    def input_sample_rate(self) -> int:
+        return self.hyperparameters["set_sample_rate"]
+
+    @property
+    def n_periods(self) -> int:
+        return self.input_shape[0]
+
+    @property
+    def n_samples_per_period(self) -> int:
+        return self.input_shape[1]
 
     def _load_hyperparameters(self) -> YAMLHParams:
         """
@@ -278,10 +179,8 @@ class UTimeModel:
 
         data = copy.deepcopy(data)
 
-        if (
-            model_sample_rate := self.hyperparameters.get("set_sample_rate")
-        ) and data.sample_rate != model_sample_rate:
-            _apply_resampling(data, model_sample_rate)
+        if data.sample_rate != self.input_sample_rate:
+            _apply_resampling(data, self.input_sample_rate)
 
         if quality_control := self.hyperparameters.get("quality_control_func"):
             # Run over epochs and assess if epoch-specific changes should be
@@ -289,13 +188,13 @@ class UTimeModel:
             _apply_quality_control(
                 data,
                 **quality_control,
-                period_length_sec=self.input_shape[1] / data.sample_rate,
+                period_length_sec=self.n_samples_per_period / data.sample_rate,
             )
 
         if scaler := self.hyperparameters.get("scaler"):
             _apply_scaling(data, scaler)
 
-        periods = data.get_all_periods(self.input_shape[1])
+        periods = data.get_all_periods(self.n_samples_per_period)
 
         if periods.shape[0] != self.input_shape[0]:
             raise ValueError(
