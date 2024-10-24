@@ -13,6 +13,7 @@ numpy = "~1.23"
 tensorflow = {version = ">=2.10.0, <2.11", markers = "sys_platform != 'darwin'"}
 tensorflow-macos = {version = ">=2.10.0, <2.11", platform = "darwin"}
 psg-utils = "^0.1.6"
+h5py = "^3.12.1"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.6.9"

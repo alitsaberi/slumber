@@ -1,3 +1,6 @@
+storage:
+  default_compression: gzip
+
 logging:
   version: 1
   disable_existing_loggers: false
