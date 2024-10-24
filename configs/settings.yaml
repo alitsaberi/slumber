@@ -1,3 +1,16 @@
+ui:
+  console:
+    log_level: INFO
+  data_thread_timeout: 10
+  window:
+    window_size: [800, 600]
+    window_position: [100, 100]
+
+processing:
+  sample_rate: 256
+  signal_quality_check:
+    window_duration: 10
+
 storage:
   compression: gzip
 

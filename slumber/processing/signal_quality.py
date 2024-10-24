@@ -92,9 +92,9 @@ def detect_flatline(
         flatline_duration * sampling_rate
     )  # Number of samples for flatline duration
 
-    diff = np.abs(np.diff(eeg_data, axis=1))
+    diff = np.abs(np.diff(eeg_data, axis=0))
 
-    flatline_detected = np.sum(diff < flatline_threshold, axis=1) >= flatline_samples
+    flatline_detected = np.sum(diff < flatline_threshold, axis=0) >= flatline_samples
 
     if flatline_detected:
         logger.info("Flatline detected in channel")
