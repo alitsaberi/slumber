@@ -1,9 +1,10 @@
 from pathlib import Path
+from time import sleep
 
 import ezmsg.core as ez
 from ezmsg.util.terminate import TerminateOnTotal, TerminateOnTotalSettings
 
-from slumber.dag.units import data_collection, data_storage, sleep_scoring
+from slumber.dag.units import data_collection, data_storage, sleep_scoring, signal_quality_check
 from slumber.utils.helpers import load_yaml
 from slumber.utils.logger import setup_logging
 
@@ -52,8 +53,35 @@ class SampleCollection(ez.Collection):
         )
 
 
+class QualityCheckCollection(ez.Collection):
+    DATA_COLLECTION = data_collection.ZMaxDataCollection()
+    QUALITY_CHECK = signal_quality_check.SignalQualityCheck()
+    TERMINATE = TerminateOnTotal()
+
+    def __init__(self, config_path: Path, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.config = load_yaml(config_path)
+
+    def configure(self) -> None:
+        self.DATA_COLLECTION.apply_settings(
+            data_collection.Settings.model_validate(
+                self.config["data_collection"]["settings"]
+            )
+        )
+        self.TERMINATE.apply_settings(TerminateOnTotalSettings(total=3))
+
+    # Use the network function to connect inputs and outputs of Units
+    def network(self) -> ez.NetworkDefinition:
+        return (
+            (self.DATA_COLLECTION.OUTPUT_DATA, self.QUALITY_CHECK.DATA),
+            (self.DATA_COLLECTION.OUTPUT_DATA, self.TERMINATE.INPUT_MESSAGE),
+        )
+
+
 if __name__ == "__main__":
     setup_logging()
     config_path = Path("./configs/sample_collection.yaml")
-    collection = SampleCollection(config_path)
-    ez.run(collection)
+    quality_check_collection = QualityCheckCollection(config_path)
+    simple_collection = SampleCollection(config_path)
+    ez.run(quality_check_collection)
+    ez.run(simple_collection)

@@ -6,7 +6,7 @@ data_collection:
       port: 8000
     buffer_size: 2560 # 10 seconds
     data_types:
-      - EEG_RIGHT
+      - EEG_LEFT
       - EEG_RIGHT
       - ACCELEROMETER_X
       - ACCELEROMETER_Y
