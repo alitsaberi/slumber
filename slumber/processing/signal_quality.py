@@ -48,7 +48,7 @@ def compute_snr(
     signal_power = np.mean(signal_filtered**2)
     noise_power = np.mean(noise_filtered**2)
 
-    # Compute SNR in dB    
+    # Compute SNR in dB
     snr = 10 * np.log10(signal_power / noise_power) if noise_power != 0 else np.inf
 
     logger.info(f"SNR is {snr}")

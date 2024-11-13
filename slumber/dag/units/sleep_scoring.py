@@ -77,37 +77,42 @@ class Settings(PydanticSettings):
         return self._all_indices
 
 
+class State(ez.State):
+    model: UTimeModel
+    rolling_buffer: Data | None = None
+
+
 class SleepScoring(ez.Unit):
     SETTINGS = Settings
+    STATE = State
 
     INPUT_DATA = ez.InputStream(Data)
     OUTPUT_SCORES = ez.OutputStream(Data)
 
-    def initialize(self) -> None:
-        self._model = UTimeModel(**asdict(self.SETTINGS.model))
+    async def initialize(self) -> None:
+        self.STATE.model = UTimeModel(**asdict(self.SETTINGS.model))
         logger.info(f"Loaded model from {self.SETTINGS.model.model_dir}")
-        self._rolling_buffer = None
+        self.STATE.rolling_buffer = None
 
     @ez.subscriber(INPUT_DATA)
     @ez.publisher(OUTPUT_SCORES)
     async def score_sleep(self, data: Data) -> AsyncGenerator:
-        data = self._preprocess_data(data)
         self._update_buffer(data)
+        data = self._preprocess_data(data)
         scores = score(
-            self._rolling_buffer,
-            self._model,
+            self.STATE.rolling_buffer,
+            self.STATE.model,
             channel_groups=self.SETTINGS.channel_groups,
             arg_max=self.SETTINGS.arg_max,
         )
 
-        segment_length = int(
-            (data.length / data.sample_rate) * self._model.input_sample_rate
-        )
-
         yield (
             self.OUTPUT_SCORES,
-            Data(scores[-segment_length:], self._model.input_sample_rate),
-            # TODO: this assumes that n_samples_per_prediction is 1
+            Data(
+                scores[-self.STATE.model.n_samples_per_period :],
+                self.STATE.model.input_sample_rate,
+            ),
+            # NOTE: this assumes that n_samples_per_prediction is 1
         )
 
     def _preprocess_data(self, data: Data) -> Data:
@@ -131,17 +136,29 @@ class SleepScoring(ez.Unit):
         return processed_data
 
     def _update_buffer(self, data: Data) -> None:
-        if self._rolling_buffer is None:
-            self._rolling_buffer = Data(
+        if data.duration != self.STATE.model.period_duration:
+            raise ValueError(
+                f"Data duration {data.duration} (sec)"
+                " does not match the expected duration"
+                f" {self.STATE.model.period_duration} (sec)"
+            )
+
+        if self.STATE.rolling_buffer is None:
+            self.STATE.rolling_buffer = Data(
                 np.zeros(
                     (
-                        self._model.n_periods * data.length,
-                        len(self.SETTINGS.all_indices),
+                        self.STATE.model.n_periods * data.length,
+                        data.n_channels,
                     )
                 ),
                 data.sample_rate,
             )
-            # TODO: This assumes that each period is the same duration as the input data
+            logger.info(
+                "Initialized rolling buffer with shape"
+                f" {self.STATE.rolling_buffer.shape}"
+            )
 
-        self._rolling_buffer.array = np.roll(self._rolling_buffer.array, -data.length)
-        self._rolling_buffer.array[-data.length :] = data.array
+        self.STATE.rolling_buffer.array = np.roll(
+            self.STATE.rolling_buffer.array, -data.length
+        )
+        self.STATE.rolling_buffer.array[-data.length :] = data.array

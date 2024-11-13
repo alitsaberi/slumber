@@ -2,11 +2,11 @@
 Survey GUI Module
 
 Provides a PyQt6-based GUI for displaying and handling surveys using SurveyJS.
-Facilitates communication between JavaScript (frontend) and Python (backend) 
+Facilitates communication between JavaScript (frontend) and Python (backend)
 via QWebChannel.
 
 Classes:
-    ChannelObject: Custom QObject for handling communication 
+    ChannelObject: Custom QObject for handling communication
                     between JavaScript and Python.
     SurveyWindow: Main window for displaying surveys using QWebEngineView.
 """
@@ -49,7 +49,7 @@ class ChannelObject(QObject):
         None (all methods are accessed directly via QWebChannel).
 
     Methods:
-        saveSurveyData(str): Sends survey data from JavaScript to Python for saving it 
+        saveSurveyData(str): Sends survey data from JavaScript to Python for saving it
                             to a JSON file.
         logError(str): Logs error messages received from JavaScript.
     """
@@ -122,7 +122,7 @@ class SurveyWindow(QMainWindow):
         setup_web_channel(): Sets up QWebChannel for JavaScript-Python communication.
         _load_survey(): Loads the survey HTML file and sets the full survey path
                         as a parameter.
-        closeEvent(QCloseEvent): Handles window close events and performs 
+        closeEvent(QCloseEvent): Handles window close events and performs
                                 resource cleanup.
 
     Example:
@@ -185,7 +185,7 @@ class SurveyWindow(QMainWindow):
         Handles window close event and resource cleanup.
 
         Args:
-            event (QCloseEvent): The close event triggered when the window is 
+            event (QCloseEvent): The close event triggered when the window is
             about to close.
         """
         # Clean up resources

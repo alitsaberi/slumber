@@ -21,10 +21,10 @@ raw_data_storage:
     dataset:
       name: raw
       max_shape: [null, 5]
-    buffer_size: 3
+    buffer_size: 3 # TODO: make the buffer size configurations consistent
 
 sleep_scoring:
-  unit_name: SLeepScoring
+  unit_name: SleepScoring
   settings:
     model:
       model_dir: ./tests/resources/sample_utime_model

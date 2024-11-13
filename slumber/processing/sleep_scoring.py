@@ -91,6 +91,13 @@ class UTimeModel:
     def n_samples_per_period(self) -> int:
         return self.input_shape[1]
 
+    @property
+    def period_duration(self) -> float:
+        """
+        Returns the duration of a period in seconds.
+        """
+        return self.n_samples_per_period / self.input_sample_rate
+
     def _load_hyperparameters(self) -> YAMLHParams:
         """
         Loads the hyperparameters from the model directory.
