@@ -1,0 +1,49 @@
+data_collection:
+  unit_name: ZMaxDataCollection
+  settings:
+    zmax_config:
+      ip: 127.0.0.1
+      port: 8000
+    buffer_size: 2560 # 10 seconds
+    data_types:
+      - EEG_RIGHT
+      - EEG_RIGHT
+      - ACCELEROMETER_X
+      - ACCELEROMETER_Y
+      - ACCELEROMETER_Z
+
+raw_data_storage:
+  unit_name: DataStorage
+  settings:
+    file_path: ./data/test_session.hdf5
+    group:
+      name: zmax
+    dataset:
+      name: raw
+      max_shape: [null, 5]
+    buffer_size: 3 # TODO: make the buffer size configurations consistent
+
+sleep_scoring:
+  unit_name: SleepScoring
+  settings:
+    model:
+      model_dir: ./tests/resources/sample_utime_model
+    channel_groups: [[0], [1]]
+    transforms:
+    - class_name: FIRFilter
+      channel_indices: [0, 1]
+      target_channel_indices: [0, 1]
+      kwargs:
+        low_cutoff: 0.3
+        high_cutoff: 30
+
+sleep_scoring_storage:
+  unit_name: DataStorage
+  settings:
+    file_path: ./data/test_session.hdf5
+    group:
+      name: annotations
+    dataset:
+      name: sleep_scoring
+      max_shape: [null,]
+    buffer_size: 3

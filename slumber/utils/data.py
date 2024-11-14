@@ -27,7 +27,7 @@ class Data:
         return self.shape[1]
 
     @property
-    def duration(self) -> int:
+    def duration(self) -> timedelta:
         """Returns the duration of data in timedelta format"""
         return timedelta(seconds=self.length / self.sample_rate)
 

@@ -17,8 +17,8 @@ logger = logging.getLogger("slumber")
 
 
 class TransformConfig(PydanticSettings):
-    channel_indices: list[int]
-    target_channel_indices: list[int]
+    channel_indices: list[int] = Field(min_length=1)
+    target_channel_indices: list[int] = Field(min_length=1)
     transform: Transform = Field(..., alias="class_name")
     kwargs: dict[str, Any] = Field(default_factory=dict)
 
@@ -37,6 +37,26 @@ class TransformConfig(PydanticSettings):
         if isinstance(v, str):
             return get_transform_class(v)()
         return v
+
+    @model_validator(mode="after")
+    def validate_transform_kwargs(self) -> "TransformConfig":
+        from inspect import signature
+
+        sig = signature(self.transform.__call__)
+
+        required_params = {
+            name
+            for name, param in sig.parameters.items()
+            if param.default == param.empty and name not in ["self", "data", "kwargs"]
+        }
+
+        missing_params = required_params - set(self.kwargs.keys())
+        if missing_params:
+            raise ValueError(
+                f"Missing required parameters for transform: {missing_params}"
+            )
+
+        return self
 
     def apply_transform(self, data: Data) -> Data:
         selected_data = Data(data.array[:, self.channel_indices], data.sample_rate)
@@ -66,9 +86,14 @@ class Settings(PydanticSettings):
             overlap = set(config.target_channel_indices) & set(self._all_indices)
             if overlap:
                 raise ValueError(
-                    f"Channel indices {overlap} are used in multiple transforms"
+                    f"Target channel indices {overlap} are used in multiple transforms"
                 )
             self._all_indices.extend(config.target_channel_indices)
+
+        if sorted(self._all_indices) != list(range(len(self._all_indices))):
+            raise ValueError(
+                "Target channel indices must be consecutive integers starting from 0"
+            )
 
         return self
 
@@ -136,9 +161,9 @@ class SleepScoring(ez.Unit):
         return processed_data
 
     def _update_buffer(self, data: Data) -> None:
-        if data.duration != self.STATE.model.period_duration:
+        if data.duration.total_seconds() != self.STATE.model.period_duration:
             raise ValueError(
-                f"Data duration {data.duration} (sec)"
+                f"Data duration {data.duration.total_seconds()} (sec)"
                 " does not match the expected duration"
                 f" {self.STATE.model.period_duration} (sec)"
             )
