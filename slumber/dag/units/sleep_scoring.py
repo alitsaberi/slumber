@@ -59,8 +59,7 @@ class TransformConfig(PydanticSettings):
         return self
 
     def apply_transform(self, data: Data) -> Data:
-        selected_data = Data(data.array[:, self.channel_indices], data.sample_rate)
-        return self.transform(selected_data, **self.kwargs)
+        return self.transform(data[:, self.channel_indices], **self.kwargs)
 
 
 class ModelConfig(PydanticSettings):
@@ -122,6 +121,7 @@ class SleepScoring(ez.Unit):
     @ez.subscriber(INPUT_DATA)
     @ez.publisher(OUTPUT_SCORES)
     async def score_sleep(self, data: Data) -> AsyncGenerator:
+        self._validate_data_duration(data)
         self._update_buffer(data)
         data = self._preprocess_data(data)
         scores = score(
@@ -140,27 +140,8 @@ class SleepScoring(ez.Unit):
             # NOTE: this assumes that n_samples_per_prediction is 1
         )
 
-    def _preprocess_data(self, data: Data) -> Data:
-        processed_data = Data(
-            np.zeros((data.length, len(self.SETTINGS.all_indices))), data.sample_rate
-        )
-        for config in self.SETTINGS.transform_configs:
-            transformed_data = config.apply_transform(data)
-
-            if transformed_data.sample_rate != processed_data.sample_rate:
-                raise ValueError(
-                    f"Sample rate of transformed data {transformed_data.sample_rate}"
-                    " does not match the expected sample rate"
-                    f" {processed_data.sample_rate}"
-                )
-
-            processed_data.array[:, config.target_channel_indices] = (
-                transformed_data.array
-            )
-
-        return processed_data
-
-    def _update_buffer(self, data: Data) -> None:
+    def _validate_data_duration(self, data: Data) -> None:
+        """Validate that the input data duration matches the model's period duration."""
         if data.duration.total_seconds() != self.STATE.model.period_duration:
             raise ValueError(
                 f"Data duration {data.duration.total_seconds()} (sec)"
@@ -168,6 +149,7 @@ class SleepScoring(ez.Unit):
                 f" {self.STATE.model.period_duration} (sec)"
             )
 
+    def _update_buffer(self, data: Data) -> None:
         if self.STATE.rolling_buffer is None:
             self.STATE.rolling_buffer = Data(
                 np.zeros(
@@ -183,7 +165,23 @@ class SleepScoring(ez.Unit):
                 f" {self.STATE.rolling_buffer.shape}"
             )
 
-        self.STATE.rolling_buffer.array = np.roll(
-            self.STATE.rolling_buffer.array, -data.length
+        self.STATE.rolling_buffer.roll(-data.length)
+        self.STATE.rolling_buffer[-data.length :] = data.array
+
+    def _preprocess_data(self, data: Data) -> Data:
+        processed_data = Data(
+            np.zeros((data.length, len(self.SETTINGS.all_indices))), data.sample_rate
         )
-        self.STATE.rolling_buffer.array[-data.length :] = data.array
+        for config in self.SETTINGS.transform_configs:
+            transformed_data = config.apply_transform(data)
+
+            if transformed_data.sample_rate != processed_data.sample_rate:
+                raise ValueError(
+                    f"Sample rate of transformed data {transformed_data.sample_rate}"
+                    " does not match the expected sample rate"
+                    f" {processed_data.sample_rate}"
+                )
+
+            processed_data[:, config.target_channel_indices] = transformed_data.array
+
+        return processed_data

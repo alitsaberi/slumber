@@ -10,7 +10,7 @@ from utime.bin.evaluate import get_and_load_model
 from utime.hyperparameters import YAMLHParams
 
 from slumber.processing.sampling import resample
-from slumber.utils.data import Data
+from slumber.utils.data import Data, get_all_periods
 
 logger = logging.getLogger("slumber")
 
@@ -201,7 +201,7 @@ class UTimeModel:
         if scaler := self.hyperparameters.get("scaler"):
             _apply_scaling(data, scaler)
 
-        periods = data.get_all_periods(self.n_samples_per_period)
+        periods = get_all_periods(data, self.n_samples_per_period)
 
         if periods.shape[0] != self.input_shape[0]:
             raise ValueError(
