@@ -1,10 +1,10 @@
-import logging
 from collections.abc import AsyncGenerator
 from time import sleep
 from typing import Any
 
 import ezmsg.core as ez
 import numpy as np
+from loguru import logger
 from pydantic import field_validator
 
 from slumber import settings
@@ -12,8 +12,6 @@ from slumber.dag.utils import PydanticSettings
 from slumber.data_sources.zmax import SAMPLE_RATE as ZMAX_SAMPLE_RATE
 from slumber.data_sources.zmax import DataType, ZMax
 from slumber.utils.data import Data
-
-logger = logging.getLogger("slumber")
 
 
 class ZMaxConfig(PydanticSettings):

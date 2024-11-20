@@ -1,8 +1,8 @@
 import copy
-import logging
 from pathlib import Path
 
 import numpy as np
+from loguru import logger
 from psg_utils.preprocessing import apply_scaling, quality_control_funcs
 from tensorflow.keras.models import Model
 from utime import Defaults
@@ -11,8 +11,6 @@ from utime.hyperparameters import YAMLHParams
 
 from slumber.processing.sampling import resample
 from slumber.utils.data import Data, get_all_periods
-
-logger = logging.getLogger("slumber")
 
 
 def read_hyperparameters_file(path: Path) -> YAMLHParams:

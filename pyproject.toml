@@ -19,6 +19,7 @@ pydantic = "^2.9.2"
 mne = "^1.8.0"
 pyqt6 = "^6.7.1"
 pyqt6-webengine = "^6.7.0"
+loguru = "^0.7.2"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.6.9"

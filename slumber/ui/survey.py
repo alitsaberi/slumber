@@ -18,6 +18,7 @@ from datetime import datetime
 from json import JSONDecodeError
 from pathlib import Path
 
+from loguru import logger
 from PyQt6.QtCore import QObject, QUrl, pyqtSlot
 from PyQt6.QtGui import QCloseEvent
 from PyQt6.QtWebChannel import QWebChannel
@@ -26,15 +27,10 @@ from PyQt6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget
 
 from slumber import settings
 
-# UI Constants
 WINDOW_TITLE = "Questionnaires"
 WINDOW_GEOMETRY = (100, 100, 1024, 768)
 SURVEY_HTML_PATH = Path(__file__).parent / "assets" / "html" / "survey.html"
 
-# Logger setup
-logger = logging.getLogger("slumber")
-
-# Configuration Constants (loaded from settings)
 SURVEY_DATA_DIR = Path(__file__).parents[2] / settings["storage"]["survey_data_dir"]
 DATETIME_FORMAT = settings["storage"]["datetime_format"]
 
