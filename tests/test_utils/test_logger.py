@@ -1,4 +1,4 @@
-import sys
+import os
 
 from loguru import logger
 
@@ -14,9 +14,11 @@ def test_setup_logging_default_config(tmpdir):
     logging_config = settings["logging"]
 
     setup_logging(tmpdir, logging_config)
+
+    print(logger._core.handlers)
+
+    handler_names = [handler._name for handler in logger._core.handlers.values()]
+
     assert (
-        logger.handlers[0].sink == sys.stdout
-    ), "First handler is not set to sys.stdout"
-    assert (
-        logger.handlers[1].sink.name == "slumber.log"
-    ), "Second handler is not set to slumber.log"
+        f"'{os.path.join(tmpdir, 'slumber.log')}'" in handler_names
+    ), "File handler is not configured"

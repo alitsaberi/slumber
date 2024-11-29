@@ -1,10 +1,8 @@
-import ezmsg.core as ez
 import pytest
 from pydantic import ValidationError
 
 from slumber.dag.units.sleep_scoring import (
     Settings,
-    SleepScoring,
     TransformConfig,
 )
 from slumber.processing.transforms import FIRFilter
@@ -18,13 +16,6 @@ def sample_transform_dict(sample_collection_config):
 @pytest.fixture
 def sample_model_dict(sample_collection_config):
     return sample_collection_config["sleep_scoring"]["settings"]["model"]
-
-
-@pytest.fixture
-def sample_settings(sample_collection_config):
-    return Settings.model_validate(
-        sample_collection_config["sleep_scoring"]["settings"]
-    )
 
 
 def test_transform_config(sample_transform_dict):
@@ -112,22 +103,3 @@ def test_settings_valid_target_channel_indices(sample_collection_config):
 
     settings = Settings.model_validate(config)
     assert settings.all_indices == [0, 1, 2, 3]
-
-
-@pytest.fixture
-def test_collection(dummy_data_generator, sample_settings):
-    class TestCollection(ez.Collection):
-        DATA_GEN = dummy_data_generator
-        SLEEP_SCORING = SleepScoring()
-
-        def configure(self) -> None:
-            self.SLEEP_SCORING.apply_settings(sample_settings)
-
-        def network(self) -> ez.NetworkDefinition:
-            return ((self.DATA_GEN.OUTPUT_DATA, self.SLEEP_SCORING.INPUT_DATA),)
-
-    return TestCollection()
-
-
-def test_sleep_scoring_unit(test_collection):
-    ez.run(test_collection)

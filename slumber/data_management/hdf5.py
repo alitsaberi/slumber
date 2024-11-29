@@ -8,6 +8,7 @@ from loguru import logger
 from slumber import settings
 
 
+# TODO: Move this to utils and remove data_management
 class HDF5Manager:
     def __init__(self, file_path: Path):
         self._file_path = file_path
@@ -45,7 +46,7 @@ class HDF5Manager:
         shape: tuple[int, ...] | None = None,
         dtype: str | list[tuple[str, str]] | None = None,
         max_shape: tuple[int | None, ...] | None = None,
-        compression: str = settings["storage"]["hdf5"]["compression"],
+        compression: str = settings["hdf5"]["compression"],
         **attributes,
     ) -> h5py.Dataset:
         """

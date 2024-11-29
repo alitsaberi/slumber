@@ -47,3 +47,14 @@ sleep_scoring_storage:
       name: sleep_scoring
       max_shape: [null,]
     buffer_size: 3
+
+arousal_detection:
+  unit_name: ArousalDetection
+  settings:
+    wake_n1_threshold: 0.4
+    min_duration: 3.0
+    max_duration: 15.0
+    merge_gap: 5.0
+    smoothing_window: 0.0
+    min_transition_increase: 0.2
+    gap_threshold_factor: 0.8
