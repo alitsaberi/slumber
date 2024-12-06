@@ -4,7 +4,7 @@ from unittest.mock import patch
 import numpy as np
 import pytest
 
-from slumber.data_sources.zmax import _EXPECTED_BUFFER_LENGTH, DataType, ZMax
+from slumber.sources.zmax import _EXPECTED_BUFFER_LENGTH, DataType, ZMax
 
 
 @pytest.fixture
@@ -26,7 +26,7 @@ def test_zmax_initialization():
 
 def test_zmax_context_manager(mock_socket):
     with ZMax("127.0.0.1", 8080) as zmax:
-        assert zmax.is_connnected()
+        assert zmax.is_connected()
 
 
 def test_zmax_connection_error(mock_socket):
