@@ -2,6 +2,7 @@ from collections.abc import AsyncGenerator
 
 import ezmsg.core as ez
 from loguru import logger
+from pydantic import Field, model_validator
 
 from slumber.dag.utils import PydanticSettings
 from slumber.processing.arousal_detection import detect_arousals
@@ -9,13 +10,19 @@ from slumber.utils.data import Data
 
 
 class Settings(PydanticSettings):
-    wake_n1_threshold: float = 0.4
-    min_duration: float = 3.0
-    max_duration: float = 15.0
-    merge_gap: float = 5.0
-    smoothing_window: float = 0.0
-    min_transition_increase: float = 0.2
-    gap_threshold_factor: float = 0.8
+    wake_n1_threshold: float = Field(default=0.4, ge=0.0, le=1.0)
+    min_duration: float = Field(default=3.0, gt=0.0)
+    max_duration: float = Field(default=15.0, gt=0.0)
+    merge_gap: float = Field(default=5.0, gt=0.0)
+    smoothing_window: float = Field(default=5.0, ge=0.0)
+    min_transition_increase: float = Field(default=0.2, ge=0.0, le=1.0)
+    gap_threshold_factor: float = Field(default=0.8, ge=0.0, le=1.0)
+
+    @model_validator(mode="after")
+    def validate_max_duration(self) -> "Settings":
+        if self.max_duration <= self.min_duration:
+            raise ValueError("max_duration must be greater than min_duration")
+        return self
 
 
 class ArousalDetection(ez.Unit):

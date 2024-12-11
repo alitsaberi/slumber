@@ -7,7 +7,7 @@ from slumber.utils.data import Data
 
 def detect_arousals(
     scores: Data,
-    wake_n1_threshold: float = 0.5,
+    wake_n1_threshold: float = 0.4,
     min_duration: float = 3.0,
     max_duration: float = 15.0,
     merge_gap: float = 5.0,
@@ -52,7 +52,7 @@ def detect_arousals(
 
     min_samples = int(min_duration * scores.sample_rate)
     max_samples = int(max_duration * scores.sample_rate)
-    merge_samples = int(merge_gap * scores.sample_rate)
+    merge_gap_samples = int(merge_gap * scores.sample_rate)
 
     intervals = _find_candidate_intervals(
         wake_n1_confidence,
@@ -65,7 +65,7 @@ def detect_arousals(
         wake_n1_confidence,
         wake_n1_threshold,
         gap_threshold_factor,
-        merge_samples,
+        merge_gap_samples,
     )
 
     intervals = [
@@ -119,7 +119,7 @@ def _merge_nearby_intervals(
     wake_n1_confidence: np.ndarray,
     wake_n1_threshold: float,
     gap_threshold_factor: float,
-    merge_samples: int,
+    merge_gap_samples: int,
 ) -> list[tuple[int, int]]:
     """Merge intervals that are close together based on confidence in gaps."""
     if not intervals:
@@ -132,7 +132,7 @@ def _merge_nearby_intervals(
         gap_end = current[0]
         gap_confidence = wake_n1_confidence[gap_start:gap_end]
 
-        if (gap_end > gap_start + merge_samples) or max(
+        if (gap_end > gap_start + merge_gap_samples) or max(
             gap_confidence
         ) < wake_n1_threshold * gap_threshold_factor:
             merged.append(current)
