@@ -236,8 +236,8 @@ class ZMax:
         self,
         led_color: LEDColor = LEDColor.WHITE,
         led_intensity: int = 100,
-        on_duration: int = 10,
-        off_duration: int = 10,
+        on_duration: int = 10,  # 10 units = 1000 ms
+        off_duration: int = 10,  # 10 units = 1000 ms
         repetitions: int = 5,
         vibration: bool = True,
         alternate_eyes: bool = False,
@@ -250,9 +250,9 @@ class ZMax:
 
         Args:
             led_color (LEDColor): Color of the LED.
-            led_intensity (int): Intensity of the LED.
-            on_duration (int): Duration of the LED on in 100 ms.
-            off_duration (int): Duration of the LED off in 100 ms.
+            led_intensity (int): Intensity of the LED in percent.
+            on_duration (int): Duration of the LED on in 100 ms. (e.g. 10 = 1000ms)
+            off_duration (int): Duration of the LED off in 100 ms. (e.g. 10 = 1000ms)
             repetitions (int): Number of repetitions.
             vibration (bool): Whether to vibrate.
             alternate_eyes (bool): Whether to alternate between the two LEDs.
@@ -315,10 +315,3 @@ class ZMax:
         """Get next message sequence number (0-255)"""
         self._message_counter = (self._message_counter + 1) % 256
         return self._message_counter
-
-
-if __name__ == "__main__":
-    zmax = ZMax(ip="127.0.0.1", port=8000)
-    zmax.connect()
-    zmax.send_stimulation()
-    zmax.close()
