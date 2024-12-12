@@ -1,0 +1,75 @@
+- name: introduction
+  action: read_text
+  text: "A lucid dream is a dream in which you are aware of the fact that you are dreaming while you are still asleep. With this realisation, 
+    you can sometimes influence or control what happens in a dream. In this experiment, you’ll get instructions on how to practise becoming lucid while awake. 
+    For lucid dreams to occur, you need to train your mind and body into a subtle state that is optimised for lucid dreaming. 
+    This involves focusing on your vision, hearing, and bodily sensations in cycles. 
+    From this point, we guide you through the training process and describe the practising cycles. 
+    The cycles always start with a vision exercise, then continue towards the hearing exercise,
+    and finally end with the bodily-sensation practices. We describe each of the vision, hearing, and bodily-sensation exercises now:"
+- name: vision_exercise
+  action: read_text
+  text: "For the vision exercise, you should keep your eyes closed and focus all your attention on the darkness behind your closed eyelids. 
+    Keep your eyes completely still and totally relaxed. You might see coloured dots, complex patterns, images, or maybe nothing at all. 
+    It doesn’t matter what you can or cannot see – just pay attention in a passive and relaxed manner and don’t try to see anything."
+- name: hearing_exercise
+  action: read_text
+  text: "For the hearing exercise, we want you to shift all of your attention to your ears.
+    You might be able to hear the faint sounds of traffic or the wind from outside.
+    You might also be able to hear sounds from within you, such as your own heartbeat or a faint ringing in your ears.
+    It doesn’t matter what, if anything, you can hear – just focus all of your attention on your hearing."
+- name: bodily_sensation_exercise
+  action: read_text
+  text: "For the bodily sensations exercise, you should shift all of your attention to sensations from your body.
+    Feel the weight of your blanket, your heartbeat, the temperature of the air, etc.
+    You might also notice some unusual sensations such as tingling, heaviness, lightness, spinning sensations, and so on.
+    If this happens, simply relax, observe them passively and try not to get excited."
+- name: introduction_2
+  action: read_text
+  text: "Before starting with the first exercise, I would like to mention that you may have intrusive thoughts during this process.
+    For instance, you may think of what you need to buy or do after this experiment. 
+    It doesn’t matter if the intrusive thoughts come to your mind, but, what matters is that you can intentionally let them go and focus on your body and mind."
+- name: block_2_introduction
+  action: read_text
+  text: "Now you should start with the first step of the training. 
+    Practice four fast cycles during which you spend only 2-3 seconds focusing each on the vision, hearing, and bodily sensations. 
+    You don’t have to count the seconds, but you should complete at least 4 cycles during this time. You can start now."
+- name: pause_1
+  action: pause
+  duration: 60 # 1 minute
+- name: block_2_introduction_2
+  action: read_text
+  text: "You can stop now. At this point, you should perform four to six slower cycles that approximately take 20 seconds focusing each on the vision, hearing, and bodily sensation steps. 
+    Again, you don’t have to count the seconds, but you should complete at least 4 cycles during this time. 
+    You can start now."
+- name: pause_2
+  action: pause
+  duration: 240 # 4 minutes
+- name: block_3_introduction
+  action: read_text
+  text: "Now, I want to train your mind to recognize the flashing lights, beeping sounds, and vibration cues as lucidity cues so that when one is played during your sleep,
+    you will become lucid in a dream. While you rest here, we are going to play the cues at intervals. 
+    Whenever you hear, see, or feel one of the cues, you should remain in the same position with your eyes closed, 
+    but you will become lucid by attending to where your mind has been, attending to your body, and attending to your surroundings. 
+    The same as before, each cycle starts with vision training. You should continue the vision practice until you see a light cue. 
+    Then a prompt will be played to help you focus. Once the prompt is ended you should move forward to the hearing exercise. 
+    You should continue the hearing practice until you hear an audio cue. Again, a prompt will be played to help you focus. 
+    Once the prompt is ended you should move forward to the bodily-sensations exercise. 
+    The vibration cue will indicate when the exercise is ended and then you should start a new cycle. 
+    Please note that, as a response to the cues, you do not need to do the Left-right-left-right eye signals while training, 
+    only do the eye signals when you become lucid in a dream. You can start with vision practice, now."
+- name: vision_exercise_pause
+  action: pause
+  duration: 60
+- name: light_cue
+  action: cue
+  cue_parameters:
+    led_color: RED
+    led_intensity: 100
+    on_duration: 5
+    off_duration: 5
+    repetitions: 3
+    vibration: false
+    alternate_eyes: false
+
+  

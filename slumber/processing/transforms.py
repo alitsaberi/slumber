@@ -1,4 +1,3 @@
-import importlib
 from typing import Protocol, runtime_checkable
 
 from mne.filter import filter_data
@@ -23,9 +22,8 @@ class Transform(Protocol):
 
 
 def get_transform_class(class_name: str) -> type[Transform]:
-    module = importlib.import_module(__name__)
     try:
-        transform_class = getattr(module, class_name)
+        transform_class = globals().get(class_name)
         if not issubclass(transform_class, Transform):
             raise ValueError(f"{class_name} is not a subclass of Transform.")
         return transform_class

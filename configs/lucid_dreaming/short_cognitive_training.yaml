@@ -1,0 +1,23 @@
+- action: READ_TEXT
+  parameters:
+    text: "Hello world!"
+- action: SEMANTIC_AUDIO_CUE
+  parameters:
+    text: "You are dreaming."
+    volume_increase: 0.1
+- action: LIGHT_CUE
+  parameters:
+    led_color: RED
+    led_intensity_increase: 10
+    on_duration: 5
+    off_duration: 5
+    repetitions: 3
+- action: PAUSE
+  parameters:
+    duration: 5
+- action: VIBRATION_CUE
+  parameters:
+    on_duration: 2
+    off_duration: 5
+    repetitions: 3
+    
