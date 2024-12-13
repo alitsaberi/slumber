@@ -8,8 +8,19 @@ import numpy as np
 class Data:
     array: np.ndarray
     sample_rate: int
+    channel_names: list[str] | None = None
 
-    # TODO: validate that array is 2D
+    def __post_init__(self):
+        if self.channel_names is None:
+            self.channel_names = [f"channel_{i}" for i in range(self.n_channels)]
+        if len(self.channel_names) != self.n_channels:
+            raise ValueError(
+                f"Number of channel names ({len(self.channel_names)})"
+                f" must match number of channels ({self.n_channels})."
+            )
+
+        if len(self.shape) != 2:
+            raise ValueError(f"Data must be 2D, got {len(self.shape)}D")
 
     @property
     def shape(self) -> tuple[int, int]:
@@ -31,91 +42,167 @@ class Data:
         """Returns the duration of data in timedelta format"""
         return timedelta(seconds=self.length / self.sample_rate)
 
-    def get_all_periods_by_period_length(
-        self, period_length: int, channel_indices: list[int] | None = None
-    ) -> np.ndarray:
-        """
-        Returns all periods in data.
-        Args:
-            period_length (int): The length of each period in seconds.
-            channel_indices (list[int]): A list of channel indices to return.
-        Returns:
-            np.ndarray: An numpy array.
-                        Shape (n_periods, n_samples_per_period, n_channels)
-        """
-        n_samples_per_period = period_length * self.sample_rate
-        return self.get_all_periods(n_samples_per_period, channel_indices)
+    @property
+    def index(self) -> np.ndarray:
+        """Returns time points in seconds"""
+        return np.arange(self.length) / self.sample_rate
 
-    def get_all_periods(
-        self, n_samples_per_period: int, channel_indices: list[int] | None = None
-    ) -> np.ndarray:
-        """
-        Returns all periods in data.
-        Args:
-            n_samples_per_period (int): The number of samples in each period.
-            channel_indices (list[int]): A list of channel indices to return.
-        Returns:
-            np.ndarray: An numpy array.
-                        Shape (n_periods, n_samples_per_period, n_channels)
-        """
-        return self.get_periods_by_index(0, n_samples_per_period, channel_indices)
+    def __getitem__(
+        self, key: slice | tuple[slice, int | str | list[int] | list[str]]
+    ) -> "Data":
+        """Support for array-like slicing with [start:stop, channel_names/indices]"""
+        if not isinstance(key, tuple):
+            key = (key, None)
 
-    def get_periods_by_index(
+        samples, channels = key
+
+        if isinstance(channels, str) or (
+            isinstance(channels, list) and all(isinstance(c, str) for c in channels)
+        ):
+            return self.loc(samples, channels)
+
+        return self.iloc(samples, channels)
+
+    def __setitem__(
         self,
-        start_index: int,
-        n_samples_per_period: int,
-        n_periods: int | None = None,
-        channel_indices: list[int] | None = None,
-    ) -> np.ndarray:
-        """
-        Returns a number of periods in data starting from a given index.
+        key: slice | tuple[slice, int | str | list[int] | list[str]],
+        value: float | np.ndarray,
+    ) -> None:
+        """Support for array-like assignment with [start:stop, channel_names/indices]"""
+        if not isinstance(key, tuple):
+            key = (key, None)
 
-        Args:
-            start_index (int): The index of the first period to return.
-            n_samples_per_period (int): The number of samples in each period.
-            n_periods (int): The number of periods to return. If None,
-                             all periods from the start index to the end of
-                             the data are returned.
-            channel_indices (list[int]): A list of channel indices to return.
+        samples, channels = key
 
-        Returns:
-            np.ndarray: An numpy array
-                        Shape: (n_periods, n_samples_per_period, n_channels)
+        if isinstance(channels, str) or (
+            isinstance(channels, list) and all(isinstance(c, str) for c in channels)
+        ):
+            # Handle channel name-based assignment
+            channel_indices = [
+                self.channel_names.index(c)
+                for c in ([channels] if isinstance(channels, str) else channels)
+            ]
+            self.array[samples, channel_indices] = value
+        else:
+            # Handle numeric index-based assignment
+            self.array[samples, channels] = value
 
-        Raises:
-            ValueError: If the requested number of periods exceeds
-                        the length of the data.
-        """
+    def loc(
+        self, samples: slice | None = None, channels: str | list[str] | None = None
+    ) -> "Data":
+        if channels is None:
+            channels = self.channel_names
+        if isinstance(channels, str):
+            channels = [channels]
+        channel_indices = [self.channel_names.index(name) for name in channels]
+        return self._slice_data(samples, channel_indices, channels)
 
-        if start_index < 0 or start_index >= self.length // n_samples_per_period:
-            raise ValueError(f"Invalid start_index: {start_index}")
+    def iloc(
+        self, samples: slice | None = None, channels: int | list[int] | None = None
+    ) -> "Data":
+        if channels is None:
+            channels = list(range(self.n_channels))
+        if isinstance(channels, int):
+            channels = [channels]
+        channel_names = [self.channel_names[i] for i in channels]
+        return self._slice_data(samples, channels, channel_names)
 
-        if n_samples_per_period <= 0 or n_samples_per_period > self.length:
-            raise ValueError(f"Invalid n_samples_per_period: {n_samples_per_period}")
+    def _slice_data(
+        self, samples: slice | None, channels: list, channel_names: list[str]
+    ) -> "Data":
+        samples = samples or slice(None)
+        return Data(
+            array=self.array[samples, channels],
+            sample_rate=self.sample_rate,
+            channel_names=channel_names,
+        )
 
-        start_sample_index = start_index * n_samples_per_period
-        n_available_samples = self.length - start_sample_index
+    def roll(self, shift: int) -> None:
+        """Roll the data array by shift samples"""
+        self.array = np.roll(self.array, shift)
 
-        if n_periods is None:
-            if self.length % n_samples_per_period != 0:
-                raise ValueError(
-                    f"Data length {self.length} is not a multiple of"
-                    f" {n_samples_per_period}."
-                )
-            n_periods = n_available_samples // n_samples_per_period
 
-        end_sample_index = start_sample_index + (n_samples_per_period * n_periods)
+def get_all_periods_by_period_length(
+    data: Data,
+    period_length: int,
+) -> np.ndarray:
+    """
+    Returns all periods in data.
+    Args:
+        data (Data): The data to get periods from.
+        period_length (int): The length of each period in seconds.
+    Returns:
+        np.ndarray: An numpy array.
+                    Shape (n_periods, n_samples_per_period, n_channels)
+    """
+    n_samples_per_period = period_length * data.sample_rate
+    return get_all_periods(data, n_samples_per_period)
 
-        if end_sample_index > self.length:
+
+def get_all_periods(data: Data, n_samples_per_period: int) -> np.ndarray:
+    """
+    Returns all periods in data.
+    Args:
+        data (Data): The data to get periods from.
+        n_samples_per_period (int): The number of samples in each period.
+    Returns:
+        np.ndarray: An numpy array.
+                    Shape (n_periods, n_samples_per_period, n_channels)
+    """
+    return get_periods_by_index(data, 0, n_samples_per_period, None)
+
+
+def get_periods_by_index(
+    data: Data,
+    start_index: int,
+    n_samples_per_period: int,
+    n_periods: int | None = None,
+) -> np.ndarray:
+    """
+    Returns a number of periods in data starting from a given index.
+
+    Args:
+        data (Data): The data to get periods from.
+        start_index (int): The index of the first period to return.
+        n_samples_per_period (int): The number of samples in each period.
+        n_periods (int): The number of periods to return. If None,
+                            all periods from the start index to the end of
+                            the data are returned.
+
+    Returns:
+        np.ndarray: An numpy array
+                    Shape: (n_periods, n_samples_per_period, n_channels)
+
+    Raises:
+        ValueError: If the requested number of periods exceeds
+                    the length of the data.
+    """
+    if start_index < 0 or start_index >= data.length // n_samples_per_period:
+        raise ValueError(f"Invalid start_index: {start_index}")
+
+    if n_samples_per_period <= 0 or n_samples_per_period > data.length:
+        raise ValueError(f"Invalid n_samples_per_period: {n_samples_per_period}")
+
+    start_sample_index = start_index * n_samples_per_period
+    n_available_samples = data.length - start_sample_index
+
+    if n_periods is None:
+        if data.length % n_samples_per_period != 0:
             raise ValueError(
-                f"Requested {n_periods} periods, but only"
-                f" {n_available_samples // n_samples_per_period}"
-                " periods are available."
+                f"Data length {data.length} is not a multiple of"
+                f" {n_samples_per_period}."
             )
+        n_periods = n_available_samples // n_samples_per_period
 
-        data = self.array[start_sample_index:end_sample_index, :]
+    end_sample_index = start_sample_index + (n_samples_per_period * n_periods)
 
-        if channel_indices is not None:
-            data = data[:, channel_indices]
+    if end_sample_index > data.length:
+        raise ValueError(
+            f"Requested {n_periods} periods, but only"
+            f" {n_available_samples // n_samples_per_period}"
+            " periods are available."
+        )
 
-        return data.reshape(n_periods, n_samples_per_period, -1)
+    selected_data = data[start_sample_index:end_sample_index]
+
+    return selected_data.array.reshape(n_periods, n_samples_per_period, -1)

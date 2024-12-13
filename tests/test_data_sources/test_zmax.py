@@ -99,7 +99,7 @@ def test_zmax_read(zmax_device, caplog):
     assert "Ignoring message: Invalid message" in caplog.text
     assert "Ignoring invalid packet with length 6: 010203" in caplog.text
     assert isinstance(result, np.ndarray)
-    assert result.shape == (1, len(DataType))
+    assert result.shape == (len(DataType),)
 
 
 def test_zmax_connection_lost(zmax_device):

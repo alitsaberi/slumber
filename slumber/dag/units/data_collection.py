@@ -33,8 +33,12 @@ class Settings(PydanticSettings):
     @field_validator("data_types", mode="before")
     @classmethod
     def resolve_data_types(cls, v: Any) -> Any:
+        if v is None:
+            return list(DataType)
+
         if isinstance(v, list) and any(isinstance(item, str) for item in v):
             return [DataType[name] for name in v]
+
         return v
 
 
@@ -52,6 +56,7 @@ class ZMaxDataCollection(ez.Unit):
             retry_delay=zmax_config.retry_delay,
         )
         self._buffer = []
+        self._channel_names = [data_type.name for data_type in self.SETTINGS.data_types]
 
     def shutdown(self):
         # TODO: handle data in buffer
@@ -75,6 +80,10 @@ class ZMaxDataCollection(ez.Unit):
             if len(self._buffer) >= self.SETTINGS.buffer_size:
                 yield (
                     self.OUTPUT_DATA,
-                    Data(np.array(self._buffer), sample_rate=ZMAX_SAMPLE_RATE),
+                    Data(
+                        np.array(self._buffer),
+                        sample_rate=ZMAX_SAMPLE_RATE,
+                        channel_names=self._channel_names,
+                    ),
                 )
                 self._buffer = []

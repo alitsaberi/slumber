@@ -2,7 +2,6 @@ import ezmsg.core as ez
 import pytest
 from pydantic import ValidationError
 
-from slumber.dag.units.data_storage import HDF5Storage
 from slumber.dag.units.sleep_scoring import (
     Settings,
     SleepScoring,
@@ -120,7 +119,6 @@ def test_collection(dummy_data_generator, sample_settings):
     class TestCollection(ez.Collection):
         DATA_GEN = dummy_data_generator
         SLEEP_SCORING = SleepScoring()
-        SLEEP_SCORING_STORAGE = HDF5Storage()
 
         def configure(self) -> None:
             self.SLEEP_SCORING.apply_settings(sample_settings)
