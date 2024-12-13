@@ -7,6 +7,7 @@ from tensorflow.keras.models import Model
 from utime.hyperparameters import YAMLHParams
 
 from slumber.processing.sleep_scoring import UTimeModel, score
+from slumber.utils.data import Data
 
 
 @pytest.fixture
@@ -73,8 +74,10 @@ def test_prepare_data(utime_model, sample_data):
 
 def test_prepare_data_with_resampling(utime_model, sample_data):
     sample_data.sample_rate = 64  # Different from model's sample rate
-    with pytest.raises(ValueError):
-        _ = utime_model.prepare_data(sample_data)
+    prepared_data = utime_model.prepare_data(sample_data)
+    assert isinstance(prepared_data, np.ndarray)
+    assert prepared_data.dtype == np.float32
+    assert prepared_data.shape == (2, 3, 1280, 2)
 
 
 @pytest.mark.parametrize(
@@ -101,6 +104,7 @@ def test_predict(utime_model, sample_data):
         int(sample_data.length / utime_model.n_samples_per_prediction),
         5,
     )  # 5 classes
+    assert np.allclose(np.sum(predictions, axis=1), 1)
 
 
 def test_predict_with_single_channel_group(utime_model, sample_data):
@@ -131,10 +135,9 @@ def test_score_with_default_channel_groups(sample_data, utime_model):
 def test_score_with_custom_channel_groups(sample_data, utime_model):
     channel_groups = [[0], [1]]
     result = score(sample_data, utime_model, channel_groups=channel_groups)
-    print(result)
-    assert isinstance(result, np.ndarray)
-    assert result.shape == (3,)
-    assert np.all((result >= 0) & (result <= 4))
+    assert isinstance(result, Data)
+    assert result.shape == (3, 1)
+    assert np.all((result.array >= 0) & (result.array <= 4))
 
 
 def test_score_without_argmax(sample_data, utime_model):
@@ -142,5 +145,6 @@ def test_score_without_argmax(sample_data, utime_model):
     result = score(
         sample_data, utime_model, channel_groups=channel_groups, arg_max=False
     )
-    assert isinstance(result, np.ndarray)
+    assert isinstance(result, Data)
     assert result.shape == (3, 5)  # 3 periods, 5 sleep stages
+    assert result.channel_names == ["W", "N1", "N2", "N3", "REM"]

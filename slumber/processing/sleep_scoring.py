@@ -96,6 +96,18 @@ class UTimeModel:
         """
         return self.n_samples_per_period / self.input_sample_rate
 
+    @property
+    def stage_mapping(self) -> dict[str, int]:
+        return self.hyperparameters["sleep_stage_annotations"]
+
+    @property
+    def sleep_stage_annotations(self) -> list[str]:
+        inverse_stage_mapping = {v: k for k, v in self.stage_mapping.items()}
+        return [
+            inverse_stage_mapping[i]
+            for i in range(self.hyperparameters["build"]["n_classes"])
+        ]
+
     def _load_hyperparameters(self) -> YAMLHParams:
         """
         Loads the hyperparameters from the model directory.
@@ -184,6 +196,13 @@ class UTimeModel:
 
         data = copy.deepcopy(data)
 
+        if (n_samples_dropped := data.length % self.n_samples_per_period) != 0:
+            logger.warning(
+                f"Dropping {n_samples_dropped} samples to match model input shape"
+                f" requirement of {self.n_samples_per_period} samples per period."
+            )
+            data = data[:-n_samples_dropped]
+
         if data.sample_rate != self.input_sample_rate:
             _apply_resampling(data, self.input_sample_rate)
 
@@ -201,13 +220,18 @@ class UTimeModel:
 
         periods = get_all_periods(data, self.n_samples_per_period)
 
-        if periods.shape[0] != self.input_shape[0]:
-            raise ValueError(
-                f"Expected {self.input_shape[0]} periods,"
-                f" but got {periods.shape[0]} periods"
-            )
+        batch_size = periods.shape[0] // self.n_periods
 
-        return np.expand_dims(periods, 0).astype(np.float32)
+        if (n_periods_dropped := periods.shape[0] % self.n_periods) != 0:
+            logger.warning(
+                f"Dropping {n_periods_dropped} periods to match model input shape"
+                f" requirement of {self.input_shape[0]} periods per batch."
+            )
+            periods = periods[:-n_periods_dropped]
+
+        return periods.reshape(
+            batch_size, self.n_periods, self.n_samples_per_period, -1
+        ).astype(np.float32)
 
     def predict(self, data: np.ndarray, channel_groups: list[list[int]]) -> np.ndarray:
         """
@@ -234,11 +258,7 @@ class UTimeModel:
             current_predictions = self.model.predict_on_batch(data[..., channel_group])
             predictions_list.append(current_predictions)
 
-        predictions = (
-            np.sum(predictions_list, axis=0)
-            if len(predictions_list) > 1
-            else predictions_list[0]
-        )
+        predictions = np.mean(predictions_list, axis=0)
         logger.debug(f"Predictions shape: {predictions.shape}")
         predictions = predictions.reshape(-1, predictions.shape[-1])
         logger.debug(f"Reshaped predictions shape: {predictions.shape}")
@@ -296,18 +316,40 @@ def score(
     channel_groups: list[list[int]] | None = None,
     arg_max: bool = True,
 ) -> np.ndarray:
-    if not channel_groups:
-        logger.info("No channel groups provided, using all channels")
-        channel_groups = [list(range(data.n_channels))]
+    """
+    Score sleep stages from ZMax data using a UTime model.
 
-    logger.info(f"Preparing data for sleep staging using model {model}")
+    Args:
+        data: Input Data object containing ZMax data
+        model: Trained UTimeModel for sleep staging
+        channel_groups: List of channel groups to use for prediction.
+                        If None, uses individual channels for each group.
+        arg_max: Whether to return class predictions (True)
+                 or class probabilities (False)
+
+    Returns:
+        Data: Object containing sleep stage predictions or probabilities
+              if arg_max is False, it includes sleep stage annotations.
+    """
+    if not channel_groups:
+        channel_groups = [list(range(data.n_channels))]
+        logger.info(
+            "No channel groups provided."
+            f" Using all {data.n_channels} channels for prediction."
+        )
+
     data = model.prepare_data(data)
     logger.info(f"Predicting sleep stages for data with shape {data.shape}")
     predictions = model.predict(data, channel_groups)
 
+    output_sample_rate = model.input_sample_rate / model.n_samples_per_prediction
     if arg_max:
-        logger.info("Applying argmax")
-        predictions = np.argmax(predictions, axis=-1)
-        logger.debug(f"Argmax applied, new shape: {predictions.shape}")
+        predictions = np.argmax(predictions, axis=-1).reshape(-1, 1)
+        logger.debug(f"Applied argmax, prediction shape: {predictions.shape}")
+        return Data(predictions, sample_rate=output_sample_rate)
 
-    return predictions
+    return Data(
+        predictions,
+        sample_rate=output_sample_rate,
+        channel_names=model.sleep_stage_annotations,
+    )

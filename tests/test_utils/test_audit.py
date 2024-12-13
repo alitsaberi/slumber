@@ -20,14 +20,14 @@ def sample_event():
     )
 
 
-def test_setup_audit(tmp_path, audit_config, sample_event):
-    setup_audit(tmp_path, audit_config.copy())
+def test_setup_audit(tmpdir, audit_config, sample_event):
+    setup_audit(tmpdir, audit_config.copy())
     log_event(sample_event)
 
-    audit_file = tmp_path / "audit.log"
+    audit_file = tmpdir / "audit.log"
     assert audit_file.exists()
 
-    content = audit_file.read_text()
+    content = audit_file.read_text(encoding="utf-8")
     assert "APP_START" in content
     assert "2024-01-01T12:00:00" in content
     assert "Test startup" in content

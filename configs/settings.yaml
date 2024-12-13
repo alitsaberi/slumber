@@ -12,6 +12,15 @@ zmax:
   retry_delay: 1
   socket_timeout: 10
 
+sleep_scoring:
+  labels:
+    wake: W
+    n1: N1
+    n2: N2
+    n3: N3
+    rem: REM
+    unknown: UNKNOWN
+
 logging:
   console:
     level: "INFO"

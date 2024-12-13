@@ -6,21 +6,31 @@ import numpy as np
 
 @dataclass
 class Data:
-    array: np.ndarray
+    array: (
+        np.ndarray
+    )  # TODO: if this attribute is reassigned, channel_names must be updated
     sample_rate: int
     channel_names: list[str] | None = None
 
     def __post_init__(self):
+        if len(self.shape) != 2:
+            raise ValueError(f"Data must be 2D, got {len(self.shape)}D")
+
         if self.channel_names is None:
             self.channel_names = [f"channel_{i}" for i in range(self.n_channels)]
+
         if len(self.channel_names) != self.n_channels:
             raise ValueError(
                 f"Number of channel names ({len(self.channel_names)})"
                 f" must match number of channels ({self.n_channels})."
             )
 
-        if len(self.shape) != 2:
-            raise ValueError(f"Data must be 2D, got {len(self.shape)}D")
+    def __str__(self) -> str:
+        return (
+            f"Data(shape={self.shape},"
+            f"sample_rate={self.sample_rate}),"
+            f" channel_names={self.channel_names}"
+        )
 
     @property
     def shape(self) -> tuple[int, int]:
@@ -70,7 +80,8 @@ class Data:
     ) -> None:
         """Support for array-like assignment with [start:stop, channel_names/indices]"""
         if not isinstance(key, tuple):
-            key = (key, None)
+            self.array[key] = value
+            return
 
         samples, channels = key
 
@@ -106,6 +117,29 @@ class Data:
             channels = [channels]
         channel_names = [self.channel_names[i] for i in channels]
         return self._slice_data(samples, channels, channel_names)
+
+    def slice_by_time(
+        self,
+        start_time: float = 0.0,
+        end_time: float | None = None,
+        channels: list[str] | None = None,
+    ) -> "Data":
+        """
+        Slice the data by time in seconds.
+
+        Args:
+            start_time (float): Start time in seconds
+            end_time (float | None): End time in seconds. If None, slices until the end
+            channels (list[str] | None): List of channel names to slice. If None,
+                                         slices all channels
+
+        Returns:
+            Data: A new Data object containing the sliced data
+        """
+        start_sample = int(start_time * self.sample_rate)
+        end_sample = int(end_time * self.sample_rate) if end_time is not None else None
+
+        return self[start_sample:end_sample, channels]
 
     def _slice_data(
         self, samples: slice | None, channels: list, channel_names: list[str]

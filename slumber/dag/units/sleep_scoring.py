@@ -119,6 +119,7 @@ class SleepScoring(ez.Unit):
     @ez.subscriber(INPUT_DATA)
     @ez.publisher(OUTPUT_SCORES)
     async def score_sleep(self, data: Data) -> AsyncGenerator:
+        logger.debug(f"Scoring {data}")
         self._validate_data_duration(data)
         self._update_buffer(data)
         data = self._preprocess_data(data)

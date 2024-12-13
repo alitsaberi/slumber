@@ -37,9 +37,8 @@ class Event:
 
 
 def setup_audit(data_dir: Path, config: dict[str, Any]) -> None:
-    data_dir.mkdir(parents=True, exist_ok=True)
     sink = data_dir / config.pop(_FILE_NAME_KEY)
-    config["message"] = "{message}"
+    config["format"] = "{message}"
     _audit_logger.add(sink, **config)
 
 
