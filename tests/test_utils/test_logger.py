@@ -1,28 +1,22 @@
-import logging
-from pathlib import Path
+import sys
+
+from loguru import logger
 
 from slumber import settings
-from slumber.utils.logger import setup_logging
+from slumber.utils.logger import (
+    setup_logging,
+)
 
 
-def test_setup_logging_default_config():
+def test_setup_logging_default_config(tmpdir):
     assert "logging" in settings, "Logging is not configured in settings"
 
-    setup_logging()
+    logging_config = settings["logging"]
 
-    logger = logging.getLogger("slumber")
-    assert logger.level != logging.NOTSET, "Logger level is set to NOTSET"
-    assert not logger.disabled, "Logger is disabled"
-    assert len(logger.handlers) > 0, "No handlers are set for the logger"
-
-    for handler in logger.handlers:
-        assert isinstance(
-            handler, logging.Handler
-        ), f"Handler {handler} is not an instance of logging.Handler"
-        assert (
-            handler.formatter is not None
-        ), f"Handler {handler} does not have a formatter set"
-
-        if isinstance(handler, logging.FileHandler):
-            log_file_path = Path(handler.baseFilename)
-            assert log_file_path.exists(), f"Log file {log_file_path} does not exist"
+    setup_logging(tmpdir, logging_config)
+    assert (
+        logger.handlers[0].sink == sys.stdout
+    ), "First handler is not set to sys.stdout"
+    assert (
+        logger.handlers[1].sink.name == "slumber.log"
+    ), "Second handler is not set to slumber.log"

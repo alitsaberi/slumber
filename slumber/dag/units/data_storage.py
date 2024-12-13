@@ -1,18 +1,16 @@
-import logging
 from collections.abc import AsyncGenerator
 from pathlib import Path
 from typing import Any
 
 import ezmsg.core as ez
 import numpy as np
+from loguru import logger
 from pydantic import Field
 
 from slumber import settings
 from slumber.dag.utils import PydanticSettings
 from slumber.data_management.hdf5 import HDF5Manager
 from slumber.utils.data import Data
-
-logger = logging.getLogger("slumber")
 
 
 class GroupConfig(PydanticSettings):
@@ -24,7 +22,7 @@ class DatasetConfig(GroupConfig):
     name: str
     dtype: str | list[tuple[str, str]] | None = None
     max_shape: tuple[int | None, ...] | None = None
-    compression: str = settings["storage"]["compression"]
+    compression: str = settings["hdf5"]["compression"]
 
 
 class Settings(PydanticSettings):
@@ -43,7 +41,7 @@ class HDF5Storage(ez.Unit):
         self._hdf5_manager.create_group(
             group_name=self.SETTINGS.group.name, **self.SETTINGS.group.attributes
         )
-        self._buffer = []
+        self._buffer: list[Data] = []
 
     def shutdown(self):
         # TODO: handle data in buffer

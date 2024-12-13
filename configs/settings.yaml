@@ -1,7 +1,11 @@
+data_dir: "data"
+
 storage:
+  survey_data_dir: "data/survey_results" # TODO: we should have a dedicate survey section in the settings
+  datetime_format: "%Y-%m-%dT%H:%M:%S"  # ISO 8601 format # TODO: this should be a global setting
+
+hdf5:
   compression: gzip
-  survey_data_dir: "data/survey_results"
-  datetime_format: "%Y-%m-%dT%H:%M:%S"  # ISO 8601 format
 
 zmax:
   retry_attempts: 3
@@ -9,43 +13,18 @@ zmax:
   socket_timeout: 10
 
 logging:
-  version: 1
-  disable_existing_loggers: false
-  formatters:
-    simple:
-      format: '%(levelname)s | %(message)s'
-      datefmt: '%Y-%m-%dT%H:%M:%S%z'
-    json:
-      (): slumber.utils.logger.JSONFormatter
-      fmt_keys:
-        level: levelname
-        message: message
-        timestamp: timestamp
-        module: module
-        function: funcName
-        line: lineno
-        thread_name: threadName
-  handlers:
-    stderr:
-      class: logging.StreamHandler
-      level: INFO
-      formatter: simple
-      stream: ext://sys.stderr
-    file:
-      class: logging.handlers.RotatingFileHandler
-      level: DEBUG
-      filename: logs/slumber.log.jsonl
-      formatter: json
-      maxBytes: 50000000 
-      backupCount: 3
-  loggers:
-    slumber:
-      level: DEBUG
-      handlers:
-      - stderr
-      - file
-      propagate: no
-    root:
-      level: WARNING
-      handlers:
-      - stderr
+  console:
+    level: "INFO"
+    format: "{time} | {level} | {message}"
+  file:
+    file_name: "slumber.log"
+    level: "DEBUG"
+    format: "{time} | {level} | {module}:{function}:{line} | {message}"
+    rotation: "50 MB"
+    serialize: True
+    enqueue: True
+
+audit:
+  file_name: "audit.tsv"
+  rotation: "50 MB"
+  enqueue: True

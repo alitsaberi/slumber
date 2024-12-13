@@ -1,9 +1,6 @@
-import logging
-
 import numpy as np
+from loguru import logger
 from scipy.signal import butter, filtfilt
-
-logger = logging.getLogger("slumber")
 
 
 def compute_snr(

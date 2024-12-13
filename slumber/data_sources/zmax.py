@@ -1,4 +1,3 @@
-import logging
 import socket
 from collections.abc import Callable
 from dataclasses import dataclass
@@ -6,11 +5,9 @@ from enum import Enum
 from time import sleep
 
 import numpy as np
+from loguru import logger
 
 from slumber import settings
-
-logger = logging.getLogger("slumber")
-
 
 _PACKET_TYPE_BUFFER_POSITION = 0
 _VALID_PACKET_TYPES = range(1, 12)

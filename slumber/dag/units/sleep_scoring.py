@@ -1,4 +1,3 @@
-import logging
 from collections.abc import AsyncGenerator
 from dataclasses import asdict
 from pathlib import Path
@@ -6,14 +5,13 @@ from typing import Any, Literal
 
 import ezmsg.core as ez
 import numpy as np
+from loguru import logger
 from pydantic import Field, field_validator, model_validator
 
 from slumber.dag.utils import PydanticSettings
 from slumber.processing.sleep_scoring import UTimeModel, score
 from slumber.processing.transforms import Transform, get_transform_class
 from slumber.utils.data import Data
-
-logger = logging.getLogger("slumber")
 
 
 class TransformConfig(PydanticSettings):

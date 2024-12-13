@@ -1,13 +1,11 @@
-import logging
 import types
 from pathlib import Path
 
 import h5py
 import numpy as np
+from loguru import logger
 
 from slumber import settings
-
-logger = logging.getLogger("slumber")
 
 
 class HDF5Manager:
@@ -47,7 +45,7 @@ class HDF5Manager:
         shape: tuple[int, ...] | None = None,
         dtype: str | list[tuple[str, str]] | None = None,
         max_shape: tuple[int | None, ...] | None = None,
-        compression: str = settings["storage"]["compression"],
+        compression: str = settings["storage"]["hdf5"]["compression"],
         **attributes,
     ) -> h5py.Dataset:
         """
@@ -67,7 +65,7 @@ class HDF5Manager:
             max_shape (tuple[int | None, ...] | None, optional):
                 The maximum shape of the dataset. Defaults to None.
             compression (str, optional): The compression algorithm to use.
-                Defaults to settings["storage"]["compression"].
+                Defaults to settings["hdf5"]["compression"].
             **attributes (dict, optional):
             Additional attributes to store in the dataset.
 

@@ -1,10 +1,6 @@
-import logging
-
 import numpy as np
 from mne.filter import resample as mne_resample
 from scipy.signal import resample_poly as scipy_resample
-
-logger = logging.getLogger("slumber")
 
 
 def fourier_resample(
