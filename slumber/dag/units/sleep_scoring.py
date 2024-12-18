@@ -9,15 +9,16 @@ from loguru import logger
 from pydantic import Field, field_validator, model_validator
 
 from slumber.dag.utils import PydanticSettings
+from slumber.processing import transforms
 from slumber.processing.sleep_scoring import UTimeModel, score
-from slumber.processing.transforms import Transform, get_transform_class
 from slumber.utils.data import Data
+from slumber.utils.helpers import get_class_by_name
 
 
 class TransformConfig(PydanticSettings):
     channel_indices: list[int] = Field(min_length=1)
     target_channel_indices: list[int] = Field(min_length=1)
-    transform: Transform = Field(..., alias="class_name")
+    transform: transforms.Transform = Field(..., alias="class_name")
     kwargs: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="before")
@@ -31,9 +32,13 @@ class TransformConfig(PydanticSettings):
 
     @field_validator("transform", mode="before")
     @classmethod
-    def resolve_transform(cls, v: Any) -> Transform:
+    def resolve_transform(cls, v: Any) -> transforms.Transform:
         if isinstance(v, str):
-            return get_transform_class(v)()
+            return get_class_by_name(
+                v,
+                transforms,
+                transforms.Transform,
+            )
         return v
 
     @model_validator(mode="after")

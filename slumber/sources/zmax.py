@@ -124,6 +124,9 @@ class ZMax:
         self._socket.settimeout(socket_timeout)
         self._message_counter = 0
 
+    def __str__(self) -> str:
+        return f"ZMax(ip={self._ip}, port={self._port})"
+
     def __enter__(self) -> "ZMax":
         self.connect()
         return self
@@ -315,3 +318,13 @@ class ZMax:
         """Get next message sequence number (0-255)"""
         self._message_counter = (self._message_counter + 1) % 256
         return self._message_counter
+
+
+def is_connected(zmax: ZMax) -> ZMax:
+    """
+    Check if the ZMax is connected.
+    Can be used in Pydantic models to validate the connection.
+    """
+    if not zmax.is_connected():
+        raise ConnectionError(f"{zmax} is not connected")
+    return zmax

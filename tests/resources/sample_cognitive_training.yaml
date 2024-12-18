@@ -1,0 +1,23 @@
+- action: ReadTextAction
+  parameters:
+    text: "Hello world!"
+- action: PauseAction
+  parameters:
+    duration: 5
+- action: SemanticAudioCueAction
+  parameters:
+    text: "You are dreaming."
+    volume_increase: 0.1
+- action: LightCueAction
+  parameters:
+    led_color: RED
+    led_intensity_increase: 10
+    on_duration: 5
+    off_duration: 5
+    repetitions: 3
+- action: VibrationCueAction
+  parameters:
+    on_duration: 2
+    off_duration: 5
+    repetitions: 3
+    
