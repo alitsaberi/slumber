@@ -4,7 +4,7 @@ from unittest.mock import patch
 import numpy as np
 import pytest
 
-from slumber.sources.zmax import _EXPECTED_BUFFER_LENGTH, DataType, ZMax
+from slumber.sources.zmax import _EXPECTED_DATA_LENGTH, DataType, ZMax
 
 
 @pytest.fixture
@@ -37,10 +37,10 @@ def test_zmax_connection_error(mock_socket):
 
 def test_zmax_is_connected(zmax_device):
     zmax_device._socket.getpeername.return_value = True
-    assert zmax_device.is_connnected() is True
+    assert zmax_device.is_connected() is True
 
     zmax_device._socket.getpeername.side_effect = OSError()
-    assert zmax_device.is_connnected() is False
+    assert zmax_device.is_connected() is False
 
 
 def test_zmax_read(zmax_device, caplog):
@@ -88,7 +88,7 @@ def test_zmax_read(zmax_device, caplog):
     invalid_length_line = (b"D", b".", b"0", b"1", b"0", b"2", b"0", b"3", b"\n")
     valid_line = (
         (b"D", b".", b"0", b"1")
-        + tuple(b"1" for _ in range(_EXPECTED_BUFFER_LENGTH - 2))
+        + tuple(b"1" for _ in range(_EXPECTED_DATA_LENGTH - 2))
         + (b"\n",)
     )
     zmax_device._socket.recv.side_effect = (
@@ -96,15 +96,15 @@ def test_zmax_read(zmax_device, caplog):
     )
     result = zmax_device.read()
     assert "Ignoring debug message: DEBUG test message" in caplog.text
-    assert "Ignoring message: Invalid message" in caplog.text
-    assert "Ignoring invalid packet with length 6: 010203" in caplog.text
+    assert "Ignoring non-data message: Invalid message" in caplog.text
+    assert "Ignoring invalid data length: 6" in caplog.text
     assert isinstance(result, np.ndarray)
     assert result.shape == (len(DataType),)
 
 
 def test_zmax_connection_lost(zmax_device):
     zmax_device._socket.recv.return_value = b""
-    with pytest.raises(ConnectionError, match="Connection with ZMax lost"):
+    with pytest.raises(ConnectionError, match="Lost connection to ZMax"):
         zmax_device.read()
 
 

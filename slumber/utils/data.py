@@ -28,8 +28,8 @@ class Data:
     def __str__(self) -> str:
         return (
             f"Data(shape={self.shape},"
-            f"sample_rate={self.sample_rate}),"
-            f" channel_names={self.channel_names}"
+            f" sample_rate={self.sample_rate},"
+            f" channel_names={self.channel_names})"
         )
 
     @property

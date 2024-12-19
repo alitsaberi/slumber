@@ -35,10 +35,10 @@ class TransformConfig(PydanticSettings):
     def resolve_transform(cls, v: Any) -> transforms.Transform:
         if isinstance(v, str):
             return get_class_by_name(
-                v,
                 transforms,
+                v,
                 transforms.Transform,
-            )
+            )()
         return v
 
     @model_validator(mode="after")
@@ -51,7 +51,7 @@ class TransformConfig(PydanticSettings):
             name
             for name, param in sig.parameters.items()
             if param.default == param.empty and name not in ["self", "data", "kwargs"]
-        }
+        }  # TODO: there might duplication with cognitive_training.py
 
         missing_params = required_params - set(self.kwargs.keys())
         if missing_params:

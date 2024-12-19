@@ -12,7 +12,6 @@ zmax:
   retry_delay: 1
   socket_timeout: 10
   
-
 sleep_scoring:
   labels:
     wake: W
@@ -43,3 +42,10 @@ text2speech:
   rate: 175 # Integer speech rate in words per minute.
   volume: 1.0 # Float volume in the range [0.0, 1.0].
   voice: com.apple.voice.compact.en-US.Samantha # string identifier of the voice
+
+lr_eye_movement:
+  difference_threshold: 280
+  min_same_event_gap: 0.5
+  max_sequence_gap: 1.5
+  low_cutoff: 0.3
+  high_cutoff: 2

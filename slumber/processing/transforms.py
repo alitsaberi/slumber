@@ -1,6 +1,7 @@
-from typing import Protocol, runtime_checkable
+from typing import Literal, Protocol, runtime_checkable
 
-from mne.filter import filter_data
+import numpy as np
+from mne.filter import filter_data, resample
 
 from slumber.utils.data import Data
 
@@ -53,7 +54,32 @@ class FIRFilter(Transform):
             If `low_cutoff` is greater than `high_cutoff`, a bandstop filter is applied.
             If `low_cutoff` is less than `high_cutoff`, a bandpass filter is applied.
         """
-        data.array = filter_data(
-            data.array.T, data.sample_rate, low_cutoff, high_cutoff
-        ).T
-        return data
+        return Data(
+            filter_data(
+                data.array.T, data.sample_rate, low_cutoff, high_cutoff, **kwargs
+            ).T,
+            data.sample_rate,
+            data.channel_names,
+        )
+
+
+class Resample(Transform):
+    def __call__(
+        self,
+        data: Data,
+        new_sample_rate: int,
+        method: Literal["fft", "polyphase"] = "polyphase",
+        **kwargs,
+    ) -> Data:
+        return Data(
+            resample(
+                data.array.astype(np.float64),
+                new_sample_rate,
+                data.sample_rate,
+                method=method,
+                axis=0,
+                **kwargs,
+            ),
+            sample_rate=new_sample_rate,
+            channel_names=data.channel_names,
+        )

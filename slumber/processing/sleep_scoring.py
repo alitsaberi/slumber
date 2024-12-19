@@ -9,7 +9,7 @@ from utime import Defaults
 from utime.bin.evaluate import get_and_load_model
 from utime.hyperparameters import YAMLHParams
 
-from slumber.processing.sampling import resample
+from slumber.processing.transforms import Resample
 from slumber.utils.data import Data, get_all_periods
 
 
@@ -204,7 +204,8 @@ class UTimeModel:
             data = data[:-n_samples_dropped]
 
         if data.sample_rate != self.input_sample_rate:
-            _apply_resampling(data, self.input_sample_rate)
+            data = Resample()(data, self.input_sample_rate)
+            # TODO: initialize the transform once and reuse
 
         if quality_control := self.hyperparameters.get("quality_control_func"):
             # Run over epochs and assess if epoch-specific changes should be
@@ -296,12 +297,6 @@ def _apply_quality_control(data: Data, quality_control_func: str, **kwargs) -> D
             f" periods in channel {i}"
         )
 
-    return data
-
-
-def _apply_resampling(data: Data, new_sampling_rate: int) -> Data:
-    data.array = resample(data.array, new_sampling_rate, data.sample_rate)
-    data.sample_rate = new_sampling_rate
     return data
 
 

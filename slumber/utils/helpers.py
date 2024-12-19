@@ -42,7 +42,7 @@ def get_class_by_name(
     try:
         cls = getattr(module, class_name)
     except AttributeError as e:
-        raise AttributeError(
+        raise ValueError(
             f"No class named '{class_name}' found in module '{module.__name__}'."
         ) from e
 
