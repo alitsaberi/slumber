@@ -8,6 +8,8 @@ hdf5:
   compression: gzip
 
 zmax:
+  ip: 127.0.0.1
+  port: 8000
   retry_attempts: 3
   retry_delay: 1
   socket_timeout: 10

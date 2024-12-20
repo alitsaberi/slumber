@@ -24,6 +24,9 @@ _STIMULATION_MAX_DURATION = 255
 SAMPLE_RATE = 256
 
 
+DEFAULTS = settings["zmax"]
+
+
 class LEDColor(Enum):
     RED = (2, 0, 0)
     YELLOW = (2, 2, 0)
@@ -114,9 +117,9 @@ class DataType(Enum):
 class ZMax:
     def __init__(
         self,
-        ip: str,
-        port: int,
-        socket_timeout: int = settings["zmax"]["socket_timeout"],
+        ip: str = DEFAULTS["ip"],
+        port: int = DEFAULTS["port"],
+        socket_timeout: int = DEFAULTS["socket_timeout"],
     ) -> None:
         self._ip = ip
         self._port = port
@@ -140,8 +143,8 @@ class ZMax:
 
     def connect(
         self,
-        retry_attempts: int = settings["zmax"]["retry_attempts"],
-        retry_delay: int = settings["zmax"]["retry_delay"],
+        retry_attempts: int = DEFAULTS["retry_attempts"],
+        retry_delay: int = DEFAULTS["retry_delay"],
     ) -> None:
         for attempt in range(retry_attempts):
             try:
@@ -326,5 +329,5 @@ def is_connected(zmax: ZMax) -> ZMax:
     Can be used in Pydantic models to validate the connection.
     """
     if not zmax.is_connected():
-        raise ConnectionError(f"{zmax} is not connected")
+        raise ValueError(f"{zmax} is not connected")
     return zmax
