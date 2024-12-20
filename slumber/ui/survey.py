@@ -14,7 +14,6 @@ Classes:
 import json
 import logging
 import sys
-from datetime import datetime
 from json import JSONDecodeError
 from pathlib import Path
 
@@ -26,13 +25,14 @@ from PyQt6.QtWebEngineWidgets import QWebEngineView
 from PyQt6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget
 
 from slumber import settings
+from slumber.utils.time import create_timestamped_name
 
 WINDOW_TITLE = "Questionnaires"
 WINDOW_GEOMETRY = (100, 100, 1024, 768)
 SURVEY_HTML_PATH = Path(__file__).parent / "assets" / "html" / "survey.html"
-
 SURVEY_DATA_DIR = Path(__file__).parents[2] / settings["storage"]["survey_data_dir"]
-DATETIME_FORMAT = settings["storage"]["datetime_format"]
+RESULT_FILE_NAME = "survey_results"
+RESULT_FORMAT = "json"
 
 
 class ChannelObject(QObject):
@@ -72,12 +72,10 @@ class ChannelObject(QObject):
             return
 
         try:
-            # Ensure the survey data directory exists
             SURVEY_DATA_DIR.mkdir(parents=True, exist_ok=True)
-
-            # Generate unique file name based on timestamp
-            timestamp = datetime.now().strftime(DATETIME_FORMAT)
-            file_path = SURVEY_DATA_DIR / f"survey_results_{timestamp}.json"
+            file_path = SURVEY_DATA_DIR / create_timestamped_name(
+                RESULT_FILE_NAME, RESULT_FORMAT
+            )
 
             # Save survey data to JSON file
             with open(file_path, "w") as file:

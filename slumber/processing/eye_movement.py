@@ -1,24 +1,14 @@
-from dataclasses import dataclass
 from functools import partial
-from typing import Literal
 
+import numpy as np
 from loguru import logger
 from scipy.signal import find_peaks
 
 from slumber import settings
 from slumber.processing.transforms import FIRFilter
-from slumber.utils.data import Data
+from slumber.utils.data import Data, Event
 
 DEFAULTS = settings["lr_eye_movement"]
-
-MovementType = Literal["L", "R"]
-
-
-@dataclass
-class MovementEvent:
-    label: str
-    start_time: float
-    end_time: float
 
 
 def detect_lr_eye_movements(
@@ -30,7 +20,7 @@ def detect_lr_eye_movements(
     max_sequence_gap: float = DEFAULTS["max_sequence_gap"],
     low_cutoff: float = DEFAULTS["low_cutoff"],
     high_cutoff: float = DEFAULTS["high_cutoff"],
-) -> list[MovementEvent]:
+) -> list[Event]:
     """
     Detects left/right eye movements from EEG data.
 
@@ -56,11 +46,14 @@ def detect_lr_eye_movements(
     difference_data = Data(
         array=data[:, left_eeg_label].array - data[:, right_eeg_label].array,
         sample_rate=data.sample_rate,
-    )
+        timestamps=data.timestamps,
+    )  # TODO: Add subtraction operation to Data
     difference_data = FIRFilter()(
         difference_data, low_cutoff=low_cutoff, high_cutoff=high_cutoff
     )
-    logger.debug(f"Difference data: {difference_data}")
+    logger.debug(
+        f"Difference data: {difference_data}. Max: {difference_data.array.max()}"
+    )
 
     movement_events = _detect_movement_events(
         difference_data, difference_threshold, min_same_event_gap
@@ -72,7 +65,7 @@ def detect_lr_eye_movements(
 
 def _detect_movement_events(
     data: Data, threshold: float, min_same_event_gap: float
-) -> list[MovementEvent]:
+) -> list[Event]:
     """
     Returns an ordered list of MovementEvent objects
     representing detected eye movements.
@@ -85,28 +78,26 @@ def _detect_movement_events(
     peaks, _ = detect_peaks(data.array.squeeze())
     valleys, _ = detect_peaks(-data.array.squeeze())
 
-    events = _peaks_to_events(peaks, data.sample_rate, "L")
-    events.extend(_peaks_to_events(valleys, data.sample_rate, "R"))
+    events = _peaks_to_events(peaks, data.timestamps, DEFAULTS["left_label"])
+    events.extend(_peaks_to_events(valleys, data.timestamps, DEFAULTS["right_label"]))
 
     return sorted(events, key=lambda x: x.start_time)
 
 
 def _peaks_to_events(
-    peaks: list[int], sample_rate: int, movement_type: MovementType
-) -> list[MovementEvent]:
+    peaks: list[int], timestamps: np.ndarray, movement_type: str
+) -> list[Event]:
     return [
-        MovementEvent(
+        Event(
             label=movement_type,
-            start_time=idx / sample_rate,
-            end_time=idx / sample_rate,
+            start_time=timestamps[idx],
+            end_time=timestamps[idx],
         )
         for idx in peaks
     ]
 
 
-def _build_sequences(
-    events: list[MovementEvent], max_sequence_gap: float
-) -> list[MovementEvent]:
+def _build_sequences(events: list[Event], max_sequence_gap: float) -> list[Event]:
     if not events:
         logger.debug("events is empty")
         return []
@@ -131,8 +122,8 @@ def _build_sequences(
     return sequences
 
 
-def _merge_events(events: list[MovementEvent]) -> MovementEvent:
-    return MovementEvent(
+def _merge_events(events: list[Event]) -> Event:
+    return Event(
         label="".join([event.label for event in events]),
         start_time=events[0].start_time,
         end_time=events[-1].end_time,

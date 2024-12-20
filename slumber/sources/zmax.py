@@ -17,11 +17,20 @@ _STIMULATION_RETRIES = 15
 _STIMULATION_RETRY_DELAY = 111  # Milliseconds
 _STIMULATION_FLASH_LED_COMMAND = 4
 _STIMULATION_PWM_MAX = 254  # 100% intensity
-_STIMULATION_MAX_REPETITIONS = 127
-_STIMULATION_MIN_REPETITIONS = 1
-_STIMULATION_MIN_DURATION = 1
-_STIMULATION_MAX_DURATION = 255
+STIMULATION_MAX_REPETITIONS = 127
+STIMULATION_MIN_REPETITIONS = 1
+STIMULATION_MIN_DURATION = 1
+STIMULATION_MAX_DURATION = 255
+LED_MIN_INTENSITY = 1
+LED_MAX_INTENSITY = 100
 SAMPLE_RATE = 256
+
+
+DEFAULTS = settings["zmax"]
+
+
+class ConnectionClosedError(Exception):
+    pass
 
 
 class LEDColor(Enum):
@@ -114,17 +123,22 @@ class DataType(Enum):
 class ZMax:
     def __init__(
         self,
-        ip: str,
-        port: int,
-        socket_timeout: int = settings["zmax"]["socket_timeout"],
+        ip: str = DEFAULTS["ip"],
+        port: int = DEFAULTS["port"],
+        socket_timeout: float | None = DEFAULTS["socket_timeout"],
     ) -> None:
         self._ip = ip
         self._port = port
-        self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self._socket.settimeout(socket_timeout)
+        self._socket_timeout = socket_timeout
         self._message_counter = 0
+        self._socket = None
+        self._initialize_socket()
 
-    def __str__(self) -> str:
+    def _initialize_socket(self) -> None:
+        self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self._socket.settimeout(self._socket_timeout)
+
+    def __repr__(self) -> str:
         return f"ZMax(ip={self._ip}, port={self._port})"
 
     def __enter__(self) -> "ZMax":
@@ -132,31 +146,49 @@ class ZMax:
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb) -> None:
-        self.close()
+        self.disconnect()
 
-    def close(self) -> None:
+    def flush_buffer(
+        self,
+        retry_attempts: int = DEFAULTS["retry_attempts"],
+        retry_delay: float = DEFAULTS["retry_delay"],
+    ) -> None:
+        logger.info("Flushing ZMax buffer...")
+        self.disconnect()
+        self.connect(retry_attempts=retry_attempts, retry_delay=retry_delay)
+
+    def disconnect(self) -> None:
         if self._socket:
             self._socket.close()
+            logger.info(f"Closed connection to {self!r}")
 
     def connect(
         self,
-        retry_attempts: int = settings["zmax"]["retry_attempts"],
-        retry_delay: int = settings["zmax"]["retry_delay"],
+        retry_attempts: int = DEFAULTS["retry_attempts"],
+        retry_delay: float = DEFAULTS["retry_delay"],
     ) -> None:
+        if self.is_connected():
+            logger.warning(f"Already connected to {self!r}")
+            return
+
+        self._initialize_socket()
+
         for attempt in range(retry_attempts):
             try:
                 self._socket.connect((self._ip, self._port))
                 self.send_string("HELLO\n")  # ?
-                logger.info(f"Connected to ZMax at {self._ip}:{self._port}")
+                logger.info(f"Connected to {self}")
                 return
             except OSError as e:
-                if attempt == retry_attempts - 1:
-                    logger.error(f"Failed to connect after {retry_attempts} attempts.")
-                    raise ConnectionError(
-                        f"Unable to connect to ZMax at {self._ip}:{self._port}"
-                    ) from e
-                logger.warning(f"Attempt {attempt + 1}/{retry_attempts} failed: {e}")
+                logger.warning(
+                    f"Attempt {attempt + 1}/{retry_attempts} to connect to {self!r}"
+                    f" failed: {e}"
+                )
                 sleep(retry_delay)
+
+        raise ConnectionError(
+            f"Failed to connect to {self!r} after {retry_attempts} attempts"
+        )
 
     def is_connected(self) -> bool:
         try:
@@ -200,7 +232,7 @@ class ZMax:
         while True:
             char = self._socket.recv(1)
             if not char:
-                raise ConnectionError("Lost connection to ZMax")
+                raise ConnectionClosedError("The connection was closed by the server.")
 
             if char == b"\r":
                 continue
@@ -225,7 +257,10 @@ class ZMax:
         return True
 
     def vibrate(
-        self, on_duration: int = 10, off_duration: int = 10, repetitions: int = 1
+        self,
+        on_duration: int,
+        off_duration: int,
+        repetitions: int,
     ) -> None:
         self.stimulate(
             led_color=LEDColor.OFF,
@@ -237,12 +272,12 @@ class ZMax:
 
     def stimulate(
         self,
-        led_color: LEDColor = LEDColor.WHITE,
-        led_intensity: int = 100,
-        on_duration: int = 10,  # 10 units = 1000 ms
-        off_duration: int = 10,  # 10 units = 1000 ms
-        repetitions: int = 5,
-        vibration: bool = True,
+        led_color: LEDColor,
+        on_duration: int,  # 10 units = 1000 ms
+        off_duration: int,  # 10 units = 1000 ms
+        repetitions: int,
+        vibration: bool,
+        led_intensity: int = LED_MAX_INTENSITY,
         alternate_eyes: bool = False,
     ) -> None:
         """
@@ -253,36 +288,40 @@ class ZMax:
 
         Args:
             led_color (LEDColor): Color of the LED.
-            led_intensity (int): Intensity of the LED in percent.
             on_duration (int): Duration of the LED on in 100 ms. (e.g. 10 = 1000ms)
             off_duration (int): Duration of the LED off in 100 ms. (e.g. 10 = 1000ms)
             repetitions (int): Number of repetitions.
             vibration (bool): Whether to vibrate.
+            led_intensity (int): Intensity of the LED in percent. Defaults to 100.
             alternate_eyes (bool): Whether to alternate between the two LEDs.
+                Defaults to False.
         """
 
         if not (
-            _STIMULATION_MIN_REPETITIONS <= repetitions <= _STIMULATION_MAX_REPETITIONS
+            STIMULATION_MIN_REPETITIONS <= repetitions <= STIMULATION_MAX_REPETITIONS
         ):
             raise ValueError(
-                f"Repetitions must be between {_STIMULATION_MIN_REPETITIONS}"
-                f" and {_STIMULATION_MAX_REPETITIONS}"
+                f"Repetitions must be between {STIMULATION_MIN_REPETITIONS}"
+                f" and {STIMULATION_MAX_REPETITIONS}"
             )
 
-        if not (_STIMULATION_MIN_DURATION <= on_duration <= _STIMULATION_MAX_DURATION):
+        if not (STIMULATION_MIN_DURATION <= on_duration <= STIMULATION_MAX_DURATION):
             raise ValueError(
-                f"On duration must be between {_STIMULATION_MIN_DURATION}"
-                f" and {_STIMULATION_MAX_DURATION}"
+                f"On duration must be between {STIMULATION_MIN_DURATION}"
+                f" and {STIMULATION_MAX_DURATION}"
             )
 
-        if not (_STIMULATION_MIN_DURATION <= off_duration <= _STIMULATION_MAX_DURATION):
+        if not (STIMULATION_MIN_DURATION <= off_duration <= STIMULATION_MAX_DURATION):
             raise ValueError(
-                f"Off duration must be between {_STIMULATION_MIN_DURATION}"
-                f" and {_STIMULATION_MAX_DURATION}"
+                f"Off duration must be between {STIMULATION_MIN_DURATION}"
+                f" and {STIMULATION_MAX_DURATION}"
             )
 
-        if not (1 <= led_intensity <= 100):
-            raise ValueError("LED intensity must be between 1 to 100")
+        if not (LED_MIN_INTENSITY <= led_intensity <= LED_MAX_INTENSITY):
+            raise ValueError(
+                f"LED intensity must be between {LED_MIN_INTENSITY}"
+                f" to {LED_MIN_INTENSITY}"
+            )
 
         led_intensity = int(led_intensity / 100 * _STIMULATION_PWM_MAX)
 
@@ -326,5 +365,5 @@ def is_connected(zmax: ZMax) -> ZMax:
     Can be used in Pydantic models to validate the connection.
     """
     if not zmax.is_connected():
-        raise ConnectionError(f"{zmax} is not connected")
+        raise ValueError(f"{zmax} is not connected")
     return zmax

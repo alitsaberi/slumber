@@ -9,6 +9,7 @@ from loguru import logger
 from pydantic import (
     AfterValidator,
     BaseModel,
+    BeforeValidator,
     ConfigDict,
     Field,
 )
@@ -16,7 +17,7 @@ from pyttsx3 import Engine
 
 from slumber.sources.zmax import LEDColor, ZMax, is_connected
 from slumber.utils.helpers import (
-    enum_by_name_validator,
+    create_enum_by_name_resolver,
     get_class_by_name,
 )
 from slumber.utils.text2speech import text2speech
@@ -60,7 +61,9 @@ class VibrationCueAction(Action):
 
 
 class LightCueAction(VibrationCueAction):
-    led_color: Annotated[LEDColor, enum_by_name_validator(LEDColor)]
+    led_color: Annotated[
+        LEDColor, BeforeValidator(create_enum_by_name_resolver(LEDColor))
+    ]
     led_intensity_increase: int = Field(ge=0, lt=100)
     alternate_eyes: bool = False
 
@@ -84,9 +87,8 @@ class PauseAction(Action):
 
 
 def create_action(action: str, parameters: dict[str, Any] | None = None) -> Action:
-    current_module = sys.modules[__name__]
     try:
-        action = get_class_by_name(current_module, action, Action)
+        action = get_class_by_name(action, sys.modules[__name__], Action)
     except AttributeError as e:
         raise ValueError(f"Invalid action: {action}") from e
     parameters = parameters or {}

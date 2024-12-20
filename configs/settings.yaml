@@ -1,15 +1,16 @@
-data_dir: "data"
+time_zone: "Europe/Amsterdam"
 
 storage:
   survey_data_dir: "data/survey_results" # TODO: we should have a dedicate survey section in the settings
-  datetime_format: "%Y-%m-%dT%H:%M:%S"  # ISO 8601 format # TODO: this should be a global setting
 
 hdf5:
   compression: gzip
 
 zmax:
-  retry_attempts: 3
-  retry_delay: 1
+  ip: 127.0.0.1
+  port: 8000
+  retry_attempts: 12
+  retry_delay: 5
   socket_timeout: 10
   
 sleep_scoring:
@@ -22,30 +23,38 @@ sleep_scoring:
     unknown: UNKNOWN
 
 logging:
-  console:
-    level: "INFO"
-    format: "{time} | {level} | {message}"
-  file:
-    file_name: "slumber.log"
-    level: "DEBUG"
-    format: "{time} | {level} | {module}:{function}:{line} | {message}"
-    rotation: "50 MB"
-    serialize: True
-    enqueue: True
-
-audit:
-  file_name: "audit.tsv"
-  rotation: "50 MB"
-  enqueue: True
+  include_timestamp_in_file_name: false
+  handlers:
+    console:
+      level: "INFO"
+      colorize: True
+    file:
+      file_name: "slumber"
+      level: "DEBUG"
+      format: "{message}"
+      rotation: "50 MB"
+      serialize: True
+      enqueue: True
 
 text2speech:
   rate: 175 # Integer speech rate in words per minute.
-  volume: 1.0 # Float volume in the range [0.0, 1.0].
-  voice: com.apple.voice.compact.en-US.Samantha # string identifier of the voice
+  volume: 100 # [0, 100]
 
 lr_eye_movement:
+  left_label: L
+  right_label: R
   difference_threshold: 280
   min_same_event_gap: 0.5
   max_sequence_gap: 1.5
   low_cutoff: 0.3
   high_cutoff: 2
+
+arousal_detection:
+  wake_n1_threshold: 0.4
+  min_duration: 3.0
+  max_duration: 15.0
+  merge_gap: 5.0
+  smoothing_window: 5.0
+  min_transition_increase: 0.2
+  gap_threshold_factor: 0.8
+  arousal_label: AROUSAL

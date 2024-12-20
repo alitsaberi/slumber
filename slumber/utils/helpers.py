@@ -1,11 +1,16 @@
 import inspect
+import pkgutil
+from collections.abc import Callable
 from enum import Enum
+from importlib import import_module
 from pathlib import Path
 from types import ModuleType
-from typing import Any
+from typing import Any, TypeVar
 
 import yaml
-from pydantic import BeforeValidator
+from loguru import logger
+
+T = TypeVar("T", bound=type)
 
 
 def load_yaml(config_path: Path) -> dict:
@@ -23,58 +28,93 @@ def load_yaml(config_path: Path) -> dict:
 
 
 def get_class_by_name(
-    module: ModuleType, class_name: str, base_class: type | None = None
+    class_name: str,
+    module: ModuleType,
+    base_class: type[T] | None = None,
+    search_submodules: bool = True,
 ) -> type:
     """
-    Retrieve a class by its name in a module,
+    Retrieve a class by its name in a module and its submodules,
     ensuring it is a subclass of a specified base class.
 
     Args:
         module (ModuleType): The Python module to search within.
         class_name (str): The name of the class to retrieve.
-        base_class (type, optional):
-            The base class that the target class must inherit from.
+        base_class (type, optional): The base class that the target class must
+            inherit from.
+        search_submodules (bool): Whether to search in submodules recursively.
 
     Returns:
         type: the class object.
     """
-
+    # First try in the main module
+    # TODO: Code duplication with when searching the submodules
     try:
         cls = getattr(module, class_name)
-    except AttributeError as e:
-        raise ValueError(
-            f"No class named '{class_name}' found in module '{module.__name__}'."
-        ) from e
-
-    if not inspect.isclass(cls):
-        raise TypeError(
-            f"Class '{class_name}' in module '{module.__name__}' is not a class."
+        if inspect.isclass(cls) and (base_class is None or issubclass(cls, base_class)):
+            return cls
+    except AttributeError:
+        logger.debug(
+            f"Class {class_name} not found in the main module {module.__name__}"
         )
 
-    if base_class is not None and not issubclass(cls, base_class):
-        raise TypeError(
-            f"Class '{class_name}' in module '{module.__name__}'"
-            f" is not a subclass of '{base_class.__name__}'."
-        )
+    if search_submodules and hasattr(module, "__path__"):
+        # Search through all submodules
+        for _, name, _ in pkgutil.iter_modules(module.__path__):
+            full_module_name = f"{module.__name__}.{name}"
+            try:
+                logger.debug(f"Trying to import submodule {full_module_name}")
+                submodule = import_module(full_module_name)
+                try:
+                    cls = getattr(submodule, class_name)
+                    if inspect.isclass(cls) and (
+                        base_class is None or issubclass(cls, base_class)
+                    ):
+                        return cls
+                except AttributeError:
+                    logger.debug(
+                        f"Class {class_name} not found"
+                        f" in submodule {full_module_name}"
+                    )
+                    continue
+            except ImportError as e:
+                logger.debug(f"Failed to import submodule {full_module_name}: {e}")
+                continue
 
-    return cls
+    raise ValueError(
+        f"No class named '{class_name}' found in module"
+        f" '{module.__name__}' or its submodules."
+    )
 
 
-def enum_by_name_validator(
+def create_enum_by_name_resolver(
     enum_type: type[Enum],
-) -> BeforeValidator:
-    """
-    Creates a pydantic validator for converting string values to enum members.
-
-    Args:
-        enum_type (type[Enum]): The Enum class to validate against
-
-    Returns:
-        BeforeValidator: An instance of pydantic.BeforeValidator
-            that converts strings to enum members.
-    """
-
-    def validate(v: Any) -> Any:
+) -> Callable[[Any], Any]:
+    def resolve(v: Any) -> Any:
         return enum_type[v] if isinstance(v, str) else v
 
-    return BeforeValidator(validate)
+    return resolve
+
+
+def create_class_by_name_resolver(
+    modules: ModuleType | list[ModuleType], base_class: type[T] | None = None
+) -> Callable[[Any], Any]:
+    if not isinstance(modules, list):
+        modules = [modules]
+
+    def resolve(v: Any) -> Any:
+        for module in modules:
+            try:
+                cls = (
+                    get_class_by_name(v, module, base_class)
+                    if isinstance(v, str)
+                    else v
+                )
+                return cls
+            except ValueError as e:
+                logger.debug(e)
+                continue
+
+        raise ValueError(f"No class named '{v}' found in modules {modules}")
+
+    return resolve

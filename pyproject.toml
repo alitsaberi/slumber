@@ -30,6 +30,9 @@ pre-commit = "^4.0.0"
 pytest = "^8.3.3"
 pytest-loguru = "^0.4.0"
 
+[tool.poetry.scripts]
+run_session = "slumber.scripts.run_session:main"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"

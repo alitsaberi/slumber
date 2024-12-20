@@ -7,8 +7,21 @@ from typing import Any
 from loguru import logger
 
 from slumber import settings
+from slumber.utils.time import create_timestamped_name
 
 _FILE_NAME_KEY = "file_name"
+_FILE_EXTENSION = "log"
+
+
+def _create_file_path(
+    log_dir: Path,
+    file_name: str,
+    include_timestamp: bool = settings["logging"]["include_timestamp_in_file_name"],
+) -> Path:
+    if include_timestamp:
+        file_name = create_timestamped_name(file_name)
+
+    return log_dir / f"{file_name}.{_FILE_EXTENSION}"
 
 
 class HandlerType(Enum):
@@ -34,26 +47,24 @@ class InterceptHandler(logging.Handler):
         )
 
 
-def setup_logging(log_dir: Path, config: dict[str, Any]) -> None:
+def setup_logging(log_dir: Path, config: dict[str, Any] = settings["logging"]) -> None:
     logger.remove()
 
-    for handler_name, handler_config in config.items():
+    for handler_name, handler_config in config["handlers"].items():
         handler_type = HandlerType(handler_name)
 
         sink = (
-            log_dir / handler_config.pop(_FILE_NAME_KEY)
+            _create_file_path(
+                log_dir,
+                handler_config.pop(_FILE_NAME_KEY),
+                include_timestamp=config["include_timestamp_in_file_name"],
+            )
             if handler_type == HandlerType.FILE
             else sys.stdout
         )
         logger.add(sink, **handler_config)
 
-    # # Intercept standard library logging
-    # # This way, all logs from the root logger and other libraries using standard
-    # # logging will be properly formatted and handled by Loguru
+    # Intercept standard library logging
+    # This way, all logs from the root logger and other libraries using standard
+    # logging will be properly formatted and handled by Loguru
     logging.basicConfig(handlers=[InterceptHandler()], level=0, force=True)
-
-
-if __name__ == "__main__":
-    log_dir = Path(settings["data_dir"])
-    setup_logging(log_dir, settings["logging"])
-    logger.info("Hello, World!")

@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from slumber.data_management.hdf5 import HDF5Manager
+from slumber.utils.hdf5 import HDF5Manager
 
 
 @pytest.fixture

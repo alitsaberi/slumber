@@ -3,7 +3,7 @@ from typing import Literal, Protocol, runtime_checkable
 import numpy as np
 from mne.filter import filter_data, resample
 
-from slumber.utils.data import Data
+from slumber.utils.data import Data, TimestampedArray
 
 
 @runtime_checkable
@@ -58,8 +58,9 @@ class FIRFilter(Transform):
             filter_data(
                 data.array.T, data.sample_rate, low_cutoff, high_cutoff, **kwargs
             ).T,
-            data.sample_rate,
-            data.channel_names,
+            sample_rate=data.sample_rate,
+            channel_names=data.channel_names,
+            timestamps=data.timestamps,
         )
 
 
@@ -82,4 +83,30 @@ class Resample(Transform):
             ),
             sample_rate=new_sample_rate,
             channel_names=data.channel_names,
+            timestamp_offset=data.timestamps[0],
         )
+
+
+class ArraySelector(Transform):
+    def __call__(
+        self,
+        data: TimestampedArray,
+        start_index: int | None = None,
+        end_index: int | None = None,
+        step: int = 1,
+        channels: list[int] | list[str] | None = None,
+    ) -> TimestampedArray:
+        """
+        Select specific channels and/or time slices from the data.
+
+        Args:
+            data (TimestampedArray): Input TimestampedArray array object
+            samples (slice | int | list[int] | None): samples tp select
+            channels (list[int] | list[str] | None):
+                List of channel indices or names to select
+
+        Returns:
+            TimestampedArray: TimestampedArray object with selected data
+        """
+        samples = slice(start_index, end_index, step)
+        return data[samples, channels]
