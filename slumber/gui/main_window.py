@@ -1,6 +1,7 @@
-from PySide6.QtWidgets import QMainWindow
+from PySide6.QtWidgets import QMainWindow, QSizePolicy
 from .main_window_ui import Ui_MainWindow
 from .pages.settings.settings import SettingsWindow
+from .pages.help.help import HelpPage
 
 class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self, parent=None):
@@ -8,13 +9,20 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.setupUi(self)  # Setup the UI from the generated class
 
         self.settings_window = SettingsWindow(self)
+        self.help_page = HelpPage(self)
+        
+        self.settings_window.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.help_page.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        
         self.stackedWidgetPages.addWidget(self.settings_window)
+        self.stackedWidgetPages.addWidget(self.help_page)
 
         self.pushButton_help.clicked.connect(self.on_help_button_clicked)
         self.pushButton_settings.clicked.connect(self.on_settings_button_clicked)
 
     def on_help_button_clicked(self):
         print("Help button pressed")
+        self.stackedWidgetPages.setCurrentWidget(self.help_page)
 
     def on_settings_button_clicked(self):
         print("Settings button pressed")
