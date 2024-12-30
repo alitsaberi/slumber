@@ -125,6 +125,12 @@ QPushButton:pressed {
        <height>0</height>
       </size>
      </property>
+     <property name="maximumSize">
+      <size>
+       <width>3840</width>
+       <height>2160</height>
+      </size>
+     </property>
     </widget>
    </item>
   </layout>

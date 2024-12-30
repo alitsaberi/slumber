@@ -85,6 +85,7 @@ class Ui_HelpPage(object):
         sizePolicy.setHeightForWidth(self.webEngineView_help.sizePolicy().hasHeightForWidth())
         self.webEngineView_help.setSizePolicy(sizePolicy)
         self.webEngineView_help.setMinimumSize(QSize(0, 0))
+        self.webEngineView_help.setMaximumSize(QSize(3840, 2160))
 
         self.verticalLayout_3.addWidget(self.webEngineView_help)
 

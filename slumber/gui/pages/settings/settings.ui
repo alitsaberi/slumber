@@ -19,6 +19,12 @@
     <verstretch>0</verstretch>
    </sizepolicy>
   </property>
+  <property name="maximumSize">
+   <size>
+    <width>3840</width>
+    <height>2160</height>
+   </size>
+  </property>
   <property name="windowTitle">
    <string>Settings</string>
   </property>
@@ -132,6 +138,12 @@ QPushButton:pressed {
       <size>
        <width>0</width>
        <height>100</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>3840</width>
+       <height>2160</height>
       </size>
      </property>
      <property name="styleSheet">
@@ -349,6 +361,12 @@ QPushButton:pressed {
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
+     <property name="maximumSize">
+      <size>
+       <width>3840</width>
+       <height>2160</height>
+      </size>
+     </property>
      <property name="styleSheet">
       <string notr="true">QWidget {
     border: 2px solid rgb(50, 50, 50);
@@ -520,6 +538,12 @@ QComboBox {
       <size>
        <width>0</width>
        <height>100</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>3840</width>
+       <height>2160</height>
       </size>
      </property>
      <property name="styleSheet">
