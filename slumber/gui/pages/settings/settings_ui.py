@@ -30,6 +30,7 @@ class Ui_SettingsWindow(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(SettingsWindow.sizePolicy().hasHeightForWidth())
         SettingsWindow.setSizePolicy(sizePolicy)
+        SettingsWindow.setMaximumSize(QSize(3840, 2160))
         self.verticalLayout_6 = QVBoxLayout(SettingsWindow)
         self.verticalLayout_6.setObjectName(u"verticalLayout_6")
         self.horizontalLayout_title = QHBoxLayout()
@@ -96,6 +97,7 @@ class Ui_SettingsWindow(object):
         sizePolicy2.setHeightForWidth(self.card_font_size.sizePolicy().hasHeightForWidth())
         self.card_font_size.setSizePolicy(sizePolicy2)
         self.card_font_size.setMinimumSize(QSize(0, 100))
+        self.card_font_size.setMaximumSize(QSize(3840, 2160))
         self.card_font_size.setStyleSheet(u"QWidget {\n"
 "    border: 2px solid rgb(50, 50, 50);\n"
 "    border-radius: 10px;\n"
@@ -222,6 +224,7 @@ class Ui_SettingsWindow(object):
         self.widget.setObjectName(u"widget")
         sizePolicy3.setHeightForWidth(self.widget.sizePolicy().hasHeightForWidth())
         self.widget.setSizePolicy(sizePolicy3)
+        self.widget.setMaximumSize(QSize(3840, 2160))
         self.widget.setStyleSheet(u"QWidget {\n"
 "    border: 2px solid rgb(50, 50, 50);\n"
 "    border-radius: 10px;\n"
@@ -292,6 +295,7 @@ class Ui_SettingsWindow(object):
         sizePolicy2.setHeightForWidth(self.card_other_settings.sizePolicy().hasHeightForWidth())
         self.card_other_settings.setSizePolicy(sizePolicy2)
         self.card_other_settings.setMinimumSize(QSize(0, 100))
+        self.card_other_settings.setMaximumSize(QSize(3840, 2160))
         self.card_other_settings.setStyleSheet(u"QWidget {\n"
 "    border: 2px solid rgb(50, 50, 50);\n"
 "    border-radius: 10px;\n"
