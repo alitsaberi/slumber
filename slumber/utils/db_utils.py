@@ -2,7 +2,7 @@ import sqlite3
 import os
 
 def get_db_connection():
-    db_path = os.path.join(os.path.dirname(__file__), '../app_config.db')
+    db_path = os.path.join(os.path.dirname(__file__), '../app.db')
     conn = sqlite3.connect(db_path)
     return conn
 
@@ -16,7 +16,8 @@ def initialize_db():
             font_size INTEGER CHECK(font_size >= 0 AND font_size <= 10),
             app_width INTEGER,
             app_height INTEGER,
-            app_mode TEXT CHECK(app_mode IN ('window', 'full_screen'))
+            app_mode TEXT CHECK(app_mode IN ('window', 'full_screen')),
+            language VARCHAR
         )
     ''')
     cursor.execute('''
@@ -35,10 +36,10 @@ def initialize_db():
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS tasks (
             task_id INTEGER PRIMARY KEY AUTOINCREMENT,
-            title VARCHAR,
+            name VARCHAR,
+            header VARCHAR,
             module VARCHAR,
-            type TEXT CHECK(type IN ('pre_processing', 'post_processing', 'action')),
-            schedule_type BOOLEAN
+            type TEXT CHECK(type IN ('pre_processing', 'post_processing', 'action', 'recording'))
         )
     ''')
     cursor.execute('''
@@ -46,7 +47,7 @@ def initialize_db():
             task_day_id INTEGER PRIMARY KEY AUTOINCREMENT,
             task_day INTEGER,
             task_id INTEGER,
-            status TEXT CHECK(status IN ('progress', 'pending', 'open', 'closed')),
+            status TEXT CHECK(status IN ('progress', 'open', 'closed')),
             FOREIGN KEY (task_day) REFERENCES study_calendar(day_number),
             FOREIGN KEY (task_id) REFERENCES tasks(task_id)
         )

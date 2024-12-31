@@ -30,13 +30,13 @@ logging:
     level: "DEBUG"
     format: "{time} | {level} | {module}:{function}:{line} | {message}"
     rotation: "50 MB"
-    serialize: True
-    enqueue: True
+    serialize: true
+    enqueue: true
 
 audit:
   file_name: "audit.tsv"
   rotation: "50 MB"
-  enqueue: True
+  enqueue: true
 
 text2speech:
   rate: 175 # Integer speech rate in words per minute.
@@ -55,38 +55,44 @@ gui_config:
   app_width: 1920
   app_height: 1080
   app_mode: window
+  language: English
 
 study_config:
   duration: 14
 
 procedure_tasks:
-  - name: "Pre-Sleeping Survey"
-    header: "Fill in the pre-sleeping survey"
-    module: "slumber.gui.procedure.pre_sleeping_survey"
-    type: "pre_processing"
-    enabled: True
-  - name: "Connect With Receiver"
-    header: "Plugin and connect with the receiver"
-    module: "slumber.gui.procedure.tasks.connect_with_receiver"
-    type: "pre_processing"
-    enabled: True
-  - name: "ZMax Server"
-    header: "Start Zmax server"
-    module: "slumber.gui.procedure.tasks.zmax_server"
-    type: "pre_processing"
-    enabled: True
-  - name: "Setup Headband"
-    header: "Put on the headband"
-    module: "slumber.gui.procedure.tasks.setup_headband"
-    type: "pre_processing"
-    enabled: True
-  - name: "Calibration"
-    header: "Calibrate the Zmax"
-    module: "slumber.gui.procedure.tasks.calibration"
-    type: "pre_processing"
-    enabled: True
-  - name: "Post-Sleeping Survey"
-    header: "Fill in the post-sleeping survey"
-    module: "slumber.gui.procedure.tasks.post_sleeping_survey"
-    type: "post_processing"
-    enabled: True
+  - name: Pre-Sleeping Survey
+    header: Fill in Pre-Sleeping Survey
+    module: slumber.gui.pages.procedure.tasks.pre_sleeping_survey
+    type: pre_processing
+    enabled: true
+  - name: Plugin the receiver
+    header: Plugin the receiver
+    module: slumber.gui.pages.procedure.tasks.plugin_the_receiver
+    type: pre_processing
+    enabled: true
+  - name: Start ZMax Server
+    header: Start ZMax Server
+    module: slumber.gui.pages.procedure.tasks.start_zmax_server
+    type: pre_processing
+    enabled: true
+  - name: Put on and start headband
+    header: Put on and start headband
+    module: slumber.gui.pages.procedure.tasks.put_on_and_start_headband
+    type: pre_processing
+    enabled: true
+  - name: Setup and calibrate ZMax
+    header: Setup and calibrate ZMax
+    module: slumber.gui.pages.procedure.tasks.setup_and_calibrate_zmax
+    type: pre_processing
+    enabled: true
+  - name: Start Recording
+    header: Start Recording
+    module: slumber.gui.pages.procedure.tasks.start_recording
+    type: action
+    enabled: true
+  - name: Fill in Post-Sleeping Survey
+    header: Fill in Post-Sleeping Survey
+    module: slumber.gui.pages.procedure.tasks.fill_in_post_sleeping_survey
+    type: post_processing
+    enabled: true

@@ -1,19 +1,32 @@
 from utils.db_utils import get_db_connection
+import sqlite3
 
-def insert_task(title, module, type, schedule_type):
+def insert_task(name, header, module, type):
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute('''
-        INSERT INTO tasks (title, module, type, schedule_type)
+        INSERT INTO tasks (name, header, module, type)
         VALUES (?, ?, ?, ?)
-    ''', (title, module, type, schedule_type))
+    ''', (name, header, module, type))
     conn.commit()
     conn.close()
 
 def get_tasks():
     conn = get_db_connection()
+    conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
-    cursor.execute('SELECT task_id, title, module, type, schedule_type FROM tasks')
+    cursor.execute('SELECT task_id, name, header, module, type FROM tasks ORDER BY task_id')
     tasks = cursor.fetchall()
     conn.close()
-    return tasks
+    return [{key: task[key] for key in task.keys()} for task in tasks]
+
+def update_task(task_id, name, header, module, type):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('''
+        UPDATE tasks
+        SET name = ?, header = ?, module = ?, type = ?
+        WHERE task_id = ?
+    ''', (name, header, module, type, task_id))
+    conn.commit()
+    conn.close()
