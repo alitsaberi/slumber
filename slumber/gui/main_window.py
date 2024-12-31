@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QMainWindow, QSizePolicy, QLabel, QPushButton, QTableView, QComboBox, QLCDNumber
+from PySide6.QtWidgets import QMainWindow, QSizePolicy, QLabel, QPushButton, QTableView, QComboBox, QLCDNumber, QListWidget
 from PySide6.QtWebEngineWidgets import QWebEngineView
 from .main_window_ui import Ui_MainWindow
 from .pages.settings.settings import SettingsPage
@@ -68,6 +68,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         for widget in self.findChildren(QWebEngineView):
             self.default_font_sizes[widget] = 1.0  # Default zoom factor for QWebEngineView
 
+        for widget in self.findChildren(QListWidget):
+            self.default_font_sizes[widget] = widget.font().pointSize()
+
 
     def on_start_procedure_clicked(self):
         print("Start Procedure button pressed")
@@ -134,6 +137,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         for widget in self.findChildren(QWebEngineView):
             default_zoom_factor = self.default_font_sizes[widget]
             widget.setZoomFactor(default_zoom_factor + (font_size * 0.1))  # Adjust zoom factor based on font size
+
+        for widget in self.findChildren(QListWidget):
+            font = widget.font()
+            default_font_size = self.default_font_sizes[widget]
+            font.setPointSize(default_font_size + font_size)
+            widget.setFont(font)
 
         # Change main window size
         if gui_config['app_mode'] == 'full_screen':

@@ -15,9 +15,9 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QHBoxLayout, QLayout, QListView,
-    QPushButton, QSizePolicy, QStackedWidget, QVBoxLayout,
-    QWidget)
+from PySide6.QtWidgets import (QApplication, QHBoxLayout, QLayout, QListWidget,
+    QListWidgetItem, QPushButton, QSizePolicy, QStackedWidget,
+    QVBoxLayout, QWidget)
 
 class Ui_ProcedurePage(object):
     def setupUi(self, ProcedurePage):
@@ -35,8 +35,11 @@ class Ui_ProcedurePage(object):
         self.horizontalLayout_2.setContentsMargins(0, 0, 0, 0)
         self.horizontalLayout = QHBoxLayout()
         self.horizontalLayout.setObjectName(u"horizontalLayout")
+        self.horizontalLayout.setSizeConstraint(QLayout.SizeConstraint.SetMinimumSize)
         self.procedureStack = QStackedWidget(ProcedurePage)
         self.procedureStack.setObjectName(u"procedureStack")
+        sizePolicy.setHeightForWidth(self.procedureStack.sizePolicy().hasHeightForWidth())
+        self.procedureStack.setSizePolicy(sizePolicy)
         self.procedureStack.setMaximumSize(QSize(3840, 2160))
 
         self.horizontalLayout.addWidget(self.procedureStack)
@@ -44,16 +47,20 @@ class Ui_ProcedurePage(object):
         self.verticalLayout = QVBoxLayout()
         self.verticalLayout.setObjectName(u"verticalLayout")
         self.verticalLayout.setSizeConstraint(QLayout.SizeConstraint.SetMaximumSize)
-        self.verticalLayout.setContentsMargins(-1, -1, 0, 8)
-        self.procedureStepList = QListView(ProcedurePage)
+        self.verticalLayout.setContentsMargins(-1, -1, 8, 8)
+        self.procedureStepList = QListWidget(ProcedurePage)
         self.procedureStepList.setObjectName(u"procedureStepList")
         sizePolicy1 = QSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
         sizePolicy1.setHorizontalStretch(0)
         sizePolicy1.setVerticalStretch(0)
         sizePolicy1.setHeightForWidth(self.procedureStepList.sizePolicy().hasHeightForWidth())
         self.procedureStepList.setSizePolicy(sizePolicy1)
-        self.procedureStepList.setMinimumSize(QSize(200, 200))
-        self.procedureStepList.setMaximumSize(QSize(500, 2160))
+        self.procedureStepList.setMinimumSize(QSize(400, 0))
+        self.procedureStepList.setMaximumSize(QSize(3840, 2160))
+        font = QFont()
+        font.setFamilies([u"Arial"])
+        font.setPointSize(14)
+        self.procedureStepList.setFont(font)
 
         self.verticalLayout.addWidget(self.procedureStepList)
 
