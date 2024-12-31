@@ -1,4 +1,5 @@
 from utils.db_utils import get_db_connection
+import sqlite3
 
 def insert_study_config(study_duration, start_date, end_date):
     conn = get_db_connection()
@@ -12,11 +13,14 @@ def insert_study_config(study_duration, start_date, end_date):
 
 def get_study_config():
     conn = get_db_connection()
+    conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
     cursor.execute('SELECT study_duration, start_date, end_date FROM study_config LIMIT 1')
     config = cursor.fetchone()
     conn.close()
-    return config
+    if config:
+        return {key: config[key] for key in config.keys()}
+    return None
 
 def update_study_config(study_duration, start_date, end_date):
     conn = get_db_connection()
