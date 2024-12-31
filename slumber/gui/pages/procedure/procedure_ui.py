@@ -15,9 +15,9 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QHBoxLayout, QLayout, QListWidget,
-    QListWidgetItem, QPushButton, QSizePolicy, QStackedWidget,
-    QVBoxLayout, QWidget)
+from PySide6.QtWidgets import (QAbstractItemView, QApplication, QHBoxLayout, QLayout,
+    QListView, QListWidget, QListWidgetItem, QPushButton,
+    QSizePolicy, QStackedWidget, QVBoxLayout, QWidget)
 
 class Ui_ProcedurePage(object):
     def setupUi(self, ProcedurePage):
@@ -61,6 +61,71 @@ class Ui_ProcedurePage(object):
         font.setFamilies([u"Arial"])
         font.setPointSize(14)
         self.procedureStepList.setFont(font)
+        self.procedureStepList.setStyleSheet(u"/* Style for the QListWidget */\n"
+"QListWidget {\n"
+"    background-color: #F5F5F5;\n"
+"    border: 1px solid #CCCCCC;\n"
+"    border-radius: 8px;\n"
+"    padding: 5px;\n"
+"}\n"
+"\n"
+"/* Style for QListWidgetItem (Default/Inactive) */\n"
+"QListWidget::item {\n"
+"    background-color: #FFFFFF;\n"
+"    border: 1px solid #E0E0E0;\n"
+"    border-radius: 5px;\n"
+"    margin: 16px;\n"
+"    padding: 6px;\n"
+"    color: #555555; /* Text color for inactive items */\n"
+"}\n"
+"\n"
+"/* Style for selected QListWidgetItem */\n"
+"QListWidget::item:selected {\n"
+"    background-color: #D0E7FF;\n"
+"    border: 2px solid #3399FF;\n"
+"    color: #000000; /* Text color for selected items */\n"
+"}\n"
+"\n"
+"/* Style for hovered QListWidgetItem */\n"
+"QListWidget::item:hover {\n"
+"    background-color: #E6F2FF;\n"
+"    border: 1px solid #66B2FF;\n"
+"    color: #333333; /* Text color on hover */\n"
+"}\n"
+"\n"
+"/* Style for disabled QListWidgetItem */\n"
+"QListWidget::item:disabled {\n"
+"    background-color: #F0F0F0;\n"
+"    border:"
+                        " 1px solid #D3D3D3;\n"
+"    color: #A9A9A9; /* Grey text for disabled items */\n"
+"}\n"
+"\n"
+"/* Style for QLabel within the items */\n"
+"QLabel {\n"
+"    color: #555555;\n"
+"    font-size: 14px;\n"
+"}\n"
+"\n"
+"/* Optional: Alternating item backgrounds for better readability */\n"
+"QListWidget::item:nth-child(even) {\n"
+"    background-color: #FAFAFA;\n"
+"}\n"
+"\n"
+"QListWidget::item:nth-child(odd) {\n"
+"    background-color: #FFFFFF;\n"
+"}")
+        self.procedureStepList.setAutoScroll(False)
+        self.procedureStepList.setAutoScrollMargin(8)
+        self.procedureStepList.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
+        self.procedureStepList.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
+        self.procedureStepList.setMovement(QListView.Movement.Static)
+        self.procedureStepList.setProperty(u"isWrapping", True)
+        self.procedureStepList.setResizeMode(QListView.ResizeMode.Adjust)
+        self.procedureStepList.setGridSize(QSize(385, 60))
+        self.procedureStepList.setUniformItemSizes(False)
+        self.procedureStepList.setWordWrap(True)
+        self.procedureStepList.setSelectionRectVisible(True)
 
         self.verticalLayout.addWidget(self.procedureStepList)
 
@@ -142,6 +207,9 @@ class Ui_ProcedurePage(object):
 
 
         self.retranslateUi(ProcedurePage)
+
+        self.procedureStepList.setCurrentRow(-1)
+
 
         QMetaObject.connectSlotsByName(ProcedurePage)
     # setupUi

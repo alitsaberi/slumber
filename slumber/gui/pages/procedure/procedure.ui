@@ -96,6 +96,100 @@
            <pointsize>14</pointsize>
           </font>
          </property>
+         <property name="styleSheet">
+          <string notr="true">/* Style for the QListWidget */
+QListWidget {
+    background-color: #F5F5F5;
+    border: 1px solid #CCCCCC;
+    border-radius: 8px;
+    padding: 5px;
+}
+
+/* Style for QListWidgetItem (Default/Inactive) */
+QListWidget::item {
+    background-color: #FFFFFF;
+    border: 1px solid #E0E0E0;
+    border-radius: 5px;
+    margin: 16px;
+    padding: 6px;
+    color: #555555; /* Text color for inactive items */
+}
+
+/* Style for selected QListWidgetItem */
+QListWidget::item:selected {
+    background-color: #D0E7FF;
+    border: 2px solid #3399FF;
+    color: #000000; /* Text color for selected items */
+}
+
+/* Style for hovered QListWidgetItem */
+QListWidget::item:hover {
+    background-color: #E6F2FF;
+    border: 1px solid #66B2FF;
+    color: #333333; /* Text color on hover */
+}
+
+/* Style for disabled QListWidgetItem */
+QListWidget::item:disabled {
+    background-color: #F0F0F0;
+    border: 1px solid #D3D3D3;
+    color: #A9A9A9; /* Grey text for disabled items */
+}
+
+/* Style for QLabel within the items */
+QLabel {
+    color: #555555;
+    font-size: 14px;
+}
+
+/* Optional: Alternating item backgrounds for better readability */
+QListWidget::item:nth-child(even) {
+    background-color: #FAFAFA;
+}
+
+QListWidget::item:nth-child(odd) {
+    background-color: #FFFFFF;
+}</string>
+         </property>
+         <property name="autoScroll">
+          <bool>false</bool>
+         </property>
+         <property name="autoScrollMargin">
+          <number>8</number>
+         </property>
+         <property name="editTriggers">
+          <set>QAbstractItemView::EditTrigger::NoEditTriggers</set>
+         </property>
+         <property name="selectionBehavior">
+          <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
+         </property>
+         <property name="movement">
+          <enum>QListView::Movement::Static</enum>
+         </property>
+         <property name="isWrapping" stdset="0">
+          <bool>true</bool>
+         </property>
+         <property name="resizeMode">
+          <enum>QListView::ResizeMode::Adjust</enum>
+         </property>
+         <property name="gridSize">
+          <size>
+           <width>385</width>
+           <height>60</height>
+          </size>
+         </property>
+         <property name="uniformItemSizes">
+          <bool>false</bool>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
+         </property>
+         <property name="selectionRectVisible">
+          <bool>true</bool>
+         </property>
+         <property name="currentRow">
+          <number>-1</number>
+         </property>
         </widget>
        </item>
        <item>
