@@ -15,6 +15,7 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
+from PySide6.QtWebEngineWidgets import QWebEngineView
 from PySide6.QtWidgets import (QApplication, QHBoxLayout, QLabel, QLayout,
     QPushButton, QSizePolicy, QSpacerItem, QVBoxLayout,
     QWidget)
@@ -78,19 +79,14 @@ class Ui_Widget(object):
 
         self.verticalLayout.addLayout(self.horizontalLayout_4)
 
-        self.widget_body = QWidget(Widget)
-        self.widget_body.setObjectName(u"widget_body")
-        sizePolicy.setHeightForWidth(self.widget_body.sizePolicy().hasHeightForWidth())
-        self.widget_body.setSizePolicy(sizePolicy)
-        self.widget_body.setMaximumSize(QSize(3840, 2160))
-        self.label_body = QLabel(self.widget_body)
-        self.label_body.setObjectName(u"label_body")
-        self.label_body.setGeometry(QRect(200, 160, 391, 211))
-        font1 = QFont()
-        font1.setBold(False)
-        self.label_body.setFont(font1)
+        self.webEngineView_pre_survey = QWebEngineView(Widget)
+        self.webEngineView_pre_survey.setObjectName(u"webEngineView_pre_survey")
+        sizePolicy.setHeightForWidth(self.webEngineView_pre_survey.sizePolicy().hasHeightForWidth())
+        self.webEngineView_pre_survey.setSizePolicy(sizePolicy)
+        self.webEngineView_pre_survey.setMinimumSize(QSize(0, 0))
+        self.webEngineView_pre_survey.setMaximumSize(QSize(3840, 2160))
 
-        self.verticalLayout.addWidget(self.widget_body)
+        self.verticalLayout.addWidget(self.webEngineView_pre_survey)
 
 
         self.retranslateUi(Widget)
@@ -102,6 +98,5 @@ class Ui_Widget(object):
         Widget.setWindowTitle(QCoreApplication.translate("Widget", u"Fill in Pre-Sleeping Survey", None))
         self.widget_title.setText(QCoreApplication.translate("Widget", u"Fill in Pre-Sleeping Survey", None))
         self.button_info.setText("")
-        self.label_body.setText(QCoreApplication.translate("Widget", u"Pre-Sleeping Survey works correctly.", None))
     # retranslateUi
 

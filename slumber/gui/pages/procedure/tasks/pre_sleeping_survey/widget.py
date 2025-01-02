@@ -1,68 +1,132 @@
+# widget.py
 from PySide6.QtWidgets import QWidget, QDialog, QPushButton
-from PySide6.QtCore import Signal, QSize
+from PySide6.QtCore import Signal, QSize, Slot, QObject, QUrl
+from PySide6.QtWebEngineWidgets import QWebEngineView
+from PySide6.QtWebChannel import QWebChannel
 from .help_ui import Ui_HelpDialog
 from .widget_ui import Ui_Widget
 import os
+import json
+from pathlib import Path
+from json import JSONDecodeError
+
+class ChannelObject(QObject):
+    form_complete_signal = Signal()
+    """Handle JavaScript-Python communication via QWebChannel.
+
+    This class provides methods that can be accessed from JavaScript to
+    save survey data and log error messages to the Python backend.
+
+    Attributes:
+        None (all methods are accessed directly via QWebChannel).
+
+    Methods:
+        saveSurveyData(str): Sends survey data from JavaScript to Python for saving it
+                            to a JSON file.
+        logError(str): Logs error messages received from JavaScript.
+    """
+
+    # TODO: Decide how we want to save the data:
+    # (where, how - multiple files or single file, which format - .json, .csv, etc.)
+
+    @Slot(str)
+    def saveSurveyData(self, survey_data: str) -> None:
+        """
+        Receive survey data from JavaScript and prints it as JSON.
+
+        Args:
+            survey_data (str): JSON string containing survey responses
+
+        Raises:
+            JSONDecodeError: If the survey data cannot be decoded as JSON
+        """
+        try:
+            # Attempt to parse the survey data
+            data = json.loads(survey_data)
+        except JSONDecodeError as json_error:
+            print(f"Failed to decode survey data JSON: {json_error}")
+            return
+
+        # Print the survey data as JSON
+        print(json.dumps(data, indent=4))
+
+        # Notify WidgetPage that the survey is complete
+        self.form_complete_signal.emit()
+        
+
+
+    @Slot(str)
+    def logError(self, error_message: str) -> None:
+        """
+        Handle error messages from JavaScript.
+
+        Args:
+            error_message: Error message from JavaScript
+        """
+        print(f"Survey GUI Error: {error_message}")
 
 class WidgetPage(QWidget, Ui_Widget):
     is_done_signal = Signal(int)
 
-    # Getting a index as well as status parameter to set the status of the task
-    # 1: Task is not done
-    # 2: Task is done
-    def __init__(self, index, status= 1, parent=None):
+    def __init__(self, index, status=1, parent=None):
         super(WidgetPage, self).__init__(parent)
         self.index = index
         self.status = status
-        self.setupUi(self)  # Setup the UI from the generated class
+        self.setupUi(self)
 
-        # Connect the info button to open the help dialog
         self.button_info.clicked.connect(self.open_help_dialog)
 
-        # TODO: DELETE THIS BUTTON
-        self.button_done = QPushButton("Done", self)
-        self.button_done.setObjectName("button_done")
-        self.button_done.setMinimumSize(QSize(100, 40))
-        self.verticalLayout.addWidget(self.button_done)
-        self.button_done.clicked.connect(self.emit_done_signal)
+        self._survey_path = Path(os.path.join(os.path.dirname(__file__), "assets/surveys/survey.json"))
+        html_path = QUrl.fromLocalFile(os.path.join(os.path.dirname(__file__), "assets/html/index.html"))
+        self.webEngineView_pre_survey.setUrl(html_path)
 
-        
+        # Set up WebChannel
+        self.channel = QWebChannel()
+        self.channel_object = ChannelObject()
+        self.channel.registerObject("channelObject", self.channel_object)
+        self.webEngineView_pre_survey.page().setWebChannel(self.channel)
+
+
+        self._load_survey()
+        self.channel_object.form_complete_signal.connect(self.emit_done_signal)
+
+    def _load_survey(self) -> None:
+        """Load the survey HTML file and pass the full survey path as a parameter."""
+        if not Path(self._survey_path).exists():
+            print(f"Survey file not found: {self._survey_path}")
+            return
+
+        survey_html_path = Path(os.path.join(os.path.dirname(__file__), "assets/html/index.html"))
+        file_url = QUrl.fromLocalFile(str(survey_html_path))
+        file_url.setQuery(f"survey_path={self._survey_path}")
+        self.webEngineView_pre_survey.setUrl(file_url)
+
+    def emit_done_signal(self):
+        print(f"Survey for task {self.index} is complete.")
+        self.is_done_signal.emit(self.index)
+
+
     def start(self):
-        # TODO: Implement your functionality here, which will be called when the task opens.
-        # Make sure to use the status as well, to make sure to not call this function several times
         if self.status == 1:
             print("Task started")
         else:
             print("Task already done")
-        
 
     def open_help_dialog(self):
-        # Create a QDialog instance
         dialog = QDialog(self)
-        dialog.setWindowTitle("Help")  # Optional: Set window title
+        dialog.setWindowTitle("Help")
 
-        # Set up the UI for the dialog using Ui_HelpDialog
         ui = Ui_HelpDialog()
         ui.setupUi(dialog)
 
-        # Connect dialog buttons to methods
-        # Assuming your help.ui has buttons named 'button_ok' and 'button_cancel'
         ui.button_ok.clicked.connect(lambda: self.handle_help_response(dialog, accepted=True))
         ui.button_cancel.clicked.connect(lambda: self.handle_help_response(dialog, accepted=False))
 
-        # Execute the dialog modally
         dialog.exec()
 
     def handle_help_response(self, dialog, accepted):
         if accepted:
-            print("OK button pressed in Help Dialog")
+            print("Help accepted.")
         else:
-            print("Cancel button pressed in Help Dialog")
-        # Close the dialog
+            print("Help canceled.")
         dialog.close()
-
-    # DELETE THIS FUNCTION
-    def emit_done_signal(self):
-        if self.status == 1:
-            self.is_done_signal.emit(self.index)
-        self.status = 2

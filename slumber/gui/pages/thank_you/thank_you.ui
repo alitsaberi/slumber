@@ -1,13 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Widget</class>
- <widget class="QWidget" name="Widget">
+ <class>ThankYouPage</class>
+ <widget class="QWidget" name="ThankYouPage">
+  <property name="windowModality">
+   <enum>Qt::WindowModality::NonModal</enum>
+  </property>
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>600</height>
+    <width>666</width>
+    <height>566</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -16,55 +19,20 @@
     <verstretch>0</verstretch>
    </sizepolicy>
   </property>
-  <property name="maximumSize">
-   <size>
-    <width>3840</width>
-    <height>2160</height>
-   </size>
-  </property>
   <property name="windowTitle">
-   <string>Fill in Post-Sleeping Survey</string>
+   <string>Help</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
+  <layout class="QVBoxLayout" name="verticalLayout_3">
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_4">
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
      <property name="sizeConstraint">
       <enum>QLayout::SizeConstraint::SetMaximumSize</enum>
      </property>
+     <property name="bottomMargin">
+      <number>16</number>
+     </property>
      <item>
-      <widget class="QLabel" name="widget_title">
-       <property name="maximumSize">
-        <size>
-         <width>16777215</width>
-         <height>100</height>
-        </size>
-       </property>
-       <property name="font">
-        <font>
-         <family>Arial</family>
-         <pointsize>36</pointsize>
-        </font>
-       </property>
-       <property name="text">
-        <string>Fill in Post-Sleeping Survey</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <spacer name="horizontalSpacer">
-       <property name="orientation">
-        <enum>Qt::Orientation::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
-      <widget class="QPushButton" name="button_info">
+      <widget class="QPushButton" name="thank_you_back">
        <property name="minimumSize">
         <size>
          <width>50</width>
@@ -72,6 +40,12 @@
         </size>
        </property>
        <property name="maximumSize">
+        <size>
+         <width>50</width>
+         <height>50</height>
+        </size>
+       </property>
+       <property name="sizeIncrement">
         <size>
          <width>50</width>
          <height>50</height>
@@ -99,20 +73,33 @@ QPushButton:pressed {
         <string/>
        </property>
        <property name="icon">
-        <iconset theme="QIcon::ThemeIcon::DialogInformation"/>
+        <iconset theme="QIcon::ThemeIcon::GoPrevious"/>
        </property>
        <property name="iconSize">
         <size>
-         <width>40</width>
-         <height>40</height>
+         <width>32</width>
+         <height>32</height>
         </size>
        </property>
       </widget>
      </item>
+     <item>
+      <spacer name="horizontalSpacer_7">
+       <property name="orientation">
+        <enum>Qt::Orientation::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>50</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
     </layout>
    </item>
    <item>
-    <widget class="QWebEngineView" name="webEngineView_post_survey" native="true">
+    <widget class="QWebEngineView" name="webEngineView_thank_you" native="true">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
        <horstretch>0</horstretch>
