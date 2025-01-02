@@ -49,6 +49,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.update_gui_config(gui_config)
 
+        # Check if procedure is already started
+        self.procedure_started = False
+
     def store_default_font_sizes(self):
         for widget in self.findChildren(QLabel):
             self.default_font_sizes[widget] = widget.font().pointSize()
@@ -74,6 +77,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def on_start_procedure_clicked(self):
         print("Start Procedure button pressed")
+        self.procedure_started = True
         self.stackedWidgetPages.setCurrentWidget(self.procedure_page)
 
     def on_help_button_clicked(self):
@@ -98,7 +102,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def go_back_pressed(self):
         print("Config back")
-        self.stackedWidgetPages.setCurrentWidget(self.home_page)
+        if self.procedure_started:
+            self.stackedWidgetPages.setCurrentWidget(self.procedure_page)
+        else:
+            self.stackedWidgetPages.setCurrentWidget(self.home_page)
 
     def update_gui_config(self, gui_config):
         font_size = gui_config['font_size']

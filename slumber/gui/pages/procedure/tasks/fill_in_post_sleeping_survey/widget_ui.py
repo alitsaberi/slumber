@@ -89,6 +89,9 @@ class Ui_Widget(object):
         font1 = QFont()
         font1.setBold(False)
         self.label_body.setFont(font1)
+        self.pushButton = QPushButton(self.widget_body)
+        self.pushButton.setObjectName(u"pushButton")
+        self.pushButton.setGeometry(QRect(200, 300, 261, 32))
 
         self.verticalLayout.addWidget(self.widget_body)
 
@@ -103,5 +106,6 @@ class Ui_Widget(object):
         self.widget_title.setText(QCoreApplication.translate("Widget", u"Fill in Post-Sleeping Survey", None))
         self.button_info.setText("")
         self.label_body.setText(QCoreApplication.translate("Widget", u"Fill in Post-Sleeping Survey works correctly.", None))
+        self.pushButton.setText(QCoreApplication.translate("Widget", u"Task complete", None))
     # retranslateUi
 
