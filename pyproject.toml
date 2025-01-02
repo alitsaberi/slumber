@@ -69,6 +69,9 @@ exclude = [
     "node_modules",
     "site-packages",
     "venv",
+    ".db",
+    "*_ui.py",
+    "*.ui", 
 ]
 
 line-length = 88

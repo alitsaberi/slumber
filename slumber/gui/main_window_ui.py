@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 
 ################################################################################
 ## Form generated from reading UI file 'main_window.ui'
@@ -8,21 +7,26 @@
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
 
-from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
-    QMetaObject, QObject, QPoint, QRect,
-    QSize, QTime, QUrl, Qt)
-from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
-    QFont, QFontDatabase, QGradient, QIcon,
-    QImage, QKeySequence, QLinearGradient, QPainter,
-    QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QGridLayout, QHBoxLayout, QLabel,
-    QLayout, QMainWindow, QPushButton, QSizePolicy,
-    QSpacerItem, QStackedWidget, QVBoxLayout, QWidget)
+from PySide6.QtCore import QCoreApplication, QMetaObject, QSize, Qt
+from PySide6.QtGui import QFont, QIcon, QPixmap
+from PySide6.QtWidgets import (
+    QGridLayout,
+    QHBoxLayout,
+    QLabel,
+    QLayout,
+    QPushButton,
+    QSizePolicy,
+    QSpacerItem,
+    QStackedWidget,
+    QVBoxLayout,
+    QWidget,
+)
 
-class Ui_MainWindow(object):
+
+class Ui_MainWindow:
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
-            MainWindow.setObjectName(u"MainWindow")
+            MainWindow.setObjectName("MainWindow")
         MainWindow.setWindowModality(Qt.WindowModality.NonModal)
         MainWindow.resize(1060, 762)
         sizePolicy = QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
@@ -33,23 +37,23 @@ class Ui_MainWindow(object):
         MainWindow.setMinimumSize(QSize(0, 0))
         MainWindow.setMaximumSize(QSize(3840, 2160))
         self.centralwidget = QWidget(MainWindow)
-        self.centralwidget.setObjectName(u"centralwidget")
+        self.centralwidget.setObjectName("centralwidget")
         sizePolicy.setHeightForWidth(self.centralwidget.sizePolicy().hasHeightForWidth())
         self.centralwidget.setSizePolicy(sizePolicy)
         self.centralwidget.setMaximumSize(QSize(3840, 2160))
         self.gridLayout = QGridLayout(self.centralwidget)
-        self.gridLayout.setObjectName(u"gridLayout")
+        self.gridLayout.setObjectName("gridLayout")
         self.gridLayout.setSizeConstraint(QLayout.SizeConstraint.SetDefaultConstraint)
         self.gridLayout.setContentsMargins(0, 0, 0, 0)
         self.verticalLayout = QVBoxLayout()
-        self.verticalLayout.setObjectName(u"verticalLayout")
+        self.verticalLayout.setObjectName("verticalLayout")
         self.verticalLayout.setSizeConstraint(QLayout.SizeConstraint.SetMaximumSize)
         self.header = QHBoxLayout()
         self.header.setSpacing(8)
-        self.header.setObjectName(u"header")
+        self.header.setObjectName("header")
         self.header.setContentsMargins(8, 8, 8, 8)
         self.logo = QLabel(self.centralwidget)
-        self.logo.setObjectName(u"logo")
+        self.logo.setObjectName("logo")
         sizePolicy1 = QSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum)
         sizePolicy1.setHorizontalStretch(50)
         sizePolicy1.setVerticalStretch(50)
@@ -59,13 +63,13 @@ class Ui_MainWindow(object):
         self.logo.setMaximumSize(QSize(0, 16777215))
         self.logo.setSizeIncrement(QSize(50, 50))
         self.logo.setBaseSize(QSize(50, 50))
-        self.logo.setPixmap(QPixmap(u"slumber/gui/resources/images/slumber_logo.svg"))
+        self.logo.setPixmap(QPixmap("slumber/gui/resources/images/slumber_logo.svg"))
         self.logo.setScaledContents(True)
 
         self.header.addWidget(self.logo)
 
         self.logo_title = QLabel(self.centralwidget)
-        self.logo_title.setObjectName(u"logo_title")
+        self.logo_title.setObjectName("logo_title")
         sizePolicy2 = QSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Maximum)
         sizePolicy2.setHorizontalStretch(0)
         sizePolicy2.setVerticalStretch(0)
@@ -74,7 +78,7 @@ class Ui_MainWindow(object):
         self.logo_title.setMinimumSize(QSize(200, 50))
         self.logo_title.setMaximumSize(QSize(16777215, 16777215))
         font = QFont()
-        font.setFamilies([u"Arial Black"])
+        font.setFamilies(["Arial Black"])
         font.setPointSize(36)
         font.setBold(True)
         self.logo_title.setFont(font)
@@ -86,7 +90,7 @@ class Ui_MainWindow(object):
         self.header.addItem(self.horizontalSpacer)
 
         self.pushButton_help = QPushButton(self.centralwidget)
-        self.pushButton_help.setObjectName(u"pushButton_help")
+        self.pushButton_help.setObjectName("pushButton_help")
         sizePolicy3 = QSizePolicy(QSizePolicy.Policy.Maximum, QSizePolicy.Policy.Maximum)
         sizePolicy3.setHorizontalStretch(0)
         sizePolicy3.setVerticalStretch(0)
@@ -95,12 +99,12 @@ class Ui_MainWindow(object):
         self.pushButton_help.setMinimumSize(QSize(100, 35))
         self.pushButton_help.setMaximumSize(QSize(16777215, 16777215))
         font1 = QFont()
-        font1.setFamilies([u"Arial"])
+        font1.setFamilies(["Arial"])
         font1.setPointSize(14)
         font1.setBold(False)
         font1.setItalic(False)
         self.pushButton_help.setFont(font1)
-        self.pushButton_help.setStyleSheet(u"QPushButton {\n"
+        self.pushButton_help.setStyleSheet("QPushButton {\n"
 "	color: rgb(255, 255, 255);\n"
 "	background-color: rgb(1, 92, 187);\n"
 "	border: 1px;\n"
@@ -125,7 +129,7 @@ class Ui_MainWindow(object):
         self.header.addWidget(self.pushButton_help)
 
         self.pushButton_settings = QPushButton(self.centralwidget)
-        self.pushButton_settings.setObjectName(u"pushButton_settings")
+        self.pushButton_settings.setObjectName("pushButton_settings")
         sizePolicy3.setHeightForWidth(self.pushButton_settings.sizePolicy().hasHeightForWidth())
         self.pushButton_settings.setSizePolicy(sizePolicy3)
         self.pushButton_settings.setMinimumSize(QSize(100, 35))
@@ -133,10 +137,10 @@ class Ui_MainWindow(object):
         self.pushButton_settings.setSizeIncrement(QSize(0, 0))
         self.pushButton_settings.setBaseSize(QSize(0, 0))
         font2 = QFont()
-        font2.setFamilies([u"Arial"])
+        font2.setFamilies(["Arial"])
         font2.setPointSize(14)
         self.pushButton_settings.setFont(font2)
-        self.pushButton_settings.setStyleSheet(u"QPushButton {\n"
+        self.pushButton_settings.setStyleSheet("QPushButton {\n"
 "	color: rgb(255, 255, 255);\n"
 "	background-color: rgb(1, 92, 187);\n"
 "	border: 1px;\n"
@@ -162,11 +166,11 @@ class Ui_MainWindow(object):
         self.verticalLayout.addLayout(self.header)
 
         self.body = QVBoxLayout()
-        self.body.setObjectName(u"body")
+        self.body.setObjectName("body")
         self.body.setSizeConstraint(QLayout.SizeConstraint.SetMaximumSize)
         self.body.setContentsMargins(0, 0, 0, 0)
         self.stackedWidgetPages = QStackedWidget(self.centralwidget)
-        self.stackedWidgetPages.setObjectName(u"stackedWidgetPages")
+        self.stackedWidgetPages.setObjectName("stackedWidgetPages")
         self.stackedWidgetPages.setEnabled(True)
         sizePolicy.setHeightForWidth(self.stackedWidgetPages.sizePolicy().hasHeightForWidth())
         self.stackedWidgetPages.setSizePolicy(sizePolicy)
@@ -192,10 +196,10 @@ class Ui_MainWindow(object):
     # setupUi
 
     def retranslateUi(self, MainWindow):
-        MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"MainWindow", None))
+        MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", "MainWindow", None))
         self.logo.setText("")
-        self.logo_title.setText(QCoreApplication.translate("MainWindow", u"SLUMBER", None))
-        self.pushButton_help.setText(QCoreApplication.translate("MainWindow", u"Help", None))
-        self.pushButton_settings.setText(QCoreApplication.translate("MainWindow", u"Settings", None))
+        self.logo_title.setText(QCoreApplication.translate("MainWindow", "SLUMBER", None))
+        self.pushButton_help.setText(QCoreApplication.translate("MainWindow", "Help", None))
+        self.pushButton_settings.setText(QCoreApplication.translate("MainWindow", "Settings", None))
     # retranslateUi
 

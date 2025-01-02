@@ -1,11 +1,12 @@
-from PySide6.QtWidgets import (
-    QWidget,
-    QListWidgetItem,
-)
-from PySide6.QtCore import Qt, Signal, QSize
-from PySide6.QtGui import QStandardItemModel, QStandardItem
-from .procedure_ui import Ui_ProcedurePage
 import importlib
+
+from PySide6.QtCore import Qt, Signal
+from PySide6.QtWidgets import (
+    QListWidgetItem,
+    QWidget,
+)
+
+from .procedure_ui import Ui_ProcedurePage
 
 
 class ProcedurePage(QWidget, Ui_ProcedurePage):
@@ -13,7 +14,7 @@ class ProcedurePage(QWidget, Ui_ProcedurePage):
     procedure_completed_signal = Signal()
 
     def __init__(self, tasks, parent=None):
-        super(ProcedurePage, self).__init__(parent)
+        super().__init__(parent)
         self.setupUi(self)  # Setup the UI from the generated class
 
         self.tasks = sorted(tasks, key=lambda x: x['task_id'])
@@ -40,7 +41,7 @@ class ProcedurePage(QWidget, Ui_ProcedurePage):
             # QListWidget
             item = QListWidgetItem()
             item.setText(f"{idx + 1}. {task['name']}")
-            item.setFlags(item.flags() & ~Qt.ItemIsEnabled)  # Disable all items initially
+            item.setFlags(item.flags() & ~Qt.ItemIsEnabled)
             self.procedureStepList.addItem(item)
 
             # QStackedWidget
@@ -49,7 +50,7 @@ class ProcedurePage(QWidget, Ui_ProcedurePage):
             print(module_path)
             try:
                 module = importlib.import_module(f"{module_path}.widget")
-                widget_class = getattr(module, 'WidgetPage')
+                widget_class = module.WidgetPage
                 widget_instance = widget_class(index=idx)  # Pass the index
                 self.procedureStack.addWidget(widget_instance)
 

@@ -1,23 +1,26 @@
 # FILE: home.py
 
-from PySide6.QtWidgets import QWidget, QTableView, QAbstractItemView
-from PySide6.QtCore import QUrl, Qt
-from PySide6.QtGui import QStandardItemModel, QStandardItem, QColor, QFont, QBrush
-from PySide6.QtWidgets import QHeaderView
-from .home_ui import Ui_HomePage
 import os
-from model.task_progress_model import get_diary
+
 from model.study_calendar_model import get_todays_day_number
+from model.task_progress_model import get_diary
+from PySide6.QtCore import Qt, QUrl
+from PySide6.QtGui import QBrush, QColor, QFont, QStandardItem, QStandardItemModel
+from PySide6.QtWidgets import QAbstractItemView, QHeaderView, QWidget
+
+from .home_ui import Ui_HomePage
+
 
 class HomePage(QWidget, Ui_HomePage):
     def __init__(self, parent=None):
-        super(HomePage, self).__init__(parent)
+        super().__init__(parent)
         self.setupUi(self)  # Setup the UI from the generated class
 
         self.pushButton_start_procedure.clicked.connect(self.on_start_procedure_clicked)
 
         # Load the HTML file
-        html_file_path = os.path.join(os.path.dirname(__file__), './assets/html/index.html')
+        base_dir = os.path.dirname(__file__)
+        html_file_path = os.path.join(base_dir, './assets/html/index.html')
         self.webEngineView_main.setUrl(QUrl.fromLocalFile(html_file_path))
 
         # Populate the diary table
@@ -43,9 +46,13 @@ class HomePage(QWidget, Ui_HomePage):
                 font = model.headerData(col, Qt.Horizontal, Qt.FontRole) or QFont()
                 font.setBold(True)
                 model.setHeaderData(col, Qt.Horizontal, font, Qt.FontRole)
-                model.setHeaderData(col, Qt.Horizontal, QBrush(QColor("green")), Qt.ForegroundRole)
+                model.setHeaderData(
+                    col, Qt.Horizontal, QBrush(QColor("green")), Qt.ForegroundRole
+                )
             elif day > today_day:
-                model.setHeaderData(col, Qt.Horizontal, QBrush(QColor("gray")), Qt.ForegroundRole)
+                model.setHeaderData(
+                    col, Qt.Horizontal, QBrush(QColor("gray")), Qt.ForegroundRole
+                )
 
         for row, t in enumerate(all_types):
             # Map types to custom labels

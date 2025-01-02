@@ -1,18 +1,21 @@
-from PySide6.QtWidgets import QWidget
-from PySide6.QtCore import Qt, Signal
-from .settings_ui import Ui_SettingsWindow
 from model.gui_config_model import update_gui_config
+from PySide6.QtCore import Qt, Signal
+from PySide6.QtWidgets import QWidget
+
+from .settings_ui import Ui_SettingsWindow
+
 
 class SettingsPage(QWidget, Ui_SettingsWindow):
     config_changed_signal = Signal()
     config_back_signal = Signal()
 
     def __init__(self, gui_config, parent=None):
-        super(SettingsPage, self).__init__(parent)
+        super().__init__(parent)
         self.setupUi(self)  # Setup the UI from the generated class
 
         self.gui_config = gui_config
-        self.original_config = gui_config.copy()  # Keep a copy of the original config to compare changes
+        # Keep a copy of the original config to compare changes
+        self.original_config = gui_config.copy()
         self.load_config()
 
         self.settings_back.clicked.connect(self.on_back_button_clicked)
@@ -33,12 +36,14 @@ class SettingsPage(QWidget, Ui_SettingsWindow):
             self.update_font_size_buttons()
 
             # Update comboBox_language
-            index = self.comboBox_language.findText(self.gui_config['language'], Qt.MatchFixedString)
+            index = self.comboBox_language.findText(
+                self.gui_config['language'], Qt.MatchFixedString)
             if index >= 0:
                 self.comboBox_language.setCurrentIndex(index)
 
             # Update comboBox_window_mode
-            mode = "Window" if self.gui_config['app_mode'] == 'window' else "Full Screen"
+            mode = "Window" if self.gui_config['app_mode'] == 'window' else \
+                "Full Screen"
             index = self.comboBox_window_mode.findText(mode, Qt.MatchFixedString)
             if index >= 0:
                 self.comboBox_window_mode.setCurrentIndex(index)
@@ -54,7 +59,10 @@ class SettingsPage(QWidget, Ui_SettingsWindow):
                 (3840, 2160): "3840x2160 (4K UHD)",
                 (4096, 2160): "4096x2160 (4K DCI)"
             }
-            size_text = size_map.get((self.gui_config['app_width'], self.gui_config['app_height']), "")
+            size_text = size_map.get(
+                (self.gui_config['app_width'], self.gui_config['app_height']), 
+                ""
+            )
             index = self.comboBox_size.findText(size_text, Qt.MatchFixedString)
             if index >= 0:
                 self.comboBox_size.setCurrentIndex(index)
@@ -68,9 +76,12 @@ class SettingsPage(QWidget, Ui_SettingsWindow):
         current_config = {
             'font_size': self.lcdNumber_font_size.intValue(),
             'language': self.comboBox_language.currentText(),
-            'app_mode': 'window' if self.comboBox_window_mode.currentText() == 'Window' else 'full_screen',
+            'app_mode': 'window' if self.comboBox_window_mode.currentText() == 'Window' 
+                        else 'full_screen',
             'app_width': int(self.comboBox_size.currentText().split('x')[0]),
-            'app_height': int(self.comboBox_size.currentText().split('x')[1].split(' ')[0])
+            'app_height': int(
+                self.comboBox_size.currentText().split('x')[1].split(' ')[0]
+            )
         }
         self.settings_save.setEnabled(current_config != self.original_config)
 
@@ -101,9 +112,12 @@ class SettingsPage(QWidget, Ui_SettingsWindow):
         current_config = {
             'font_size': self.lcdNumber_font_size.intValue(),
             'language': self.comboBox_language.currentText(),
-            'app_mode': 'window' if self.comboBox_window_mode.currentText() == 'Window' else 'full_screen',
+            'app_mode': 'window' if self.comboBox_window_mode.currentText() == 'Window' 
+                        else 'full_screen',
             'app_width': int(self.comboBox_size.currentText().split('x')[0]),
-            'app_height': int(self.comboBox_size.currentText().split('x')[1].split(' ')[0])
+            'app_height': int(
+                self.comboBox_size.currentText().split('x')[1].split(' ')[0]
+            )
         }
         update_gui_config(
             current_config['font_size'],

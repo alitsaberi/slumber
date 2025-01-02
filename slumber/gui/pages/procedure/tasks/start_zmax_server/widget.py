@@ -1,8 +1,10 @@
-from PySide6.QtWidgets import QWidget, QDialog, QPushButton
-from PySide6.QtCore import Signal, QSize
+
+from PySide6.QtCore import QSize, Signal
+from PySide6.QtWidgets import QDialog, QPushButton, QWidget
+
 from .help_ui import Ui_HelpDialog
 from .widget_ui import Ui_Widget
-import os
+
 
 class WidgetPage(QWidget, Ui_Widget):
     is_done_signal = Signal(int)
@@ -11,7 +13,7 @@ class WidgetPage(QWidget, Ui_Widget):
     # 1: Task is not done
     # 2: Task is done
     def __init__(self, index, status= 1, parent=None):
-        super(WidgetPage, self).__init__(parent)
+        super().__init__(parent)
         self.index = index
         self.status = status
         self.setupUi(self)  # Setup the UI from the generated class
@@ -28,8 +30,9 @@ class WidgetPage(QWidget, Ui_Widget):
 
         
     def start(self):
-        # TODO: Implement your functionality here, which will be called when the task opens.
-        # Make sure to use the status as well, to make sure to not call this function several times
+        # TODO: Implement your functionality here, which will be called 
+        # when the task opens. Make sure to use the status as well, 
+        # to make sure to not call this function several times
         if self.status == 1:
             print("Task started")
         else:
@@ -47,8 +50,12 @@ class WidgetPage(QWidget, Ui_Widget):
 
         # Connect dialog buttons to methods
         # Assuming your help.ui has buttons named 'button_ok' and 'button_cancel'
-        ui.button_ok.clicked.connect(lambda: self.handle_help_response(dialog, accepted=True))
-        ui.button_cancel.clicked.connect(lambda: self.handle_help_response(dialog, accepted=False))
+        ui.button_ok.clicked.connect(
+            lambda: self.handle_help_response(dialog, accepted=True)
+        )
+        ui.button_cancel.clicked.connect(
+            lambda: self.handle_help_response(dialog, accepted=False)
+        )
 
         # Execute the dialog modally
         dialog.exec()

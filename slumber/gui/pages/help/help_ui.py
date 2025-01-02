@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 
 ################################################################################
 ## Form generated from reading UI file 'help.ui'
@@ -8,22 +7,24 @@
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
 
-from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
-    QMetaObject, QObject, QPoint, QRect,
-    QSize, QTime, QUrl, Qt)
-from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
-    QFont, QFontDatabase, QGradient, QIcon,
-    QImage, QKeySequence, QLinearGradient, QPainter,
-    QPalette, QPixmap, QRadialGradient, QTransform)
+from PySide6.QtCore import QCoreApplication, QMetaObject, QSize, Qt
+from PySide6.QtGui import QFont, QIcon
 from PySide6.QtWebEngineWidgets import QWebEngineView
-from PySide6.QtWidgets import (QApplication, QHBoxLayout, QLabel, QLayout,
-    QPushButton, QSizePolicy, QSpacerItem, QVBoxLayout,
-    QWidget)
+from PySide6.QtWidgets import (
+    QHBoxLayout,
+    QLabel,
+    QLayout,
+    QPushButton,
+    QSizePolicy,
+    QSpacerItem,
+    QVBoxLayout,
+)
 
-class Ui_HelpPage(object):
+
+class Ui_HelpPage:
     def setupUi(self, HelpPage):
         if not HelpPage.objectName():
-            HelpPage.setObjectName(u"HelpPage")
+            HelpPage.setObjectName("HelpPage")
         HelpPage.setWindowModality(Qt.WindowModality.NonModal)
         HelpPage.resize(666, 566)
         sizePolicy = QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
@@ -32,17 +33,17 @@ class Ui_HelpPage(object):
         sizePolicy.setHeightForWidth(HelpPage.sizePolicy().hasHeightForWidth())
         HelpPage.setSizePolicy(sizePolicy)
         self.verticalLayout_3 = QVBoxLayout(HelpPage)
-        self.verticalLayout_3.setObjectName(u"verticalLayout_3")
+        self.verticalLayout_3.setObjectName("verticalLayout_3")
         self.horizontalLayout_2 = QHBoxLayout()
-        self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
+        self.horizontalLayout_2.setObjectName("horizontalLayout_2")
         self.horizontalLayout_2.setSizeConstraint(QLayout.SizeConstraint.SetMaximumSize)
         self.horizontalLayout_2.setContentsMargins(-1, -1, -1, 16)
         self.help_back = QPushButton(HelpPage)
-        self.help_back.setObjectName(u"help_back")
+        self.help_back.setObjectName("help_back")
         self.help_back.setMinimumSize(QSize(50, 50))
         self.help_back.setMaximumSize(QSize(50, 50))
         self.help_back.setSizeIncrement(QSize(50, 50))
-        self.help_back.setStyleSheet(u"QPushButton {\n"
+        self.help_back.setStyleSheet("QPushButton {\n"
 "    color: rgb(255, 255, 255);\n"
 "    background-color: rgb(1, 92, 187);\n"
 "    border: 1px;\n"
@@ -65,9 +66,9 @@ class Ui_HelpPage(object):
         self.horizontalLayout_2.addWidget(self.help_back)
 
         self.label = QLabel(HelpPage)
-        self.label.setObjectName(u"label")
+        self.label.setObjectName("label")
         font = QFont()
-        font.setFamilies([u"Arial"])
+        font.setFamilies(["Arial"])
         font.setPointSize(36)
         self.label.setFont(font)
 
@@ -81,7 +82,7 @@ class Ui_HelpPage(object):
         self.verticalLayout_3.addLayout(self.horizontalLayout_2)
 
         self.webEngineView_help = QWebEngineView(HelpPage)
-        self.webEngineView_help.setObjectName(u"webEngineView_help")
+        self.webEngineView_help.setObjectName("webEngineView_help")
         sizePolicy.setHeightForWidth(self.webEngineView_help.sizePolicy().hasHeightForWidth())
         self.webEngineView_help.setSizePolicy(sizePolicy)
         self.webEngineView_help.setMinimumSize(QSize(0, 0))
@@ -96,8 +97,8 @@ class Ui_HelpPage(object):
     # setupUi
 
     def retranslateUi(self, HelpPage):
-        HelpPage.setWindowTitle(QCoreApplication.translate("HelpPage", u"Help", None))
+        HelpPage.setWindowTitle(QCoreApplication.translate("HelpPage", "Help", None))
         self.help_back.setText("")
-        self.label.setText(QCoreApplication.translate("HelpPage", u"Help", None))
+        self.label.setText(QCoreApplication.translate("HelpPage", "Help", None))
     # retranslateUi
 

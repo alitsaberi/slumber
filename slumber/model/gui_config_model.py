@@ -1,15 +1,21 @@
-from utils.db_utils import get_db_connection
 import sqlite3
+
+from utils.db_utils import get_db_connection
+
 
 def get_gui_config():
     conn = get_db_connection()
     conn.row_factory = sqlite3.Row  # This allows us to access columns by name
     cursor = conn.cursor()
-    cursor.execute('SELECT font_size, app_width, app_height, app_mode, language FROM gui_config LIMIT 1')
+    cursor.execute('''
+        SELECT font_size, app_width, app_height, app_mode, language 
+        FROM gui_config 
+        LIMIT 1
+    ''')
     row = cursor.fetchone()
     conn.close()
     if row:
-        return {key: row[key] for key in row.keys()}  # Convert the row to a dictionary
+        return {key: row[key] for key in row} 
     return None
 
 def update_gui_config(font_size, app_width, app_height, app_mode, language):

@@ -1,5 +1,7 @@
-from utils.db_utils import get_db_connection
 import sqlite3
+
+from utils.db_utils import get_db_connection
+
 
 def insert_task(name, header, module, type):
     conn = get_db_connection()
@@ -15,10 +17,14 @@ def get_tasks():
     conn = get_db_connection()
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
-    cursor.execute('SELECT task_id, name, header, module, type FROM tasks ORDER BY task_id')
+    cursor.execute('''
+        SELECT task_id, name, header, module, type 
+        FROM tasks 
+        ORDER BY task_id
+    ''')
     tasks = cursor.fetchall()
     conn.close()
-    return [{key: task[key] for key in task.keys()} for task in tasks]
+    return [{key: task[key] for key in task} for task in tasks]
 
 def update_task(task_id, name, header, module, type):
     conn = get_db_connection()
