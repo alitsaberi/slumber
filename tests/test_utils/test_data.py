@@ -12,6 +12,11 @@ from slumber.utils.data import (
 )
 
 
+def test_empty_data_initialization():
+    with pytest.raises(ValueError):
+        Data(array=np.array([]), sample_rate=128)
+
+
 def test_data_initialization(sample_data):
     assert isinstance(sample_data, Data)
     assert sample_data.array.shape == (3840, 2)
