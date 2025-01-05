@@ -1,8 +1,21 @@
+from collections.abc import Sequence
 from dataclasses import dataclass
 from datetime import timedelta
+from functools import cached_property
 from typing import Any
 
 import numpy as np
+
+
+def _validate_channel_names(objects: Sequence["ArrayBase"]) -> None:
+    reference_channels = objects[0].channel_names
+    for obj in objects[1:]:
+        if obj.channel_names != reference_channels:
+            raise ValueError(
+                "All objects must have identical channel names."
+                f" Reference: {reference_channels}, got: {obj.channel_names}"
+            )
+    return reference_channels
 
 
 @dataclass
@@ -11,12 +24,6 @@ class ArrayBase:
     channel_names: list[str]
 
     def __post_init__(self):
-        if len(self.shape) != 2:
-            raise ValueError(
-                f"Data must be 2D with shape (n_samples, n_channels), "
-                f"got shape {self.shape}"
-            )
-
         if self.channel_names is None:
             self.channel_names = [f"channel_{i}" for i in range(self.n_channels)]
 
@@ -32,19 +39,64 @@ class ArrayBase:
         return self.array.shape
 
     @property
+    def n_channels(self) -> int:
+        """Returns the number of channels in data"""
+        return self.array.shape[-1]
+
+    @cached_property
+    def channel_index_map(self) -> dict[str, int]:
+        """Returns a mapping from channel name to index"""
+        return {name: idx for idx, name in enumerate(self.channel_names)}
+
+
+@dataclass
+class Sample(ArrayBase):
+    timestamp: float
+
+    def __post_init__(self):
+        super().__post_init__()
+
+        if self.array.ndim != 1:
+            raise ValueError(
+                f"Data must be 1D with shape (n_channels,), " f"got shape {self.shape}"
+            )
+
+
+@dataclass
+class TimestampedArray(ArrayBase):
+    timestamps: np.ndarray[np.float64]
+
+    @property
     def length(self) -> int:
         """Returns the number of samples in data"""
         return self.shape[0]
 
     @property
-    def n_channels(self) -> int:
-        """Returns the number of channels in data"""
-        return self.shape[1]
+    def index(self) -> np.ndarray:
+        """
+        Return the time index of the data relative to the start time.
+        """
+        return self.timestamps - self.timestamps[0]
+
+    def __post_init__(self):
+        super().__post_init__()
+
+        if self.array.ndim != 2:
+            raise ValueError(
+                f"Data must be 2D with shape (n_samples, n_channels), "
+                f"got shape {self.shape}"
+            )
+
+        if self.timestamps.shape != (self.length,):
+            raise ValueError(
+                f"Timestamps must have shape (n_samples,), "
+                f"got shape {self.timestamps.shape}"
+            )
 
     def __getitem__(
         self, key: slice | tuple[slice, int | str | list[int] | list[str]]
-    ) -> "ArrayBase":
-        """Support for array-like slicing with [start:stop, channel_names/indices]"""
+    ) -> "TimestampedArray":
+        """Support for array-like slicing with [channel_names/indices]"""
         if not isinstance(key, tuple):
             key = (key, None)
         samples, channels = key
@@ -65,30 +117,31 @@ class ArrayBase:
             return
 
         samples, channels = key
-        if isinstance(channels, str) or (
-            isinstance(channels, list) and all(isinstance(c, str) for c in channels)
-        ):
-            channel_indices = [
-                self.channel_names.index(c)
-                for c in ([channels] if isinstance(channels, str) else channels)
-            ]
+
+        if isinstance(channels, str):
+            channels = [channels]
+
+        if isinstance(channels, list) and all(isinstance(c, str) for c in channels):
+            channel_indices = self._get_channel_indices(channels)
             self.array[samples, channel_indices] = value
         else:
             self.array[samples, channels] = value
 
     def loc(
         self, samples: slice | None = None, channels: str | list[str] | None = None
-    ) -> "ArrayBase":
+    ) -> "TimestampedArray":
         if channels is None:
             channels = self.channel_names
+
         if isinstance(channels, str):
             channels = [channels]
-        channel_indices = [self.channel_names.index(name) for name in channels]
+
+        channel_indices = self._get_channel_indices(channels)
         return self._slice_data(samples, channel_indices, channels)
 
     def iloc(
         self, samples: slice | None = None, channels: int | list[int] | None = None
-    ) -> "ArrayBase":
+    ) -> "TimestampedArray":
         if channels is None:
             channels = list(range(self.n_channels))
         if isinstance(channels, int):
@@ -96,59 +149,44 @@ class ArrayBase:
         channel_names = [self.channel_names[i] for i in channels]
         return self._slice_data(samples, channels, channel_names)
 
+    def _get_channel_indices(self, channels: list[str]) -> list[int]:
+        return [self.channel_index_map[ch] for ch in channels]
+
     def _slice_data(
         self, samples: slice | None, channels: list, channel_names: list[str]
-    ) -> "ArrayBase":
+    ) -> "TimestampedArray":
         samples = samples or slice(None)
         kwargs = self._get_slice_kwargs(samples, channels, channel_names)
         return type(self)(**kwargs)
 
     def _get_slice_kwargs(
-        self, samples: slice, channels: list, channel_names: list[str]
+        self, samples: slice, channels: list[int], channel_names: list[str]
     ) -> dict[str, Any]:
         return {
             "array": self.array[samples, channels],
             "channel_names": channel_names,
+            "timestamps": self.timestamps[samples],
         }
 
     def roll(self, shift: int) -> None:
-        self.array = np.roll(self.array, shift)
-
-
-@dataclass
-class TimeSeriesBase(ArrayBase):
-    timestamps: np.ndarray[float]
-
-    def __post_init__(self):
-        super().__post_init__()
-
-        if self.timestamps.shape != (self.length,):
-            raise ValueError(
-                f"Timestamps must have shape (n_samples,), "
-                f"got shape {self.timestamps.shape}"
-            )
-
-    @property
-    def index(self) -> np.ndarray:
-        """
-        Return the time index of the data relative to the start time.
-        """
-        return self.timestamps - self.timestamps[0]
-
-    def _get_slice_kwargs(
-        self, samples: slice, channels: list, channel_names: list[str]
-    ) -> dict[str, Any]:
-        kwargs = super()._get_slice_kwargs(samples, channels, channel_names)
-        kwargs["timestamps"] = self.timestamps[samples]
-        return kwargs
-
-    def roll(self, shift: int) -> None:
-        super().roll(shift)
+        self.array = np.roll(self.array, shift, axis=0)
         self.timestamps = np.roll(self.timestamps, shift)
 
+    @classmethod
+    def concatenate(cls, objects: Sequence["TimestampedArray"]) -> "TimestampedArray":
+        if len(objects) == 0:
+            raise ValueError("At least one object must be provided.")
+
+        channel_names = _validate_channel_names(objects)
+        array = np.concatenate([obj.array for obj in objects], axis=0)
+        timestamps = np.concatenate([obj.timestamps for obj in objects])
+        return TimestampedArray(
+            array=array, channel_names=channel_names, timestamps=timestamps
+        )
+
 
 @dataclass
-class Data(TimeSeriesBase):
+class Data(TimestampedArray):
     """
     Represents a time series of data with constant sample rate.
     """
@@ -169,10 +207,12 @@ class Data(TimeSeriesBase):
         self.array = array
         self.sample_rate = sample_rate
         timestamps = timestamps if timestamps is not None else self.index
+        timestamps += timestamp_offset
+
         super().__init__(
             array=array,
             channel_names=channel_names,
-            timestamps=timestamps + timestamp_offset,
+            timestamps=timestamps,
         )
 
     def __str__(self):
@@ -195,6 +235,40 @@ class Data(TimeSeriesBase):
     @property
     def duration(self) -> timedelta:
         return timedelta(seconds=self.length / self.sample_rate)
+
+    @classmethod
+    def concatenate(
+        cls,
+        objects: Sequence["Data"],
+    ) -> "Data":
+        base = super().concatenate(objects)
+
+        sample_rate = objects[0].sample_rate
+        if not all(obj.sample_rate == sample_rate for obj in objects):
+            raise ValueError("All objects must have the same sample rate")
+
+        return Data(
+            array=base.array,
+            channel_names=base.channel_names,
+            timestamps=base.timestamps,
+            sample_rate=sample_rate,
+        )
+
+
+def samples_to_timestamped_array(samples: Sequence[Sample]) -> TimestampedArray:
+    if len(samples) == 0:
+        raise ValueError("At least one sample must be provided.")
+
+    channels_names = _validate_channel_names(samples)
+
+    array = np.stack([sample.array for sample in samples])
+    timestamps = np.array([sample.timestamp for sample in samples])
+
+    return TimestampedArray(
+        array=array,
+        channel_names=channels_names,
+        timestamps=timestamps,
+    )
 
 
 def get_all_periods_by_period_length(

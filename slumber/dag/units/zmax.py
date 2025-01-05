@@ -2,6 +2,7 @@ import asyncio
 import time
 from collections import deque
 from collections.abc import AsyncGenerator
+from dataclasses import dataclass
 from functools import cached_property
 from typing import Annotated
 
@@ -16,6 +17,12 @@ from slumber.sources.zmax import SAMPLE_RATE as ZMAX_SAMPLE_RATE
 from slumber.sources.zmax import DataType, ZMax, is_connected
 from slumber.utils.data import Data
 from slumber.utils.helpers import enum_by_name_validator
+
+
+@dataclass
+class Sample:
+    timestamp: float
+    data: np.ndarray
 
 
 class Settings(PydanticSettings):
@@ -43,19 +50,19 @@ class State(ez.State):
 class ZMaxDataReceiver(ez.Unit):
     SETTINGS = Settings
     STATE = State
-    OUTPUT_DATA = ez.OutputStream(Data)
+    OUTPUT_SAMPLE = ez.OutputStream(Sample)
 
     def initialize(self) -> None:
         self.STATE.buffer = deque(maxlen=self.SETTINGS.buffer_size * 2)
         self.STATE.publish_rate = Rate(1 / self.SETTINGS.buffer_duration)
 
-    @ez.task
+    @ez.publisher(OUTPUT_SAMPLE)
     async def receive(self) -> AsyncGenerator:
         while True:
             try:
-                sample = self.SETTINGS.zmax.read(self.SETTINGS.data_types)
+                array = self.SETTINGS.zmax.read(self.SETTINGS.data_types)
                 timestamp = time.time()
-                self.STATE.buffer.append((timestamp, sample))
+                self.STATE.buffer.append((timestamp, array))
             except TimeoutError:
                 logger.warning(
                     "Timed out while waiting for data from ZMax."
@@ -66,7 +73,7 @@ class ZMaxDataReceiver(ez.Unit):
                 logger.error(f"Error connecting to ZMax: {e}. Retrying to connect...")
                 self.SETTINGS.zmax.connect()
 
-    @ez.publisher(OUTPUT_DATA)
+    @ez.publisher(OUTPUT_SAMPLE)
     async def publish(self):
         while True:
             current_time = time.time()
