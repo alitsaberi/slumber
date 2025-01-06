@@ -8,6 +8,14 @@ from loguru import logger
 from slumber import settings
 
 
+class GroupDoesNotExistError(ValueError):
+    pass
+
+
+class DatasetDoesNotExistError(ValueError):
+    pass
+
+
 # TODO: Move this to utils and remove data_management
 class HDF5Manager:
     def __init__(self, file_path: Path):
@@ -74,7 +82,7 @@ class HDF5Manager:
             h5py.Dataset: The created dataset.
         """
         if group_name not in self._file:
-            raise ValueError(f"Group {group_name} does not exist.")
+            raise GroupDoesNotExistError(f"Group {group_name} does not exist.")
 
         if data is None and shape is None:
             raise ValueError("Either data or shape must be provided.")
@@ -106,10 +114,10 @@ class HDF5Manager:
 
     def append(self, group_name: str, dataset_name: str, data: np.ndarray) -> None:
         if group_name not in self._file:
-            raise ValueError(f"Group {group_name} does not exist.")
+            raise GroupDoesNotExistError(f"Group {group_name} does not exist.")
 
         if dataset_name not in self._file[group_name]:
-            raise ValueError(
+            raise DatasetDoesNotExistError(
                 f"Dataset {dataset_name} does not exist in group {group_name}."
             )
 

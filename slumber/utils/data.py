@@ -20,10 +20,13 @@ def _validate_channel_names(objects: Sequence["ArrayBase"]) -> None:
 
 @dataclass
 class ArrayBase:
-    array: np.ndarray
+    array: np.ndarray[Any, np.dtype[np.float64]]
     channel_names: list[str]
 
     def __post_init__(self):
+        if not isinstance(self.array, np.ndarray):
+            raise TypeError("array must be a numpy.ndarray")
+
         if self.channel_names is None:
             self.channel_names = [f"channel_{i}" for i in range(self.n_channels)]
 
@@ -32,6 +35,18 @@ class ArrayBase:
                 f"Number of channel names ({len(self.channel_names)})"
                 f" must match number of channels ({self.n_channels})."
             )
+
+    @property
+    def attributes(self) -> dict[str, Any]:
+        return {
+            "channel_names": self.channel_names,
+        }
+
+    @property
+    def datasets(self) -> dict[str, np.ndarray]:
+        return {
+            "data": self.array,
+        }
 
     @property
     def shape(self) -> tuple[int, int]:
@@ -61,6 +76,13 @@ class Sample(ArrayBase):
                 f"Data must be 1D with shape (n_channels,), " f"got shape {self.shape}"
             )
 
+    @property
+    def datasets(self) -> dict[str, np.ndarray]:
+        return {
+            "data": self.array.reshape(-1, 1),
+            "timestamp": np.array([self.timestamp]),
+        }
+
 
 @dataclass
 class TimestampedArray(ArrayBase):
@@ -77,6 +99,13 @@ class TimestampedArray(ArrayBase):
         Return the time index of the data relative to the start time.
         """
         return self.timestamps - self.timestamps[0]
+
+    @property
+    def datasets(self) -> dict[str, np.ndarray]:
+        return {
+            "data": self.array,
+            "timestamp": self.timestamps,
+        }
 
     def __post_init__(self):
         super().__post_init__()
@@ -236,6 +265,13 @@ class Data(TimestampedArray):
     def duration(self) -> timedelta:
         return timedelta(seconds=self.length / self.sample_rate)
 
+    @property
+    def attributes(self) -> dict[str, Any]:
+        return {
+            "sample_rate": self.sample_rate,
+            **super().attributes,
+        }
+
     @classmethod
     def concatenate(
         cls,
@@ -338,8 +374,8 @@ def get_periods_by_index(
     if n_periods is None:
         if data.length % n_samples_per_period != 0:
             raise ValueError(
-                f"Data length {data.length} is not a multiple of"
-                f" {n_samples_per_period}."
+                f"Data length {data.length} is not"
+                f" a multiple of {n_samples_per_period}."
             )
         n_periods = n_available_samples // n_samples_per_period
 
@@ -348,10 +384,10 @@ def get_periods_by_index(
     if end_sample_index > data.length:
         raise ValueError(
             f"Requested {n_periods} periods, but only"
-            f" {n_available_samples // n_samples_per_period}"
-            " periods are available."
+            f" {n_available_samples // n_samples_per_period} periods are available."
         )
 
-    selected_data = data[start_sample_index:end_sample_index]
+    period_indices = np.arange(start_sample_index, end_sample_index)
+    period_indices = period_indices.reshape(n_periods, n_samples_per_period)
 
-    return selected_data.array.reshape(n_periods, n_samples_per_period, -1)
+    return data.array[period_indices]

@@ -3,16 +3,16 @@ from pathlib import Path
 import ezmsg.core as ez
 from ezmsg.util.terminate import TerminateOnTotal, TerminateOnTotalSettings
 
-from slumber.dag.units import data_storage, sleep_scoring, zmax
+from slumber.dag.units import hdf5_storage, sleep_scoring, zmax
 from slumber.utils.helpers import load_yaml
 from slumber.utils.logger import setup_logging
 
 
 class SampleCollection(ez.Collection):
     DATA_RECEIVER = zmax.ZMaxDataReceiver()
-    RAW_DATA_STORAGE = data_storage.HDF5Storage()
+    RAW_DATA_STORAGE = hdf5_storage.HDF5Storage()
     SLEEP_SCORING = sleep_scoring.SleepScoring()
-    SLEEP_SCORING_STORAGE = data_storage.HDF5Storage()
+    SLEEP_SCORING_STORAGE = hdf5_storage.HDF5Storage()
     TERMINATE = TerminateOnTotal()
 
     def __init__(self, config_path: Path, *args, **kwargs):
@@ -24,7 +24,7 @@ class SampleCollection(ez.Collection):
             zmax.Settings.model_validate(self.config["data_collection"]["settings"])
         )
         self.RAW_DATA_STORAGE.apply_settings(
-            data_storage.Settings.model_validate(
+            hdf5_storage.Settings.model_validate(
                 self.config["raw_data_storage"]["settings"]
             )
         )
@@ -34,7 +34,7 @@ class SampleCollection(ez.Collection):
             )
         )
         self.SLEEP_SCORING_STORAGE.apply_settings(
-            data_storage.Settings.model_validate(
+            hdf5_storage.Settings.model_validate(
                 self.config["sleep_scoring_storage"]["settings"]
             )
         )
