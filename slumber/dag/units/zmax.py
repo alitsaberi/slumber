@@ -2,7 +2,6 @@ import asyncio
 import time
 from collections import deque
 from collections.abc import AsyncGenerator
-from dataclasses import dataclass
 from functools import cached_property
 from typing import Annotated
 
@@ -15,14 +14,8 @@ from pydantic import AfterValidator, ConfigDict
 from slumber.dag.utils import PydanticSettings
 from slumber.sources.zmax import SAMPLE_RATE as ZMAX_SAMPLE_RATE
 from slumber.sources.zmax import DataType, ZMax, is_connected
-from slumber.utils.data import Data
+from slumber.utils.data import Data, Sample
 from slumber.utils.helpers import enum_by_name_validator
-
-
-@dataclass
-class Sample:
-    timestamp: float
-    data: np.ndarray
 
 
 class Settings(PydanticSettings):
