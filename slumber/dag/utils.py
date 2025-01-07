@@ -1,10 +1,39 @@
-from typing import Any
+from typing import Annotated, Any
 
 import ezmsg.core as ez
-from pydantic import ConfigDict, TypeAdapter
+from pydantic import (
+    BaseModel,
+    BeforeValidator,
+    ConfigDict,
+    Field,
+    TypeAdapter,
+    field_validator,
+    model_validator,
+)
+
+from slumber.dag import units
+from slumber.utils.helpers import make_class_validator
+
+
+def _model_validate(cls: type, obj: Any) -> Any:
+    validator = TypeAdapter(cls)
+    return validator.validate_python(obj)
 
 
 class PydanticSettings(ez.Settings):
+    __pydantic_config__ = ConfigDict(
+        strict=False, arbitrary_types_allowed=True, frozen=True
+    )
+
+    @classmethod
+    def model_validate(
+        cls,
+        obj: Any,
+    ) -> "PydanticSettings":
+        return _model_validate(cls, obj)
+
+
+class PydanticState(ez.State):
     __pydantic_config__ = ConfigDict(strict=False, arbitrary_types_allowed=True)
 
     @classmethod
@@ -12,5 +41,72 @@ class PydanticSettings(ez.Settings):
         cls,
         obj: Any,
     ) -> "PydanticSettings":
-        validator = TypeAdapter(cls)
-        return validator.validate_python(obj)
+        return _model_validate(cls, obj)
+
+
+class ComponentConfig(BaseModel):
+    unit: Annotated[
+        ez.Unit,
+        BeforeValidator(make_class_validator(ez.Unit, units)),
+    ]
+    settings: dict[str, Any] = Field(default_factory=dict)
+
+    model_config = ConfigDict(strict=False, arbitrary_types_allowed=True)
+
+    def configure(self) -> ez.Unit:
+        return self.unit(**self.settings)
+
+
+class CollectionConfig(BaseModel):
+    components: dict[str, ez.Unit]
+    connections: tuple[tuple[ez.OutputStream, ez.InputStream], ...]
+    root_name: str | None = Field(alias="name")
+
+    model_config = ConfigDict(strict=False, arbitrary_types_allowed=True)
+
+    @field_validator("components", mode="before")
+    @classmethod
+    def resolve_components(cls, components: dict[str, Any]) -> dict[str, ez.Unit]:
+        return {
+            name: ComponentConfig.model_validate(component_config).configure()
+            for name, component_config in components.items()
+        }
+
+    @model_validator(mode="before")
+    @classmethod
+    def resolve_connections(cls, values: dict[str, Any]) -> dict[str, Any]:
+        components = values.get("components")
+        connections = values.get("connections")
+
+        values["connections"] = tuple(
+            (
+                cls._resolve_stream(connection[0], components),
+                cls._resolve_stream(connection[1], components),
+            )
+            for connection in connections
+        )
+
+        return values
+
+    @staticmethod
+    def _resolve_stream(
+        stream: str, components: dict[str, ez.Unit]
+    ) -> ez.InputStream | ez.OutputStream:
+        if isinstance(stream, str):
+            try:
+                component_name, stream_name = stream.split(".")
+            except ValueError as e:
+                raise ValueError(
+                    f"Invalid stream name: {stream}."
+                    f" Expected format: <unit_name>.<stream_name>"
+                ) from e
+
+            if component_name not in components:
+                raise ValueError(
+                    f"Invalid component name for a stream: {component_name}. "
+                    f"Expected one of: {list(components.keys())}"
+                )
+
+            stream = getattr(components[component_name], stream_name)
+
+        return stream

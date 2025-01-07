@@ -1,11 +1,14 @@
 import inspect
+from collections.abc import Callable
 from enum import Enum
 from pathlib import Path
 from types import ModuleType
-from typing import Any
+from typing import Any, TypeVar
 
 import yaml
-from pydantic import BeforeValidator
+from pydantic import BeforeValidator, ValidationInfo
+
+T = TypeVar("T")
 
 
 def load_yaml(config_path: Path) -> dict:
@@ -63,6 +66,7 @@ def get_class_by_name(
 def enum_by_name_validator(
     enum_type: type[Enum],
 ) -> BeforeValidator:
+    # TODO: make this a resolver similar to resolve_class
     """
     Creates a pydantic validator for converting string values to enum members.
 
@@ -78,3 +82,12 @@ def enum_by_name_validator(
         return enum_type[v] if isinstance(v, str) else v
 
     return BeforeValidator(validate)
+
+
+def make_class_validator(
+    base_class: type[T], module: ModuleType
+) -> Callable[[Any, ValidationInfo], Any]:
+    def validate(v: Any, info: ValidationInfo) -> Any:
+        return get_class_by_name(module, v, base_class) if isinstance(v, str) else v
+
+    return validate
