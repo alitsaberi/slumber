@@ -6,17 +6,19 @@ from typing import Annotated
 
 import ezmsg.core as ez
 from loguru import logger
-from pydantic import AfterValidator, ConfigDict
+from pydantic import AfterValidator, BeforeValidator, ConfigDict
 
 from slumber.dag.utils import PydanticSettings
 from slumber.sources.zmax import DataType, ZMax, is_connected
 from slumber.utils.data import Sample
-from slumber.utils.helpers import enum_by_name_validator
+from slumber.utils.helpers import create_enum_by_name_resolver
 
 
 class Settings(PydanticSettings):
     zmax: Annotated[ZMax, AfterValidator(is_connected)] | None
-    data_types: list[Annotated[DataType, enum_by_name_validator(DataType)]]
+    data_types: list[
+        Annotated[DataType, BeforeValidator(create_enum_by_name_resolver(DataType))]
+    ]
     retry_delay: int = 5  # seconds
 
     model_config = ConfigDict(arbitrary_types_allowed=True)

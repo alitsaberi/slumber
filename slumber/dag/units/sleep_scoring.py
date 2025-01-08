@@ -35,8 +35,8 @@ class TransformConfig(PydanticSettings):
     def resolve_transform(cls, v: Any) -> transforms.Transform:
         if isinstance(v, str):
             return get_class_by_name(
-                transforms,
                 v,
+                transforms,
                 transforms.Transform,
             )()
         return v

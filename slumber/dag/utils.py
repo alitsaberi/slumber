@@ -11,7 +11,7 @@ from pydantic import (
 )
 
 from slumber.dag import units
-from slumber.utils.helpers import make_class_validator
+from slumber.utils.helpers import create_class_by_name_resolver
 
 
 def _model_validate(cls: type, obj: Any) -> Any:
@@ -46,30 +46,32 @@ class PydanticState(ez.State):
 class ComponentConfig(BaseModel):
     unit: Annotated[
         type[ez.Unit],
-        BeforeValidator(make_class_validator(ez.Unit, units)),
+        BeforeValidator(create_class_by_name_resolver(units, ez.Unit)),
     ]
     settings: dict[str, Any] = Field(default_factory=dict)
+    # TODO: validate based on unit.SETTINGS
 
     model_config = ConfigDict(strict=False, arbitrary_types_allowed=True)
 
     def configure(self) -> ez.Unit:
-        return self.unit(**self.settings)
+        settings = self.unit.SETTINGS.model_validate(self.settings)
+        return self.unit(settings)
 
 
 class CollectionConfig(BaseModel):
-    components: dict[str, ez.Unit]
-    connections: tuple[tuple[ez.OutputStream, ez.InputStream], ...]
-    root_name: str | None = Field(alias="name")
+    components: dict[str, ez.Unit] = Field(min_length=1)
+    connections: tuple[tuple[ez.OutputStream, ez.InputStream], ...] = Field(
+        min_length=1
+    )
+    root_name: str | None = Field(None, alias="name")
 
     model_config = ConfigDict(strict=False, arbitrary_types_allowed=True)
 
     @model_validator(mode="before")
     @classmethod
     def resolve_connections(cls, values: dict[str, Any]) -> dict[str, Any]:
-        components = values.get("components")
-        connections = values.get("connections")
-
-        components = cls._resolve_component(components)
+        connections = values.get("connections", tuple())
+        components = cls._resolve_component(values.get("components", {}))
 
         values["connections"] = tuple(
             (

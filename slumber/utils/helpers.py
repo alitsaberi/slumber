@@ -8,9 +8,9 @@ from types import ModuleType
 from typing import Any, TypeVar
 
 import yaml
-from pydantic import BeforeValidator, ValidationInfo
+from loguru import logger
 
-T = TypeVar("T")
+T = TypeVar("T", bound=type)
 
 
 def load_yaml(config_path: Path) -> dict:
@@ -28,9 +28,9 @@ def load_yaml(config_path: Path) -> dict:
 
 
 def get_class_by_name(
-    module: ModuleType,
     class_name: str,
-    base_class: type | None = None,
+    module: ModuleType,
+    base_class: type[T] | None = None,
     search_submodules: bool = True,
 ) -> type:
     """
@@ -53,7 +53,9 @@ def get_class_by_name(
         if inspect.isclass(cls) and (base_class is None or issubclass(cls, base_class)):
             return cls
     except AttributeError:
-        pass
+        logger.debug(
+            f"Class {class_name} not found" f" in the main module {module.__name__}"
+        )
 
     if search_submodules:
         # Search through all submodules
@@ -68,8 +70,13 @@ def get_class_by_name(
                     ):
                         return cls
                 except AttributeError:
+                    logger.debug(
+                        f"Class {class_name} not found"
+                        f" in submodule {full_module_name}"
+                    )
                     continue
             except ImportError:
+                logger.debug(f"Failed to import submodule {full_module_name}")
                 continue
 
     raise ValueError(
@@ -78,31 +85,19 @@ def get_class_by_name(
     )
 
 
-def enum_by_name_validator(
+def create_enum_by_name_resolver(
     enum_type: type[Enum],
-) -> BeforeValidator:
-    # TODO: make this a resolver similar to resolve_class
-    """
-    Creates a pydantic validator for converting string values to enum members.
-
-    Args:
-        enum_type (type[Enum]): The Enum class to validate against
-
-    Returns:
-        BeforeValidator: An instance of pydantic.BeforeValidator
-            that converts strings to enum members.
-    """
-
-    def validate(v: Any) -> Any:
+) -> Callable[[Any], Any]:
+    def resolve(v: Any) -> Any:
         return enum_type[v] if isinstance(v, str) else v
 
-    return BeforeValidator(validate)
+    return resolve
 
 
-def make_class_validator(
-    base_class: type[T], module: ModuleType
-) -> Callable[[Any, ValidationInfo], Any]:
-    def validate(v: Any, info: ValidationInfo) -> Any:
-        return get_class_by_name(module, v, base_class) if isinstance(v, str) else v
+def create_class_by_name_resolver(
+    module: ModuleType, base_class: type[T] | None = None
+) -> Callable[[Any], Any]:
+    def resolve(v: Any) -> Any:
+        return get_class_by_name(v, module, base_class) if isinstance(v, str) else v
 
-    return validate
+    return resolve
