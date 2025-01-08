@@ -25,8 +25,9 @@ sleep_scoring:
 
 logging:
   console:
-    level: "INFO"
-    format: "{time} | {level} | {message}"
+    level: "DEBUG"
+    format: "<c>{time}</c> | <lvl>{level}</lvl> | <m>{module}:{function}:{line}</m> | {message}"
+    colorize: True
   file:
     file_name: "slumber.log"
     level: "DEBUG"

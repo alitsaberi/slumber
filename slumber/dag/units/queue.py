@@ -19,7 +19,7 @@ from slumber.utils.data import (
 
 class QueueSettings(PydanticSettings):
     max_size: int = Field(gte=0)
-    publish_interval: float = Field(gte=0)
+    publish_interval: int = Field(gt=0)
     leaky: bool = False
     log_queue_size_interval: float | None = None
 
@@ -63,7 +63,7 @@ class Queue(ez.Unit):
 
     @ez.subscriber(INPUT)
     async def on_sample(self, sample: Sample) -> None:
-        if self.STATE.leaky is False:
+        if not self.STATE.leaky:
             await self.STATE.queue.put(sample)
         else:
             try:
@@ -123,8 +123,11 @@ class TimeQueue(Queue):
                 continue
 
             if self.SETTINGS.output_sample_rate is not None:
-                data = self._regularize_sample_rate(data)
+                data = self._regularize_sample_rate(
+                    data, start_time=cutoff_time, end_time=current_time
+                )
 
+            logger.debug(f"{self.address} publishing {data}.")
             yield (self.OUTPUT, data)
 
     def _process_queue(
@@ -167,6 +170,7 @@ class TimeQueue(Queue):
         if self.SETTINGS.interpolate_missing:
             array = np.interp(regular_timestamps, data.timestamps, data.array)
         else:
+            array = np.zeros((len(regular_timestamps), data.n_channels))
             indices = np.searchsorted(regular_timestamps, data.timestamps)
             array[indices] = data.array
 

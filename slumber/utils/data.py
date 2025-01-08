@@ -36,6 +36,10 @@ class ArrayBase:
                 f" must match number of channels ({self.n_channels})."
             )
 
+    def __str__(self) -> str:
+        attrs = [f"{k}={v}" for k, v in self.attributes.items()]
+        return f"{self.__class__.__name__}(shape={self.shape}, {', '.join(attrs)})"
+
     @property
     def attributes(self) -> dict[str, Any]:
         return {
@@ -242,12 +246,6 @@ class Data(TimestampedArray):
             array=array,
             channel_names=channel_names,
             timestamps=timestamps,
-        )
-
-    def __str__(self):
-        return (
-            f"Data(shape={self.shape}, sample_rate={self.sample_rate},"
-            f" channel_names={self.channel_names})"
         )
 
     def _get_slice_kwargs(

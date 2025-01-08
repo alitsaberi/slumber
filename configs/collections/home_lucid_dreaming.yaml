@@ -5,7 +5,7 @@ components:
     unit: ZMaxDataReceiver
     settings:
       data_types:
-        - EEG_RIGHT
+        - EEG_LEFT
         - EEG_RIGHT
         - ACCELEROMETER_X
         - ACCELEROMETER_Y
@@ -14,12 +14,30 @@ components:
   ZMAX_STORAGE_QUEUE:
     unit: CountQueue
     settings:
-      max_size: 10000
-      leaky: false
+      max_size: 20000
+      leaky: False
       log_queue_size_interval: 5
-      publish_interval: 0
-      publish_count: 1000
+      publish_interval: 5
+      publish_count: 10000
+
+  ZMAX_SAMPLE_RATE_REGULATOR:
+    unit: TimeQueue
+    settings:
+      max_size: 5000
+      leaky: True
+      log_queue_size_interval: 5
+      publish_interval: 10
+      output_sample_rate: 256
+      interpolate_missing: false
+
+  ZMAX_STORAGE:
+    unit: HDF5Storage
+    settings:
+      file_path: "data/storage.h5"
+      group_name: "zmax_raw"
 
         
 connections:
   - [ZMAX.SAMPLE, ZMAX_STORAGE_QUEUE.INPUT]
+  - [ZMAX.SAMPLE, ZMAX_SAMPLE_RATE_REGULATOR.INPUT]
+  - [ZMAX_STORAGE_QUEUE.OUTPUT, ZMAX_STORAGE.INPUT]

@@ -30,7 +30,8 @@ class State(PydanticState):
 class HDF5Storage(ez.Unit):
     SETTINGS = Settings
     STATE = State
-    DATA = ez.InputStream(ArrayBase)
+
+    INPUT = ez.InputStream(ArrayBase)
 
     def initialize(self) -> None:
         self.STATE.hdf5_manager = HDF5Manager(self.SETTINGS.file_path)
@@ -41,7 +42,7 @@ class HDF5Storage(ez.Unit):
     def shutdown(self):
         self.STATE.hdf5_manager.close()
 
-    @ez.subscriber(DATA)
+    @ez.subscriber(INPUT)
     async def store(self, message: ArrayBase) -> AsyncGenerator:
         self.STATE.group.attrs.update(message.attributes)
         for dataset_name, data in message.datasets.items():
@@ -60,7 +61,7 @@ class HDF5Storage(ez.Unit):
                 data=data,
             )
         except DatasetDoesNotExistError:
-            logger.info(f"Dataset {dataset_name} does not exist. Creating it.")
+            logger.info(f"Dataset `{dataset_name}` does not exist. Creating it.")
             self.STATE.hdf5_manager.create_dataset(
                 group_name=self.SETTINGS.group_name,
                 dataset_name=dataset_name,
