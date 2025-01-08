@@ -19,17 +19,16 @@ from slumber.utils.data import (
 
 class QueueSettings(PydanticSettings):
     max_size: int = Field(gte=0)
+    publish_interval: float = Field(gt=0)
     leaky: bool = False
     log_queue_size_interval: float | None = None
-    publish_interval: float
 
 
 class CountQueueSettings(QueueSettings):
-    publish_count: int
+    publish_count: int = Field(1000, gt=0)
 
 
 class TimeQueueSettings(QueueSettings):
-    output_size: int
     output_sample_rate: int | None = None
     interpolate_missing: bool = False
 

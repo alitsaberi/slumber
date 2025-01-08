@@ -1,0 +1,25 @@
+name: HomeLucidDreaming
+
+components:
+  ZMAX:
+    unit: ZMaxDataReceiver
+    settings:
+      data_types:
+        - EEG_RIGHT
+        - EEG_RIGHT
+        - ACCELEROMETER_X
+        - ACCELEROMETER_Y
+        - ACCELEROMETER_Z
+
+  ZMAX_STORAGE_QUEUE:
+    unit: CountQueue
+    settings:
+      max_size: 10000
+      leaky: false
+      log_queue_size_interval: 5
+      publish_interval: 0
+      publish_count: 1000
+
+        
+connections:
+  - [ZMAX.SAMPLE, ZMAX_STORAGE_QUEUE.INPUT]

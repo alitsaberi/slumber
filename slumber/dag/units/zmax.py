@@ -15,7 +15,7 @@ from slumber.utils.helpers import enum_by_name_validator
 
 
 class Settings(PydanticSettings):
-    zmax: Annotated[ZMax, AfterValidator(is_connected)]
+    zmax: Annotated[ZMax, AfterValidator(is_connected)] | None
     data_types: list[Annotated[DataType, enum_by_name_validator(DataType)]]
     retry_delay: int = 5  # seconds
 

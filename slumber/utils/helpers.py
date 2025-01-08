@@ -1,6 +1,8 @@
 import inspect
+import pkgutil
 from collections.abc import Callable
 from enum import Enum
+from importlib import import_module
 from pathlib import Path
 from types import ModuleType
 from typing import Any, TypeVar
@@ -26,41 +28,54 @@ def load_yaml(config_path: Path) -> dict:
 
 
 def get_class_by_name(
-    module: ModuleType, class_name: str, base_class: type | None = None
+    module: ModuleType,
+    class_name: str,
+    base_class: type | None = None,
+    search_submodules: bool = True,
 ) -> type:
     """
-    Retrieve a class by its name in a module,
+    Retrieve a class by its name in a module and its submodules,
     ensuring it is a subclass of a specified base class.
 
     Args:
         module (ModuleType): The Python module to search within.
         class_name (str): The name of the class to retrieve.
-        base_class (type, optional):
-            The base class that the target class must inherit from.
+        base_class (type, optional): The base class that the target class must
+            inherit from.
+        search_submodules (bool): Whether to search in submodules recursively.
 
     Returns:
         type: the class object.
     """
-
+    # First try in the main module
     try:
         cls = getattr(module, class_name)
-    except AttributeError as e:
-        raise ValueError(
-            f"No class named '{class_name}' found in module '{module.__name__}'."
-        ) from e
+        if inspect.isclass(cls) and (base_class is None or issubclass(cls, base_class)):
+            return cls
+    except AttributeError:
+        pass
 
-    if not inspect.isclass(cls):
-        raise TypeError(
-            f"Class '{class_name}' in module '{module.__name__}' is not a class."
-        )
+    if search_submodules:
+        # Search through all submodules
+        for _, name, _ in pkgutil.iter_modules(module.__path__):
+            full_module_name = f"{module.__name__}.{name}"
+            try:
+                submodule = import_module(full_module_name)
+                try:
+                    cls = getattr(submodule, class_name)
+                    if inspect.isclass(cls) and (
+                        base_class is None or issubclass(cls, base_class)
+                    ):
+                        return cls
+                except AttributeError:
+                    continue
+            except ImportError:
+                continue
 
-    if base_class is not None and not issubclass(cls, base_class):
-        raise TypeError(
-            f"Class '{class_name}' in module '{module.__name__}'"
-            f" is not a subclass of '{base_class.__name__}'."
-        )
-
-    return cls
+    raise ValueError(
+        f"No class named '{class_name}' found in module"
+        f" '{module.__name__}' or its submodules."
+    )
 
 
 def enum_by_name_validator(

@@ -7,7 +7,6 @@ from pydantic import (
     ConfigDict,
     Field,
     TypeAdapter,
-    field_validator,
     model_validator,
 )
 
@@ -46,7 +45,7 @@ class PydanticState(ez.State):
 
 class ComponentConfig(BaseModel):
     unit: Annotated[
-        ez.Unit,
+        type[ez.Unit],
         BeforeValidator(make_class_validator(ez.Unit, units)),
     ]
     settings: dict[str, Any] = Field(default_factory=dict)
@@ -64,19 +63,13 @@ class CollectionConfig(BaseModel):
 
     model_config = ConfigDict(strict=False, arbitrary_types_allowed=True)
 
-    @field_validator("components", mode="before")
-    @classmethod
-    def resolve_components(cls, components: dict[str, Any]) -> dict[str, ez.Unit]:
-        return {
-            name: ComponentConfig.model_validate(component_config).configure()
-            for name, component_config in components.items()
-        }
-
     @model_validator(mode="before")
     @classmethod
     def resolve_connections(cls, values: dict[str, Any]) -> dict[str, Any]:
         components = values.get("components")
         connections = values.get("connections")
+
+        components = cls._resolve_component(components)
 
         values["connections"] = tuple(
             (
@@ -85,8 +78,18 @@ class CollectionConfig(BaseModel):
             )
             for connection in connections
         )
+        values["components"] = components
 
         return values
+
+    @staticmethod
+    def _resolve_component(
+        components: dict[str, dict[str, Any]],
+    ) -> dict[str, ez.Unit]:
+        return {
+            name: ComponentConfig.model_validate(component_config).configure()
+            for name, component_config in components.items()
+        }
 
     @staticmethod
     def _resolve_stream(

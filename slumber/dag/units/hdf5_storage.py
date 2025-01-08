@@ -41,7 +41,7 @@ class HDF5Storage(ez.Unit):
     def shutdown(self):
         self.STATE.hdf5_manager.close()
 
-    @ez.subscriber(ArrayBase)
+    @ez.subscriber(DATA)
     async def store(self, message: ArrayBase) -> AsyncGenerator:
         self.STATE.group.attrs.update(message.attributes)
         for dataset_name, data in message.datasets.items():
