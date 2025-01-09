@@ -9,7 +9,7 @@ from loguru import logger
 
 from slumber import settings
 from slumber.dag.utils import PydanticSettings, PydanticState
-from slumber.data_management.hdf5 import (
+from slumber.utils.hdf5 import (
     DatasetDoesNotExistError,
     HDF5Manager,
 )

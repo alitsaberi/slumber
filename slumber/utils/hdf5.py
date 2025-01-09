@@ -16,7 +16,6 @@ class DatasetDoesNotExistError(ValueError):
     pass
 
 
-# TODO: Move this to utils and remove data_management
 class HDF5Manager:
     def __init__(self, file_path: Path):
         self._file_path = file_path
