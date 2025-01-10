@@ -60,6 +60,7 @@ class FIRFilter(Transform):
             ).T,
             data.sample_rate,
             data.channel_names,
+            data.timestamps,
         )
 
 
@@ -82,6 +83,7 @@ class Resample(Transform):
             ),
             sample_rate=new_sample_rate,
             channel_names=data.channel_names,
+            timestamp_offset=data.timestamps[0],
         )
 
 

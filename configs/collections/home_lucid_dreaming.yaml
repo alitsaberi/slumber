@@ -27,7 +27,7 @@ components:
       leaky: True
       log_queue_size_interval: 5
       publish_interval: 10
-      output_sample_rate: 256
+      sample_rate: 256
       interpolate_missing: false
 
   ZMAX_STORAGE:
@@ -36,8 +36,50 @@ components:
       file_path: "data/storage.h5"
       group_name: "zmax_raw"
 
-        
+  PREPROCESS:
+    unit: Transform
+    settings:
+      transforms:
+        - class_name: ChannelSelector
+          kwargs:
+            channels: [EEG_LEFT, EEG_RIGHT]
+        - class_name: Resample
+          kwargs:
+            new_sample_rate: 128
+
+  SLEEP_SCORING_ROLLING_BUFFER:
+    unit: RollingBuffer
+    settings:
+      size: 105
+
+  SLEEP_SCORING_PREPROCESS:
+    unit: Transform
+    settings:
+      transforms:
+        - class_name: FIRFilter
+          kwargs:
+            low_cutoff: 0.3
+            high_cutoff: 30.0
+            l_trans_bandwidth: 0.3
+
+  SLEEP_SCORING:
+    unit: SleepScoring
+    settings:
+      model:
+        model_dir: ./tests/resources/sample_utime_model
+        channel_groups: [[0], [1]]
+        n_periods: 105
+        n_samples_per_prediction: 1
+      channel_groups: [[EEG_LEFT], [EEG_RIGHT]]
+      arg_max: false
+
+
 connections:
   - [ZMAX.SAMPLE, ZMAX_STORAGE_QUEUE.INPUT]
   - [ZMAX.SAMPLE, ZMAX_SAMPLE_RATE_REGULATOR.INPUT]
   - [ZMAX_STORAGE_QUEUE.OUTPUT, ZMAX_STORAGE.INPUT]
+  - [ZMAX_SAMPLE_RATE_REGULATOR.OUTPUT, PREPROCESS.INPUT]
+  - [PREPROCESS.OUTPUT, SLEEP_SCORING_ROLLING_BUFFER.INPUT]
+  - [SLEEP_SCORING_ROLLING_BUFFER.OUTPUT, SLEEP_SCORING_PREPROCESS.INPUT]
+  - [SLEEP_SCORING_PREPROCESS.OUTPUT, SLEEP_SCORING.INPUT]
+

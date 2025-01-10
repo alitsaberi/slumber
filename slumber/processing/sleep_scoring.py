@@ -1,4 +1,5 @@
 import copy
+from functools import cached_property
 from pathlib import Path
 
 import numpy as np
@@ -11,6 +12,8 @@ from utime.hyperparameters import YAMLHParams
 
 from slumber.processing.transforms import Resample
 from slumber.utils.data import Data, get_all_periods
+
+SLEEP_STAGE_CHANNEL_NAME = "sleep_stage"
 
 
 def read_hyperparameters_file(path: Path) -> YAMLHParams:
@@ -100,7 +103,7 @@ class UTimeModel:
     def stage_mapping(self) -> dict[str, int]:
         return self.hyperparameters["sleep_stage_annotations"]
 
-    @property
+    @cached_property
     def sleep_stage_annotations(self) -> list[str]:
         inverse_stage_mapping = {v: k for k, v in self.stage_mapping.items()}
         return [
@@ -260,9 +263,9 @@ class UTimeModel:
             predictions_list.append(current_predictions)
 
         predictions = np.mean(predictions_list, axis=0)
-        logger.debug(f"Predictions shape: {predictions.shape}")
+        logger.debug(f"Original predictions shape: {predictions.shape}")
         predictions = predictions.reshape(-1, predictions.shape[-1])
-        logger.debug(f"Reshaped predictions shape: {predictions.shape}")
+        logger.debug(f"Final predictions shape: {predictions.shape}")
         return predictions
 
     def _assert_channel_groups(self, channel_groups: list[list[int]]) -> None:
@@ -308,9 +311,9 @@ def _apply_scaling(data: Data, scaler: str) -> Data:
 def score(
     data: Data,
     model: UTimeModel,
-    channel_groups: list[list[int]] | None = None,
+    channel_groups: list[list[int | str]] | None = None,
     arg_max: bool = True,
-) -> np.ndarray:
+) -> Data:
     """
     Score sleep stages from ZMax data using a UTime model.
 
@@ -326,25 +329,37 @@ def score(
         Data: Object containing sleep stage predictions or probabilities
               if arg_max is False, it includes sleep stage annotations.
     """
-    if not channel_groups:
-        channel_groups = [list(range(data.n_channels))]
-        logger.info(
-            "No channel groups provided."
-            f" Using all {data.n_channels} channels for prediction."
-        )
+    channel_groups = channel_groups or [list(range(data.n_channels))]
 
-    data = model.prepare_data(data)
-    logger.info(f"Predicting sleep stages for data with shape {data.shape}")
-    predictions = model.predict(data, channel_groups)
+    if isinstance(channel_groups[0][0], str):
+        channel_groups = [data.get_channel_indices(group) for group in channel_groups]
 
     output_sample_rate = model.input_sample_rate / model.n_samples_per_prediction
+    timestamp_offset = np.mean(
+        data.timestamps[
+            : int(
+                (model.n_samples_per_prediction / model.input_sample_rate)
+                * data.sample_rate
+            )
+        ]
+    )
+
+    data = model.prepare_data(data)
+    logger.info(
+        f"Predicting sleep stages for data with shape {data.shape}"
+        f" and channel groups {channel_groups}"
+    )
+    predictions = model.predict(data, channel_groups)
+    channel_names = model.sleep_stage_annotations
+
     if arg_max:
-        predictions = np.argmax(predictions, axis=-1).reshape(-1, 1)
+        predictions = np.reshape(np.argmax(predictions, axis=-1), (-1, 1))
+        channel_names = [SLEEP_STAGE_CHANNEL_NAME]
         logger.debug(f"Applied argmax, prediction shape: {predictions.shape}")
-        return Data(predictions, sample_rate=output_sample_rate)
 
     return Data(
         predictions,
         sample_rate=output_sample_rate,
-        channel_names=model.sleep_stage_annotations,
+        channel_names=channel_names,
+        timestamp_offset=timestamp_offset,
     )

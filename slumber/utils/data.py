@@ -162,7 +162,7 @@ class TimestampedArray(ArrayBase):
             channels = [channels]
 
         if isinstance(channels, list) and all(isinstance(c, str) for c in channels):
-            channel_indices = self._get_channel_indices(channels)
+            channel_indices = self.get_channel_indices(channels)
             self.array[samples, channel_indices] = value
         else:
             self.array[samples, channels] = value
@@ -176,7 +176,7 @@ class TimestampedArray(ArrayBase):
         if isinstance(channels, str):
             channels = [channels]
 
-        channel_indices = self._get_channel_indices(channels)
+        channel_indices = self.get_channel_indices(channels)
         return self._slice_data(samples, channel_indices, channels)
 
     def iloc(
@@ -189,7 +189,7 @@ class TimestampedArray(ArrayBase):
         channel_names = [self.channel_names[i] for i in channels]
         return self._slice_data(samples, channels, channel_names)
 
-    def _get_channel_indices(self, channels: list[str]) -> list[int]:
+    def get_channel_indices(self, channels: list[str]) -> list[int]:
         return [self.channel_index_map[ch] for ch in channels]
 
     def _slice_data(
