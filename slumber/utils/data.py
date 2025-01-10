@@ -142,14 +142,21 @@ class TimestampedArray(ArrayBase):
     def __setitem__(
         self,
         key: slice | tuple[slice, int | str | list[int] | list[str]],
-        value: float | np.ndarray,
+        value: "TimestampedArray",
     ) -> None:
         """Support for array-like assignment with [start:stop, channel_names/indices]"""
+
+        if not isinstance(value, self.__class__):
+            raise TypeError(f"Assignment value must be a {self.__class__} instance.")
+
         if not isinstance(key, tuple):
-            self.array[key] = value
+            self.array[key] = value.array
+            self.timestamps[key] = value.timestamps
             return
 
         samples, channels = key
+
+        self.timestamps[samples] = value.timestamps
 
         if isinstance(channels, str):
             channels = [channels]
@@ -254,6 +261,18 @@ class Data(TimestampedArray):
         kwargs = super()._get_slice_kwargs(samples, channels, channel_names)
         kwargs["sample_rate"] = self.sample_rate
         return kwargs
+
+    def __setitem__(
+        self,
+        key: slice | tuple[slice, int | str | list[int] | list[str]],
+        value: "Data",
+    ) -> None:
+        if value.sample_rate != self.sample_rate:
+            raise ValueError(
+                f"Sample rate mismatch: {value.sample_rate} != {self.sample_rate}"
+            )
+
+        super().__setitem__(key, value)
 
     @property
     def index(self) -> np.ndarray:

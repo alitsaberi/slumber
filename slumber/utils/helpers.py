@@ -48,13 +48,14 @@ def get_class_by_name(
         type: the class object.
     """
     # First try in the main module
+    # TODO: Code duplication with when searching the submodules
     try:
         cls = getattr(module, class_name)
         if inspect.isclass(cls) and (base_class is None or issubclass(cls, base_class)):
             return cls
     except AttributeError:
         logger.debug(
-            f"Class {class_name} not found" f" in the main module {module.__name__}"
+            f"Class {class_name} not found in the main module {module.__name__}"
         )
 
     if search_submodules:
@@ -62,6 +63,7 @@ def get_class_by_name(
         for _, name, _ in pkgutil.iter_modules(module.__path__):
             full_module_name = f"{module.__name__}.{name}"
             try:
+                logger.debug(f"Trying to import submodule {full_module_name}")
                 submodule = import_module(full_module_name)
                 try:
                     cls = getattr(submodule, class_name)
@@ -98,6 +100,8 @@ def create_class_by_name_resolver(
     module: ModuleType, base_class: type[T] | None = None
 ) -> Callable[[Any], Any]:
     def resolve(v: Any) -> Any:
-        return get_class_by_name(v, module, base_class) if isinstance(v, str) else v
+        cls = get_class_by_name(v, module, base_class) if isinstance(v, str) else v
+        logger.debug(f"Resolved {v} to {cls}")
+        return cls
 
     return resolve

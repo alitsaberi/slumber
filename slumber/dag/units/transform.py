@@ -2,6 +2,7 @@ from collections.abc import AsyncGenerator
 from typing import Annotated, Any
 
 import ezmsg.core as ez
+from loguru import logger
 from pydantic import BeforeValidator, Field, model_validator
 
 from slumber.dag.utils import PydanticSettings
@@ -40,7 +41,7 @@ class TransformConfig(PydanticSettings):
         return self
 
     def apply_transform(self, data: Data) -> Data:
-        return self.transform(data, **self.kwargs)
+        return self.transform()(data, **self.kwargs)
 
 
 class Settings(PydanticSettings):
@@ -62,5 +63,6 @@ class Transform(ez.Unit):
     ) -> AsyncGenerator[tuple[ez.OutputStream, Data], None]:
         for config in self.SETTINGS.transform_configs:
             data = config.apply_transform(data)
+            logger.debug(f"Data after transform {config.transform.__name__}: {data}")
 
         yield (self.OUTPUT, data)

@@ -8,12 +8,12 @@ import numpy as np
 from loguru import logger
 
 from slumber import settings
-from slumber.dag.utils import PydanticSettings, PydanticState
+from slumber.dag.utils import PydanticSettings
+from slumber.utils.data import ArrayBase
 from slumber.utils.hdf5 import (
     DatasetDoesNotExistError,
     HDF5Manager,
 )
-from slumber.utils.data import ArrayBase
 
 
 class Settings(PydanticSettings):
@@ -22,7 +22,7 @@ class Settings(PydanticSettings):
     compression: str = settings["hdf5"]["compression"]
 
 
-class State(PydanticState):
+class State(ez.State):
     hdf5_manager: HDF5Manager
     group: h5py.Group
 

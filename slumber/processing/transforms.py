@@ -3,7 +3,7 @@ from typing import Literal, Protocol, runtime_checkable
 import numpy as np
 from mne.filter import filter_data, resample
 
-from slumber.utils.data import Data
+from slumber.utils.data import Data, TimestampedArray
 
 
 @runtime_checkable
@@ -83,3 +83,23 @@ class Resample(Transform):
             sample_rate=new_sample_rate,
             channel_names=data.channel_names,
         )
+
+
+class ChannelSelector(Transform):
+    def __call__(
+        self,
+        data: TimestampedArray,
+        channels: list[int] | list[str],
+    ) -> TimestampedArray:
+        """
+        Select specific channels from the data.
+
+        Args:
+            data (TimestampedArray): Input TimestampedArray array object
+            channels (list[int] | list[str]):
+                List of channel indices or channel names to select
+
+        Returns:
+            TimestampedArray: TimestampedArray object with only the selected channels
+        """
+        return data[:, channels]

@@ -1,6 +1,7 @@
 from typing import Annotated, Any
 
 import ezmsg.core as ez
+from loguru import logger
 from pydantic import (
     BaseModel,
     BeforeValidator,
@@ -54,6 +55,7 @@ class ComponentConfig(BaseModel):
     model_config = ConfigDict(strict=False, arbitrary_types_allowed=True)
 
     def configure(self) -> ez.Unit:
+        logger.debug(f"Configuring {self.unit.address}")
         settings = self.unit.SETTINGS.model_validate(self.settings)
         return self.unit(settings)
 
@@ -71,7 +73,7 @@ class CollectionConfig(BaseModel):
     @classmethod
     def resolve_connections(cls, values: dict[str, Any]) -> dict[str, Any]:
         connections = values.get("connections", tuple())
-        components = cls._resolve_component(values.get("components", {}))
+        components = cls._resolve_components(values.get("components", {}))
 
         values["connections"] = tuple(
             (
@@ -85,7 +87,7 @@ class CollectionConfig(BaseModel):
         return values
 
     @staticmethod
-    def _resolve_component(
+    def _resolve_components(
         components: dict[str, dict[str, Any]],
     ) -> dict[str, ez.Unit]:
         return {

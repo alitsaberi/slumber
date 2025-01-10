@@ -1,6 +1,7 @@
 import asyncio
 import time
 from collections.abc import AsyncGenerator
+from typing import Generic, TypeVar
 
 import ezmsg.core as ez
 import numpy as np
@@ -16,6 +17,8 @@ from slumber.utils.data import (
     samples_to_timestamped_array,
 )
 
+T = TypeVar("T")
+
 
 class QueueSettings(PydanticSettings):
     max_size: int = Field(gte=0)
@@ -29,7 +32,7 @@ class CountQueueSettings(QueueSettings):
 
 
 class TimeQueueSettings(QueueSettings):
-    output_sample_rate: int | None = None
+    sample_rate: int | None = None
     interpolate_missing: bool = False
 
 
@@ -39,11 +42,11 @@ class QueueState(ez.State):
     publish_rate: Rate
 
 
-class Queue(ez.Unit):
+class Queue(ez.Unit, Generic[T]):
     SETTINGS = QueueSettings
     STATE = QueueState
 
-    INPUT = ez.InputStream(Sample)
+    INPUT = ez.InputStream(T)
 
     async def initialize(self):
         self.STATE.leaky = self.SETTINGS.leaky
@@ -62,19 +65,19 @@ class Queue(ez.Unit):
             )
 
     @ez.subscriber(INPUT)
-    async def on_sample(self, sample: Sample) -> None:
+    async def on_message(self, message: T) -> None:
         if not self.STATE.leaky:
-            await self.STATE.queue.put(sample)
+            await self.STATE.queue.put(message)
         else:
             try:
-                self.STATE.queue.put_nowait(sample)
+                self.STATE.queue.put_nowait(message)
             except asyncio.QueueFull:
                 logger.warning(f"{self.address} queue is full, dropping sample.")
                 self.STATE.queue.get_nowait()
-                self.STATE.queue.put_nowait(sample)
+                self.STATE.queue.put_nowait(message)
 
 
-class CountQueue(Queue):
+class CountQueue(Queue[Sample]):
     SETTINGS = CountQueueSettings
     STATE = QueueState
 
@@ -92,7 +95,7 @@ class CountQueue(Queue):
             await self.STATE.publish_rate.sleep()
 
 
-class TimeQueue(Queue):
+class TimeQueue(Queue[Sample]):
     SETTINGS = TimeQueueSettings
     STATE = QueueState
 
@@ -122,7 +125,7 @@ class TimeQueue(Queue):
             if data is None:
                 continue
 
-            if self.SETTINGS.output_sample_rate is not None:
+            if self.SETTINGS.sample_rate is not None:
                 data = self._regularize_sample_rate(
                     data, start_time=cutoff_time, end_time=current_time
                 )
@@ -135,7 +138,8 @@ class TimeQueue(Queue):
     ) -> TimestampedArray | None:
         samples = []
         while not self.STATE.queue.empty():
-            sample = self.STATE.queue.get_nowait()
+            sample: Sample = self.STATE.queue.get_nowait()
+
             if sample.timestamp < start_time:
                 logger.warning(
                     "Dropping sample that is too old."
@@ -143,13 +147,16 @@ class TimeQueue(Queue):
                     f" sample timestamp is {sample.timestamp}"
                 )
                 continue
+
             if sample.timestamp > end_time:
+                # TODO: This drops a sample.
                 logger.debug(
                     f"Sample timestamp {sample.timestamp} is in the future."
-                    f" Current time is {end_time}."
+                    f" Current time is {end_time} and"
+                    f" the difference is {sample.timestamp - end_time}."
                 )
-                self.STATE.queue.put_nowait(sample)
                 break
+
             samples.append(sample)
 
         if not samples:
@@ -164,7 +171,7 @@ class TimeQueue(Queue):
         regular_timestamps = np.linspace(
             start_time,
             end_time,
-            self.SETTINGS.publish_interval * self.SETTINGS.output_sample_rate,
+            self.SETTINGS.publish_interval * self.SETTINGS.sample_rate,
         )
 
         if self.SETTINGS.interpolate_missing:
@@ -177,6 +184,6 @@ class TimeQueue(Queue):
         return Data(
             array=array,
             timestamps=regular_timestamps,
-            sample_rate=self.SETTINGS.output_sample_rate,
+            sample_rate=self.SETTINGS.sample_rate,
             channel_names=data.channel_names,
         )
