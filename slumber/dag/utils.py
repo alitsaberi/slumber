@@ -65,6 +65,7 @@ class CollectionConfig(BaseModel):
     connections: tuple[tuple[ez.OutputStream, ez.InputStream], ...] = Field(
         min_length=1
     )
+    process_components: list[ez.Unit] | None = None
     root_name: str | None = Field(None, alias="name")
 
     model_config = ConfigDict(strict=False, arbitrary_types_allowed=True)
@@ -74,6 +75,11 @@ class CollectionConfig(BaseModel):
     def resolve_connections(cls, values: dict[str, Any]) -> dict[str, Any]:
         connections = values.get("connections", tuple())
         components = cls._resolve_components(values.get("components", {}))
+
+        if (process_components := values.get("process_components")) is not None:
+            values["process_components"] = tuple(
+                components[component_name] for component_name in process_components
+            )
 
         values["connections"] = tuple(
             (
