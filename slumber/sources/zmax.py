@@ -123,8 +123,7 @@ class ZMax:
     ) -> None:
         self._ip = ip
         self._port = port
-        self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self._socket.settimeout(socket_timeout)
+        self._socket_timeout = socket_timeout
         self._message_counter = 0
 
     def __str__(self) -> str:
@@ -147,6 +146,13 @@ class ZMax:
         retry_attempts: int = DEFAULTS["retry_attempts"],
         retry_delay: int = DEFAULTS["retry_delay"],
     ) -> None:
+        if self.is_connected():
+            logger.warning("Already connected to ZMax. Closing previous connection.")
+            return
+
+        self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self._socket.settimeout(self._socket_timeout)
+
         for attempt in range(retry_attempts):
             try:
                 self._socket.connect((self._ip, self._port))
