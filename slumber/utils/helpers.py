@@ -77,8 +77,8 @@ def get_class_by_name(
                         f" in submodule {full_module_name}"
                     )
                     continue
-            except ImportError:
-                logger.debug(f"Failed to import submodule {full_module_name}")
+            except ImportError as e:
+                logger.debug(f"Failed to import submodule {full_module_name}: {e}")
                 continue
 
     raise ValueError(
