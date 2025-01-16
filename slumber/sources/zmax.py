@@ -140,6 +140,7 @@ class ZMax:
     def close(self) -> None:
         if self._socket:
             self._socket.close()
+            logger.info(f"Closed connection to ZMax at {self._ip}:{self._port}")
 
     def connect(
         self,
@@ -321,6 +322,11 @@ class ZMax:
         """Get next message sequence number (0-255)"""
         self._message_counter = (self._message_counter + 1) % 256
         return self._message_counter
+
+    def flush_buffer(self) -> None:
+        logger.info("Flushing ZMax buffer...")
+        self.close()
+        self.connect()
 
 
 def is_connected(zmax: ZMax) -> ZMax:

@@ -1,4 +1,3 @@
-import asyncio
 import time
 from collections.abc import AsyncGenerator
 from functools import cached_property
@@ -19,7 +18,6 @@ class Settings(PydanticSettings):
     data_types: list[
         Annotated[DataType, BeforeValidator(create_enum_by_name_resolver(DataType))]
     ]
-    retry_delay: int = 5  # seconds
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
@@ -32,6 +30,9 @@ class ZMaxDataReceiver(ez.Unit):
     SETTINGS = Settings
 
     SAMPLE = ez.OutputStream(Sample)
+
+    async def initialize(self):
+        self.SETTINGS.zmax.flush_buffer()
 
     @ez.publisher(SAMPLE)
     async def publish_sample(self) -> AsyncGenerator:
@@ -47,11 +48,7 @@ class ZMaxDataReceiver(ez.Unit):
                     ),
                 )
             except TimeoutError:
-                logger.warning(
-                    "Timed out while waiting for data from ZMax."
-                    f"Retrying in {self.SETTINGS.retry_delay} seconds..."
-                )
-                await asyncio.sleep(self.SETTINGS.retry_delay)
+                logger.warning("Timed out while waiting for data from ZMax.")
             except ConnectionError as e:
-                logger.error(f"Error connecting to ZMax: {e}. Retrying to connect...")
+                logger.warning(f"Error connecting to ZMax: {e}. Retrying to connect...")
                 self.SETTINGS.zmax.connect()
