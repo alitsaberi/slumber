@@ -6,6 +6,8 @@ from typing import Any
 
 import numpy as np
 
+from slumber.utils.exceptions import NoSamplesError
+
 
 def _validate_channel_names(objects: Sequence["ArrayBase"]) -> None:
     reference_channels = objects[0].channel_names
@@ -310,7 +312,7 @@ class Data(TimestampedArray):
 
 def samples_to_timestamped_array(samples: Sequence[Sample]) -> TimestampedArray:
     if len(samples) == 0:
-        raise ValueError("At least one sample must be provided.")
+        raise NoSamplesError("No samples provided")
 
     channels_names = _validate_channel_names(samples)
 
