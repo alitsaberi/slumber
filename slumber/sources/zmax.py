@@ -27,6 +27,10 @@ SAMPLE_RATE = 256
 DEFAULTS = settings["zmax"]
 
 
+class ConnectionClosedError(Exception):
+    pass
+
+
 class LEDColor(Enum):
     RED = (2, 0, 0)
     YELLOW = (2, 2, 0)
@@ -119,12 +123,18 @@ class ZMax:
         self,
         ip: str = DEFAULTS["ip"],
         port: int = DEFAULTS["port"],
-        socket_timeout: int = DEFAULTS["socket_timeout"],
+        socket_timeout: float | None = DEFAULTS["socket_timeout"],
     ) -> None:
         self._ip = ip
         self._port = port
         self._socket_timeout = socket_timeout
         self._message_counter = 0
+        self._socket = None
+        self._initialize_socket()
+
+    def _initialize_socket(self) -> None:
+        self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self._socket.settimeout(self._socket_timeout)
 
     def __str__(self) -> str:
         return f"ZMax(ip={self._ip}, port={self._port})"
@@ -134,9 +144,18 @@ class ZMax:
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb) -> None:
-        self.close()
+        self.disconnect()
 
-    def close(self) -> None:
+    def flush_buffer(
+        self,
+        retry_attempts: int = DEFAULTS["retry_attempts"],
+        retry_delay: float = DEFAULTS["retry_delay"],
+    ) -> None:
+        logger.info("Flushing ZMax buffer...")
+        self.disconnect()
+        self.connect(retry_attempts=retry_attempts, retry_delay=retry_delay)
+
+    def disconnect(self) -> None:
         if self._socket:
             self._socket.close()
             logger.info(f"Closed connection to ZMax at {self._ip}:{self._port}")
@@ -144,29 +163,28 @@ class ZMax:
     def connect(
         self,
         retry_attempts: int = DEFAULTS["retry_attempts"],
-        retry_delay: int = DEFAULTS["retry_delay"],
+        retry_delay: float = DEFAULTS["retry_delay"],
     ) -> None:
         if self.is_connected():
             logger.warning("Already connected to ZMax. Closing previous connection.")
             return
 
-        self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self._socket.settimeout(self._socket_timeout)
+        # TODO: make sure ZMax server is open
+        self._initialize_socket()
 
         for attempt in range(retry_attempts):
             try:
                 self._socket.connect((self._ip, self._port))
-                self.send_string("HELLO\n")  # ?
-                logger.info(f"Connected to ZMax at {self._ip}:{self._port}")
+                self.send_string("IDLEMODE_SENDBYTES 1 3 900 0 00-2D-01-12-0D-24-B0\n")  # ?
+                logger.info(f"Connected to {self}")
                 return
             except OSError as e:
-                if attempt == retry_attempts - 1:
-                    logger.error(f"Failed to connect after {retry_attempts} attempts.")
-                    raise ConnectionError(
-                        f"Unable to connect to ZMax at {self._ip}:{self._port}"
-                    ) from e
                 logger.warning(f"Attempt {attempt + 1}/{retry_attempts} failed: {e}")
                 sleep(retry_delay)
+
+        raise ConnectionError(
+            f"Failed to connect to {self} after {retry_attempts} attempts."
+        )
 
     def is_connected(self) -> bool:
         try:
@@ -210,7 +228,7 @@ class ZMax:
         while True:
             char = self._socket.recv(1)
             if not char:
-                raise ConnectionError("Lost connection to ZMax")
+                raise ConnectionClosedError("The connection was closed by the server.")
 
             if char == b"\r":
                 continue
@@ -328,11 +346,6 @@ class ZMax:
         """Get next message sequence number (0-255)"""
         self._message_counter = (self._message_counter + 1) % 256
         return self._message_counter
-
-    def flush_buffer(self) -> None:
-        logger.info("Flushing ZMax buffer...")
-        self.close()
-        self.connect()
 
 
 def is_connected(zmax: ZMax) -> ZMax:

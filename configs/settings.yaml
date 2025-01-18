@@ -10,8 +10,8 @@ hdf5:
 zmax:
   ip: 127.0.0.1
   port: 8000
-  retry_attempts: 3
-  retry_delay: 1
+  retry_attempts: 12
+  retry_delay: 5
   socket_timeout: 10
   
 sleep_scoring:
