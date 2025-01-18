@@ -179,7 +179,7 @@ class TimeQueue(Queue[Sample]):
             sample: Sample = self.STATE.queue.get_nowait()
 
             if sample.timestamp < start_time - self.SETTINGS.timestamp_margin:
-                logger.warning(
+                logger.debug(
                     "Dropping sample that is too old."
                     f" Cutoff time is {start_time} but"
                     f" sample timestamp is {sample.timestamp}"

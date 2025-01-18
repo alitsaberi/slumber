@@ -176,7 +176,7 @@ class ZMax:
             try:
                 self._socket.connect((self._ip, self._port))
                 self.send_string(
-                    "IDLEMODE_SENDBYTES 1 3 900 0 00-2D-01-12-0D-24-B0\n"
+                    "HELLO\n"
                 )  # ?
                 logger.info(f"Connected to {self}")
                 return

@@ -4,6 +4,7 @@ from pathlib import Path
 
 import ezmsg.core as ez
 from loguru import logger
+import numpy as np
 from pydantic import Field
 
 from slumber.dag.utils import PydanticSettings
@@ -49,5 +50,7 @@ class SleepScoring(ez.Unit):
             channel_groups=self.SETTINGS.channel_groups,
             arg_max=self.SETTINGS.arg_max,
         )
+        
+        logger.debug(f"Sleep scores: {scores}")
 
         yield (self.OUTPUT_SCORES, scores)
