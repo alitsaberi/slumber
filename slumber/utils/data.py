@@ -6,7 +6,8 @@ from typing import Any
 
 import numpy as np
 
-from slumber.utils.exceptions import NoSamplesError
+
+class NoSamplesError(ValueError): ...
 
 
 def _validate_channel_names(objects: Sequence["ArrayBase"]) -> None:
