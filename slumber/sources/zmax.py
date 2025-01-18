@@ -175,9 +175,7 @@ class ZMax:
         for attempt in range(retry_attempts):
             try:
                 self._socket.connect((self._ip, self._port))
-                self.send_string(
-                    "HELLO\n"
-                )  # ?
+                self.send_string("HELLO\n")  # ?
                 logger.info(f"Connected to {self}")
                 return
             except OSError as e:

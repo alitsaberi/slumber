@@ -56,11 +56,14 @@ def detect_lr_eye_movements(
     difference_data = Data(
         array=data[:, left_eeg_label].array - data[:, right_eeg_label].array,
         sample_rate=data.sample_rate,
-    )
+        timestamps=data.timestamps,
+    )  # TODO: Add subtraction operation to Data
     difference_data = FIRFilter()(
         difference_data, low_cutoff=low_cutoff, high_cutoff=high_cutoff
     )
-    logger.debug(f"Difference data: {difference_data}")
+    logger.debug(
+        f"Difference data: {difference_data}. Max: {difference_data.array.max()}"
+    )
 
     movement_events = _detect_movement_events(
         difference_data, difference_threshold, min_same_event_gap
