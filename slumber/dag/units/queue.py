@@ -7,7 +7,7 @@ import ezmsg.core as ez
 import numpy as np
 from ezmsg.util.rate import Rate
 from loguru import logger
-from pydantic import Field
+from pydantic import Field, model_validator
 
 from slumber.dag.utils import PydanticSettings
 from slumber.utils.data import (
@@ -21,24 +21,45 @@ T = TypeVar("T")
 
 
 class QueueSettings(PydanticSettings):
-    max_size: int = Field(gte=0)
-    publish_interval: int = Field(gt=0)
+    max_size: int = Field(gt=0)
     leaky: bool = False
-    log_queue_size_interval: float | None = None
+    log_queue_size_interval: float | None = Field(None, gt=0)
 
 
 class CountQueueSettings(QueueSettings):
     publish_count: int = Field(1000, gt=0)
 
+    @model_validator(mode="after")
+    def check_publish_count(self) -> "CountQueueSettings":
+        if self.publish_count > self.max_size:
+            raise ValueError(
+                f"publish_count ({self.publish_count}) must be"
+                f" less than or equal to max_size ({self.max_size})."
+            )
+        return self
+
 
 class TimeQueueSettings(QueueSettings):
-    sample_rate: int | None = None
-    interpolate_missing: bool = False
+    publish_interval: float = Field(gt=0)
+    sample_rate: int = Field(ge=1)
+    gap_threshold: float = Field(ge=0)
+    channel_names: list[str] = Field(
+        min_length=1
+    )  # TODO: this should not be set manually
+    dropped_samples_warn_threshold: int | None = Field(None, ge=0)
+    timestamp_margin: float = Field(ge=0)  # TODO: add validation
+
+    @property
+    def expected_publish_samples(self) -> int:
+        return int(self.publish_interval * self.sample_rate)
 
 
 class QueueState(ez.State):
     queue: asyncio.Queue
     leaky: bool
+
+
+class TimeQueueState(QueueState):
     publish_rate: Rate
 
 
@@ -51,7 +72,6 @@ class Queue(ez.Unit, Generic[T]):
     async def initialize(self):
         self.STATE.leaky = self.SETTINGS.leaky
         self.STATE.queue = asyncio.Queue(self.SETTINGS.max_size)
-        self.STATE.publish_rate = Rate(1 / self.SETTINGS.publish_interval)
 
     @ez.task
     async def monitor_queue_size(self) -> None:
@@ -60,7 +80,7 @@ class Queue(ez.Unit, Generic[T]):
 
         while True:
             await asyncio.sleep(self.SETTINGS.log_queue_size_interval)
-            logger.info(
+            logger.debug(
                 f"{self.address} has {self.STATE.queue.qsize()} samples queued."
             )
 
@@ -91,15 +111,24 @@ class CountQueue(Queue[Sample]):
                 sample = await self.STATE.queue.get()
                 samples.append(sample)
 
-            yield (self.OUTPUT, samples_to_timestamped_array(samples))
-            await self.STATE.publish_rate.sleep()
+            array = samples_to_timestamped_array(samples)
+            logger.debug(f"{self.address} publishing {array}.")
+
+            yield (self.OUTPUT, array)
+
+
+# TODO: make a base TimeQueue thst doesn't regularize sample rate
 
 
 class TimeQueue(Queue[Sample]):
     SETTINGS = TimeQueueSettings
-    STATE = QueueState
+    STATE = TimeQueueState
 
     OUTPUT = ez.OutputStream(TimestampedArray)
+
+    async def initialize(self):
+        await super().initialize()
+        self.STATE.publish_rate = Rate(1 / self.SETTINGS.publish_interval)
 
     @ez.publisher(OUTPUT)
     async def publish(self) -> AsyncGenerator:
@@ -110,80 +139,89 @@ class TimeQueue(Queue[Sample]):
             )
 
             if expected_publish_time < current_time:
+                # TODO: Handle the data in the gap
                 logger.warning(
                     f"{self.address} is behind schedule by"
-                    f" {current_time - expected_publish_time} seconds."
+                    f" {current_time - expected_publish_time} seconds.",
+                    extra={
+                        "current_time": current_time,
+                        "expected_publish_time": expected_publish_time,
+                    },
                 )
 
             await self.STATE.publish_rate.sleep()
 
-            current_time = time.time()
+            current_time = self.STATE.publish_rate.last_time
             cutoff_time = current_time - self.SETTINGS.publish_interval
 
             data = self._process_queue(start_time=cutoff_time, end_time=current_time)
 
-            if data is None:
-                continue
-
-            if self.SETTINGS.sample_rate is not None:
-                data = self._regularize_sample_rate(
-                    data, start_time=cutoff_time, end_time=current_time
-                )
-
             logger.debug(f"{self.address} publishing {data}.")
             yield (self.OUTPUT, data)
 
-    def _process_queue(
-        self, start_time: float, end_time: float
-    ) -> TimestampedArray | None:
-        samples = []
-        while not self.STATE.queue.empty():
+    def _process_queue(self, start_time: float, end_time: float) -> list[Sample]:
+        regular_timestamps = np.linspace(
+            start_time, end_time, self.SETTINGS.expected_publish_samples
+        )
+        array = np.zeros(
+            (
+                self.SETTINGS.expected_publish_samples,
+                len(self.SETTINGS.channel_names),
+            )
+        )
+
+        dropped_samples = 0
+        index = 0
+        while (
+            not self.STATE.queue.empty()
+            and index < self.SETTINGS.expected_publish_samples
+        ):
             sample: Sample = self.STATE.queue.get_nowait()
 
-            if sample.timestamp < start_time:
+            if sample.timestamp < start_time - self.SETTINGS.timestamp_margin:
                 logger.warning(
                     "Dropping sample that is too old."
                     f" Cutoff time is {start_time} but"
                     f" sample timestamp is {sample.timestamp}"
                 )
+                dropped_samples += 1
                 continue
 
-            if sample.timestamp > end_time:
-                # TODO: This drops a sample.
+            if (
+                gap := sample.timestamp - regular_timestamps[index]
+            ) > self.SETTINGS.gap_threshold:
                 logger.debug(
-                    f"Sample timestamp {sample.timestamp} is in the future."
-                    f" Current time is {end_time} and"
-                    f" the difference is {sample.timestamp - end_time}."
+                    f"Large gap ({gap} sec) detected in data."
+                    f"Current index: {index}. Finding next closest index ...",
+                    sample_timestamp=sample.timestamp,
+                    index_timestamp=regular_timestamps[index],
+                    gap_threshold=self.SETTINGS.gap_threshold,
+                )
+                index = np.argmin(np.abs(regular_timestamps[index:] - sample.timestamp))
+                logger.debug(f"Found next closest index: {index}.")
+
+            array[index, :] = sample.array
+            index += 1
+
+            if sample.timestamp >= end_time + self.SETTINGS.timestamp_margin:
+                logger.debug(
+                    f"Sample timestamp ({sample.timestamp}) is past"
+                    f" end time + margin ({end_time + self.SETTINGS.timestamp_margin})."
+                    " Stopping."
                 )
                 break
 
-            samples.append(sample)
-
-        if not samples:
-            logger.warning(f"No samples in queue for time {end_time}.")
-            return
-
-        return samples_to_timestamped_array(samples)
-
-    def _regularize_sample_rate(
-        self, data: TimestampedArray, start_time: float, end_time: float
-    ) -> Data:
-        regular_timestamps = np.linspace(
-            start_time,
-            end_time,
-            self.SETTINGS.publish_interval * self.SETTINGS.sample_rate,
-        )
-
-        if self.SETTINGS.interpolate_missing:
-            array = np.interp(regular_timestamps, data.timestamps, data.array)
-        else:
-            array = np.zeros((len(regular_timestamps), data.n_channels))
-            indices = np.searchsorted(regular_timestamps, data.timestamps)
-            array[indices] = data.array
+        if (
+            self.SETTINGS.dropped_samples_warn_threshold is not None
+            and dropped_samples > self.SETTINGS.dropped_samples_warn_threshold
+        ):
+            logger.warning(
+                f"{self.address} dropped {dropped_samples} samples due to being too old"
+            )
 
         return Data(
             array=array,
             timestamps=regular_timestamps,
             sample_rate=self.SETTINGS.sample_rate,
-            channel_names=data.channel_names,
+            channel_names=self.SETTINGS.channel_names,
         )

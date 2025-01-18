@@ -89,9 +89,7 @@ class ZMaxDataReceiver(ez.Unit):
                     retry_delay=self.SETTINGS.retry_delay,
                 )
             except ConnectionClosedError:
-                logger.warning(
-                    "ZMax server closed connection. Reconnecting..."
-                )
+                logger.warning("ZMax server closed connection. Reconnecting...")
                 self.STATE.zmax.flush_buffer(
                     retry_attempts=self.SETTINGS.retry_attempts,
                     retry_delay=self.SETTINGS.retry_delay,
