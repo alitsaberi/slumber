@@ -6,7 +6,7 @@ from pydantic import Field, model_validator
 
 from slumber.dag.utils import PydanticSettings
 from slumber.processing.arousal_detection import detect_arousals
-from slumber.utils.data import Data
+from slumber.utils.data import Data, Event
 
 
 class Settings(PydanticSettings):
@@ -28,13 +28,13 @@ class Settings(PydanticSettings):
 class ArousalDetection(ez.Unit):
     SETTINGS = Settings
 
-    INPUT_SCORES = ez.InputStream(Data)
-    AROUSAL_INTERVALS = ez.OutputStream(list[tuple[int, int]])
+    INPUT = ez.InputStream(Data)
+    OUTPUT = ez.OutputStream(list[Event])
 
-    @ez.subscriber(INPUT_SCORES)
-    @ez.publisher(AROUSAL_INTERVALS)
+    @ez.subscriber(INPUT)
+    @ez.publisher(OUTPUT)
     async def detect(self, scores: Data) -> AsyncGenerator:
-        arousal_intervals = detect_arousals(
+        arousal_events = detect_arousals(
             scores,
             wake_n1_threshold=self.SETTINGS.wake_n1_threshold,
             min_duration=self.SETTINGS.min_duration,
@@ -45,9 +45,9 @@ class ArousalDetection(ez.Unit):
             gap_threshold_factor=self.SETTINGS.gap_threshold_factor,
         )
 
-        logger.debug(f"Arousal intervals: {arousal_intervals}")
+        logger.debug(f"Arousal events: {arousal_events}")
 
         yield (
-            self.AROUSAL_INTERVALS,
-            arousal_intervals,
+            self.OUTPUT,
+            arousal_events,
         )

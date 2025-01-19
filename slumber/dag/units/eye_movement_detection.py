@@ -8,10 +8,9 @@ from pydantic import Field
 from slumber.dag.utils import PydanticSettings
 from slumber.processing.eye_movement import (
     DEFAULTS,
-    MovementEvent,
     detect_lr_eye_movements,
 )
-from slumber.utils.data import Data
+from slumber.utils.data import Data, Event
 
 
 class Settings(PydanticSettings):
@@ -29,11 +28,11 @@ class EyeMovementDetection(ez.Unit):
     SETTINGS = Settings
 
     INPUT = ez.InputStream(Data)
-    EYE_MOVEMENTS = ez.OutputStream(list[MovementEvent])
+    OUTPUT = ez.OutputStream(list[Event])
 
     @ez.subscriber(INPUT)
-    @ez.publisher(EYE_MOVEMENTS)
+    @ez.publisher(OUTPUT)
     async def detect_eye_movements(self, data: Data) -> AsyncGenerator:
         eye_movements = detect_lr_eye_movements(data, **asdict(self.SETTINGS))
         logger.debug(f"Eye movements: {eye_movements}")
-        yield (self.EYE_MOVEMENTS, eye_movements)
+        yield (self.OUTPUT, eye_movements)

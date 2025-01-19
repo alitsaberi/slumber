@@ -1,4 +1,5 @@
 data_dir: "data"
+time_zone: "Europe/Berlin"
 
 storage:
   survey_data_dir: "data/survey_results" # TODO: we should have a dedicate survey section in the settings
@@ -51,3 +52,13 @@ lr_eye_movement:
   max_sequence_gap: 1.5
   low_cutoff: 0.3
   high_cutoff: 2
+
+arousal_detection:
+  wake_n1_threshold: 0.4
+  min_duration: 3.0
+  max_duration: 15.0
+  merge_gap: 5.0
+  smoothing_window: 5.0
+  min_transition_increase: 0.2
+  gap_threshold_factor: 0.8
+  arousal_label: AROUSAL

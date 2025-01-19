@@ -1,10 +1,13 @@
 from collections.abc import Sequence
 from dataclasses import dataclass
-from datetime import timedelta
+from datetime import datetime, timedelta
 from functools import cached_property
 from typing import Any
 
 import numpy as np
+import pytz
+
+from slumber import settings
 
 
 class NoSamplesError(ValueError): ...
@@ -19,6 +22,12 @@ def _validate_channel_names(objects: Sequence["ArrayBase"]) -> None:
                 f" Reference: {reference_channels}, got: {obj.channel_names}"
             )
     return reference_channels
+
+
+def timestamp_to_datetime(
+    timestamp: float, tz: str = settings["time_zone"]
+) -> datetime:
+    return datetime.fromtimestamp(timestamp, tz=pytz.timezone(tz))
 
 
 @dataclass
@@ -411,3 +420,17 @@ def get_periods_by_index(
     period_indices = period_indices.reshape(n_periods, n_samples_per_period)
 
     return data.array[period_indices]
+
+
+@dataclass
+class Event:
+    label: str
+    start_time: float
+    end_time: float
+
+    def __repr__(self) -> str:
+        return (
+            f"Event(label={self.label},"
+            f" start_time={timestamp_to_datetime(self.start_time)},"
+            f" end_time={timestamp_to_datetime(self.end_time)})"
+        )

@@ -33,14 +33,14 @@ class SleepScoring(ez.Unit):
     STATE = State
 
     INPUT = ez.InputStream(Data)
-    OUTPUT_SCORES = ez.OutputStream(Data)
+    OUTPUT = ez.OutputStream(Data)
 
     async def initialize(self) -> None:
         self.STATE.model = UTimeModel(**asdict(self.SETTINGS.model))
         logger.info(f"Loaded model from {self.SETTINGS.model.model_dir}")
 
     @ez.subscriber(INPUT)
-    @ez.publisher(OUTPUT_SCORES)
+    @ez.publisher(OUTPUT)
     async def score_sleep(self, data: Data) -> AsyncGenerator:
         logger.debug(f"Scoring {data}")
         scores = score(
@@ -52,4 +52,4 @@ class SleepScoring(ez.Unit):
 
         logger.debug(f"Sleep scores: {scores}")
 
-        yield (self.OUTPUT_SCORES, scores)
+        yield (self.OUTPUT, scores)

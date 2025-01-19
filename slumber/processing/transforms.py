@@ -58,9 +58,9 @@ class FIRFilter(Transform):
             filter_data(
                 data.array.T, data.sample_rate, low_cutoff, high_cutoff, **kwargs
             ).T,
-            data.sample_rate,
-            data.channel_names,
-            data.timestamps,
+            sample_rate=data.sample_rate,
+            channel_names=data.channel_names,
+            timestamps=data.timestamps,
         )
 
 

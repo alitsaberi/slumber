@@ -2,19 +2,22 @@ import numpy as np
 from scipy.ndimage import uniform_filter1d
 
 from slumber import settings
-from slumber.utils.data import Data
+from slumber.utils.data import Data, Event
+
+DEFAULTS = settings["arousal_detection"]
+SLEEP_SCORING_LABELS = settings["sleep_scoring"]["labels"]
 
 
 def detect_arousals(
     scores: Data,
-    wake_n1_threshold: float = 0.4,
-    min_duration: float = 3.0,
-    max_duration: float = 15.0,
-    merge_gap: float = 5.0,
-    smoothing_window: float = 5.0,
-    min_transition_increase: float = 0.2,
-    gap_threshold_factor: float = 0.8,
-) -> list[tuple[int, int]]:
+    wake_n1_threshold: float = DEFAULTS["wake_n1_threshold"],
+    min_duration: float = DEFAULTS["min_duration"],
+    max_duration: float = DEFAULTS["max_duration"],
+    merge_gap: float = DEFAULTS["merge_gap"],
+    smoothing_window: float = DEFAULTS["smoothing_window"],
+    min_transition_increase: float = DEFAULTS["min_transition_increase"],
+    gap_threshold_factor: float = DEFAULTS["gap_threshold_factor"],
+) -> list[Event]:
     """
     Detect arousals in sleep confidence
 
@@ -29,7 +32,7 @@ def detect_arousals(
         min_transition_increase (float): Minimum increase for transitions to Wake/N1.
 
     Returns:
-        list of tuples: Detected arousal intervals [(start_index, end_index), ...].
+        list of arousal events.
     """
 
     if scores.sample_rate < 1:
@@ -43,8 +46,8 @@ def detect_arousals(
         )
 
     if (
-        settings["sleep_scoring"]["labels"]["wake"] not in scores.channel_names
-        or settings["sleep_scoring"]["labels"]["n1"] not in scores.channel_names
+        SLEEP_SCORING_LABELS["wake"] not in scores.channel_names
+        or SLEEP_SCORING_LABELS["n1"] not in scores.channel_names
     ):
         raise ValueError("Scores must contain Wake and N1 channels")
 
@@ -68,13 +71,16 @@ def detect_arousals(
         merge_gap_samples,
     )
 
-    intervals = [
-        (start, end)
-        for start, end in intervals
-        if end - start >= min_samples and end - start <= max_samples
+    return [
+        Event(
+            label=DEFAULTS["arousal_label"],
+            start_time=scores.timestamps[start_index],
+            end_time=scores.timestamps[end_index],
+        )
+        for start_index, end_index in intervals
+        if end_index - start_index >= min_samples
+        and end_index - start_index <= max_samples
     ]
-
-    return intervals
 
 
 def _prepare_confidence_scores(data: Data, smoothing_window: float) -> np.ndarray:
@@ -82,8 +88,8 @@ def _prepare_confidence_scores(data: Data, smoothing_window: float) -> np.ndarra
     confidence_scores = data[
         :,
         [
-            settings["sleep_scoring"]["labels"]["wake"],
-            settings["sleep_scoring"]["labels"]["n1"],
+            SLEEP_SCORING_LABELS["wake"],
+            SLEEP_SCORING_LABELS["n1"],
         ],
     ]
     wake_n1_confidence = np.sum(confidence_scores.array, axis=1)
