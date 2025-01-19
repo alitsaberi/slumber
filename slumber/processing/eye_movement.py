@@ -1,5 +1,4 @@
 from functools import partial
-from typing import Literal
 
 import numpy as np
 from loguru import logger
@@ -8,11 +7,8 @@ from scipy.signal import find_peaks
 from slumber import settings
 from slumber.processing.transforms import FIRFilter
 from slumber.utils.data import Data, Event
-from slumber.utils.helpers import timestamp_to_datetime
 
 DEFAULTS = settings["lr_eye_movement"]
-
-MovementType = Literal["L", "R"]
 
 
 def detect_lr_eye_movements(
@@ -82,14 +78,14 @@ def _detect_movement_events(
     peaks, _ = detect_peaks(data.array.squeeze())
     valleys, _ = detect_peaks(-data.array.squeeze())
 
-    events = _peaks_to_events(peaks, data.timestamps, "L")
-    events.extend(_peaks_to_events(valleys, data.timestamps, "R"))
+    events = _peaks_to_events(peaks, data.timestamps, DEFAULTS["left_label"])
+    events.extend(_peaks_to_events(valleys, data.timestamps, DEFAULTS["right_label"]))
 
     return sorted(events, key=lambda x: x.start_time)
 
 
 def _peaks_to_events(
-    peaks: list[int], timestamps: np.ndarray, movement_type: MovementType
+    peaks: list[int], timestamps: np.ndarray, movement_type: str
 ) -> list[Event]:
     return [
         Event(

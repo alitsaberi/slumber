@@ -47,6 +47,8 @@ text2speech:
   voice: com.apple.voice.compact.en-US.Samantha # string identifier of the voice
 
 lr_eye_movement:
+  left_label: L
+  right_label: R
   difference_threshold: 280
   min_same_event_gap: 0.5
   max_sequence_gap: 1.5
