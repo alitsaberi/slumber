@@ -1,14 +1,16 @@
 # widget.py
-from PySide6.QtWidgets import QWidget, QDialog, QPushButton
-from PySide6.QtCore import Signal, QSize, Slot, QObject, QUrl
-from PySide6.QtWebEngineWidgets import QWebEngineView
+import json
+import os
+from json import JSONDecodeError
+from pathlib import Path
+
+from PySide6.QtCore import QObject, QUrl, Signal, Slot
 from PySide6.QtWebChannel import QWebChannel
+from PySide6.QtWidgets import QDialog, QWidget
+
 from .help_ui import Ui_HelpDialog
 from .widget_ui import Ui_Widget
-import os
-import json
-from pathlib import Path
-from json import JSONDecodeError
+
 
 class ChannelObject(QObject):
     form_complete_signal = Signal()
@@ -69,15 +71,19 @@ class WidgetPage(QWidget, Ui_Widget):
     is_done_signal = Signal(int)
 
     def __init__(self, index, status=1, parent=None):
-        super(WidgetPage, self).__init__(parent)
+        super().__init__(parent)
         self.index = index
         self.status = status
         self.setupUi(self)
 
         self.button_info.clicked.connect(self.open_help_dialog)
 
-        self._survey_path = Path(os.path.join(os.path.dirname(__file__), "assets/surveys/survey.json"))
-        html_path = QUrl.fromLocalFile(os.path.join(os.path.dirname(__file__), "assets/html/index.html"))
+        self._survey_path = Path(
+            os.path.join(os.path.dirname(__file__), "assets/surveys/survey.json")
+        )
+        html_path = QUrl.fromLocalFile(
+            os.path.join(os.path.dirname(__file__), "assets/html/index.html")
+        )
         self.webEngineView_post_survey.setUrl(html_path)
 
         # Set up WebChannel
@@ -96,7 +102,9 @@ class WidgetPage(QWidget, Ui_Widget):
             print(f"Survey file not found: {self._survey_path}")
             return
 
-        survey_html_path = Path(os.path.join(os.path.dirname(__file__), "assets/html/index.html"))
+        survey_html_path = Path(
+            os.path.join(os.path.dirname(__file__), "assets/html/index.html")
+        )
         file_url = QUrl.fromLocalFile(str(survey_html_path))
         file_url.setQuery(f"survey_path={self._survey_path}")
         self.webEngineView_post_survey.setUrl(file_url)
@@ -119,8 +127,12 @@ class WidgetPage(QWidget, Ui_Widget):
         ui = Ui_HelpDialog()
         ui.setupUi(dialog)
 
-        ui.button_ok.clicked.connect(lambda: self.handle_help_response(dialog, accepted=True))
-        ui.button_cancel.clicked.connect(lambda: self.handle_help_response(dialog, accepted=False))
+        ui.button_ok.clicked.connect(
+            lambda: self.handle_help_response(dialog, accepted=True)
+        )
+        ui.button_cancel.clicked.connect(
+            lambda: self.handle_help_response(dialog, accepted=False)
+        )
 
         dialog.exec()
 

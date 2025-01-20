@@ -1,15 +1,19 @@
-import sys
 import os
-import yaml
+import sys
 from datetime import datetime, timedelta
-from PySide6.QtWidgets import QApplication
+
+import yaml
 from gui.main_window import MainWindow
-from utils.db_utils import initialize_db
-from model.gui_config_model import get_gui_config, update_gui_config, insert_default_gui_config
+from model.gui_config_model import (
+    get_gui_config,
+    insert_default_gui_config,
+)
+from model.study_calendar_model import populate_study_calendar
 from model.study_config_model import get_study_config, insert_study_config
+from model.task_progress_model import populate_task_progress
 from model.tasks_model import get_tasks, insert_task
-from model.study_calendar_model import populate_study_calendar, get_study_calendar
-from model.task_progress_model import populate_task_progress, get_task_progress
+from PySide6.QtWidgets import QApplication
+from utils.db_utils import initialize_db
 
 # Add the parent directory to sys.path
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -18,7 +22,7 @@ sys.path.append(parent_dir)
 
 
 def read_yaml_config(file_path):
-    with open(file_path, 'r') as file:
+    with open(file_path) as file:
         config = yaml.safe_load(file)
     return config
 
@@ -28,7 +32,13 @@ def insert_default_configs(yaml_config):
     if gui_config is None:
         print("No GUI config found, inserting default GUI config")
         gui_config = yaml_config['gui_config']
-        insert_default_gui_config(gui_config['font_size'], gui_config['app_width'], gui_config['app_height'], gui_config['app_mode'], gui_config['language'])
+        insert_default_gui_config(
+            gui_config['font_size'],
+            gui_config['app_width'],
+            gui_config['app_height'],
+            gui_config['app_mode'],
+            gui_config['language']
+        )
 
     # Insert default study config if not exists and populate study calendar
     study_config = get_study_config()
@@ -53,7 +63,8 @@ def insert_default_configs(yaml_config):
 
 def main():
     # Read YAML config
-    yaml_config_path = os.path.join(os.path.dirname(__file__), '../configs/settings.yaml')
+    config_dir = os.path.dirname(__file__)
+    yaml_config_path = os.path.join(config_dir, '../configs/settings.yaml')
     yaml_config = read_yaml_config(yaml_config_path)
 
     # Initialize the database

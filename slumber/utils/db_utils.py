@@ -1,5 +1,6 @@
-import sqlite3
 import os
+import sqlite3
+
 
 def get_db_connection():
     db_path = os.path.join(os.path.dirname(__file__), '../app.db')
@@ -39,7 +40,9 @@ def initialize_db():
             name VARCHAR,
             header VARCHAR,
             module VARCHAR,
-            type TEXT CHECK(type IN ('pre_processing', 'post_processing', 'action', 'recording'))
+            type TEXT CHECK(
+                type IN ('pre_processing', 'post_processing', 'action', 'recording')
+            )
         )
     ''')
     cursor.execute('''

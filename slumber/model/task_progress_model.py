@@ -1,8 +1,9 @@
-from utils.db_utils import get_db_connection
 import sqlite3
 
-from model.tasks_model import get_tasks
 from model.study_calendar_model import get_study_calendar
+from model.tasks_model import get_tasks
+from utils.db_utils import get_db_connection
+
 
 def insert_task_progress(task_day, task_id, status):
     conn = get_db_connection()
@@ -18,10 +19,14 @@ def get_task_progress():
     conn = get_db_connection()
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
-    cursor.execute('SELECT task_day_id, task_day, task_id, status FROM task_progress ORDER BY task_day, task_id')
+    cursor.execute('''
+        SELECT task_day_id, task_day, task_id, status 
+        FROM task_progress 
+        ORDER BY task_day, task_id
+    ''')
     progress = cursor.fetchall()
     conn.close()
-    return [{key: p[key] for key in p.keys()} for p in progress]
+    return [{key: p[key] for key in p} for p in progress]
 
 def update_task_progress(task_day_id, task_day, task_id, status):
     conn = get_db_connection()
@@ -41,11 +46,13 @@ def populate_task_progress():
         study_calendar = get_study_calendar()
 
         if not tasks:
-            print("No tasks found. Please ensure that tasks are inserted before populating task_progress.")
+            print("No tasks found. Please ensure that tasks are inserted before "
+                  "populating task_progress.")
             return
 
         if not study_calendar:
-            print("No study calendar entries found. Please ensure that study_calendar is populated before populating task_progress.")
+            print("No study calendar entries found. Please ensure that study_calendar "
+                  "is populated before populating task_progress.")
             return
 
         # Connect to the database once for all insertions
@@ -65,7 +72,8 @@ def populate_task_progress():
                         VALUES (?, ?, ?)
                     ''', (day_number, task_id, status))
                 except sqlite3.IntegrityError as ie:
-                    print(f"IntegrityError: {ie} - Skipping duplicate entry for task_day {day_number} and task_id {task_id}.")
+                    print(f"IntegrityError: {ie} - Skipping duplicate entry for "
+                          f"task_day {day_number} and task_id {task_id}.")
 
         # Commit all insertions and close the connection
         conn.commit()

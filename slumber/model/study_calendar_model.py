@@ -1,6 +1,8 @@
-from utils.db_utils import get_db_connection
-from datetime import datetime, timedelta
 import sqlite3
+from datetime import datetime, timedelta
+
+from utils.db_utils import get_db_connection
+
 
 def get_study_calendar():
     conn = get_db_connection()
@@ -9,7 +11,7 @@ def get_study_calendar():
     cursor.execute('SELECT study_date, day_number FROM study_calendar')
     calendar = cursor.fetchall()
     conn.close()
-    return [{key: c[key] for key in c.keys()} for c in calendar]
+    return [{key: c[key] for key in c} for c in calendar]
 
 
 def populate_study_calendar(study_duration, start_date):
@@ -47,7 +49,9 @@ def get_todays_day_number():
     cursor = conn.cursor()
 
     today_str = datetime.now().strftime('%Y-%m-%d')
-    cursor.execute("SELECT day_number FROM study_calendar WHERE study_date = ?", (today_str,))
+    cursor.execute(
+        "SELECT day_number FROM study_calendar WHERE study_date = ?", (today_str,)
+    )
     row = cursor.fetchone()
     
     conn.close()

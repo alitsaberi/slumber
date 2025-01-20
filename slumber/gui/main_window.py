@@ -1,17 +1,27 @@
-from PySide6.QtWidgets import QMainWindow, QSizePolicy, QLabel, QPushButton, QTableView, QComboBox, QLCDNumber, QListWidget
+from model.gui_config_model import get_gui_config
 from PySide6.QtWebEngineWidgets import QWebEngineView
+from PySide6.QtWidgets import (
+    QComboBox,
+    QLabel,
+    QLCDNumber,
+    QListWidget,
+    QMainWindow,
+    QPushButton,
+    QSizePolicy,
+    QTableView,
+)
+
 from .main_window_ui import Ui_MainWindow
-from .pages.settings.settings import SettingsPage
 from .pages.help.help import HelpPage
 from .pages.home.home import HomePage
 from .pages.procedure.procedure import ProcedurePage
+from .pages.settings.settings import SettingsPage
 from .pages.thank_you.thank_you import ThankYouPage
-from model.gui_config_model import get_gui_config
-from model.task_progress_model import get_diary
+
 
 class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self, gui_config, study_config, tasks, parent=None):
-        super(MainWindow, self).__init__(parent)
+        super().__init__(parent)
         self.setupUi(self)  # Setup the UI from the generated class
 
         self.home_page = HomePage(self)
@@ -37,7 +47,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.pushButton_help.clicked.connect(self.on_help_button_clicked)
         self.pushButton_settings.clicked.connect(self.on_settings_button_clicked)
 
-        # Connect the config_changed signal and config_back signal from the settings window
+        # Connect the config_changed signal and config_back signal 
+        # from the settings window
         self.settings_page.config_changed_signal.connect(self.on_config_changed)
         self.settings_page.config_back_signal.connect(self.go_back_pressed)
 
@@ -122,7 +133,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def go_back_after_thank_you(self):
         print("Back after thank you")
         self.stackedWidgetPages.setCurrentWidget(self.home_page)
-        # Set start procudure button to close application
+        # Set start procedure button to close application
         self.home_page.pushButton_start_procedure.setText("Close Application")
         self.home_page.pushButton_start_procedure.clicked.disconnect()
         self.home_page.pushButton_start_procedure.clicked.connect(self.close)
@@ -163,7 +174,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         for widget in self.findChildren(QWebEngineView):
             default_zoom_factor = self.default_font_sizes[widget]
-            widget.setZoomFactor(default_zoom_factor + (font_size * 0.1))  # Adjust zoom factor based on font size
+            # Adjust zoom factor based on font size
+            widget.setZoomFactor(default_zoom_factor + (font_size * 0.1))
 
         for widget in self.findChildren(QListWidget):
             font = widget.font()

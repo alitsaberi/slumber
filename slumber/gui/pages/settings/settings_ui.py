@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 
 ################################################################################
 ## Form generated from reading UI file 'settings.ui'
@@ -8,21 +7,26 @@
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
 
-from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
-    QMetaObject, QObject, QPoint, QRect,
-    QSize, QTime, QUrl, Qt)
-from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
-    QFont, QFontDatabase, QGradient, QIcon,
-    QImage, QKeySequence, QLinearGradient, QPainter,
-    QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QComboBox, QHBoxLayout, QLCDNumber,
-    QLabel, QLayout, QPushButton, QSizePolicy,
-    QSpacerItem, QVBoxLayout, QWidget)
+from PySide6.QtCore import QCoreApplication, QMetaObject, QSize, Qt
+from PySide6.QtGui import QFont, QIcon
+from PySide6.QtWidgets import (
+    QComboBox,
+    QHBoxLayout,
+    QLabel,
+    QLayout,
+    QLCDNumber,
+    QPushButton,
+    QSizePolicy,
+    QSpacerItem,
+    QVBoxLayout,
+    QWidget,
+)
 
-class Ui_SettingsWindow(object):
+
+class Ui_SettingsWindow:
     def setupUi(self, SettingsWindow):
         if not SettingsWindow.objectName():
-            SettingsWindow.setObjectName(u"SettingsWindow")
+            SettingsWindow.setObjectName("SettingsWindow")
         SettingsWindow.setWindowModality(Qt.WindowModality.NonModal)
         SettingsWindow.resize(1158, 825)
         sizePolicy = QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
@@ -32,12 +36,12 @@ class Ui_SettingsWindow(object):
         SettingsWindow.setSizePolicy(sizePolicy)
         SettingsWindow.setMaximumSize(QSize(3840, 2160))
         self.verticalLayout_5 = QVBoxLayout(SettingsWindow)
-        self.verticalLayout_5.setObjectName(u"verticalLayout_5")
+        self.verticalLayout_5.setObjectName("verticalLayout_5")
         self.horizontalLayout_title = QHBoxLayout()
-        self.horizontalLayout_title.setObjectName(u"horizontalLayout_title")
+        self.horizontalLayout_title.setObjectName("horizontalLayout_title")
         self.horizontalLayout_title.setContentsMargins(-1, -1, -1, 16)
         self.settings_back = QPushButton(SettingsWindow)
-        self.settings_back.setObjectName(u"settings_back")
+        self.settings_back.setObjectName("settings_back")
         sizePolicy1 = QSizePolicy(QSizePolicy.Policy.Maximum, QSizePolicy.Policy.Maximum)
         sizePolicy1.setHorizontalStretch(0)
         sizePolicy1.setVerticalStretch(0)
@@ -46,10 +50,10 @@ class Ui_SettingsWindow(object):
         self.settings_back.setMinimumSize(QSize(50, 50))
         self.settings_back.setMaximumSize(QSize(50, 50))
         font = QFont()
-        font.setFamilies([u"Arial"])
+        font.setFamilies(["Arial"])
         font.setPointSize(18)
         self.settings_back.setFont(font)
-        self.settings_back.setStyleSheet(u"QPushButton {\n"
+        self.settings_back.setStyleSheet("QPushButton {\n"
 "    color: rgb(255, 255, 255);\n"
 "    background-color: rgb(1, 92, 187);\n"
 "    border: 1px;\n"
@@ -72,11 +76,11 @@ class Ui_SettingsWindow(object):
         self.horizontalLayout_title.addWidget(self.settings_back)
 
         self.label_6 = QLabel(SettingsWindow)
-        self.label_6.setObjectName(u"label_6")
+        self.label_6.setObjectName("label_6")
         sizePolicy1.setHeightForWidth(self.label_6.sizePolicy().hasHeightForWidth())
         self.label_6.setSizePolicy(sizePolicy1)
         font1 = QFont()
-        font1.setFamilies([u"Arial"])
+        font1.setFamilies(["Arial"])
         font1.setPointSize(36)
         self.label_6.setFont(font1)
 
@@ -90,7 +94,7 @@ class Ui_SettingsWindow(object):
         self.verticalLayout_5.addLayout(self.horizontalLayout_title)
 
         self.card_font_size = QWidget(SettingsWindow)
-        self.card_font_size.setObjectName(u"card_font_size")
+        self.card_font_size.setObjectName("card_font_size")
         sizePolicy2 = QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
         sizePolicy2.setHorizontalStretch(0)
         sizePolicy2.setVerticalStretch(0)
@@ -98,16 +102,16 @@ class Ui_SettingsWindow(object):
         self.card_font_size.setSizePolicy(sizePolicy2)
         self.card_font_size.setMinimumSize(QSize(0, 150))
         self.card_font_size.setMaximumSize(QSize(3840, 2160))
-        self.card_font_size.setStyleSheet(u"QWidget {\n"
+        self.card_font_size.setStyleSheet("QWidget {\n"
 "    border: 2px solid rgb(50, 50, 50);\n"
 "    border-radius: 10px;\n"
 "    background-color: rgb(30, 30, 30);\n"
 "    padding: 10px\n"
 "}")
         self.verticalLayout_2 = QVBoxLayout(self.card_font_size)
-        self.verticalLayout_2.setObjectName(u"verticalLayout_2")
+        self.verticalLayout_2.setObjectName("verticalLayout_2")
         self.label_5 = QLabel(self.card_font_size)
-        self.label_5.setObjectName(u"label_5")
+        self.label_5.setObjectName("label_5")
         sizePolicy3 = QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Maximum)
         sizePolicy3.setHorizontalStretch(0)
         sizePolicy3.setVerticalStretch(0)
@@ -120,10 +124,10 @@ class Ui_SettingsWindow(object):
         self.verticalLayout_2.addWidget(self.label_5)
 
         self.horizontalLayout_2 = QHBoxLayout()
-        self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
+        self.horizontalLayout_2.setObjectName("horizontalLayout_2")
         self.horizontalLayout_2.setContentsMargins(-1, 8, -1, 8)
         self.pushButton_font_size_dec = QPushButton(self.card_font_size)
-        self.pushButton_font_size_dec.setObjectName(u"pushButton_font_size_dec")
+        self.pushButton_font_size_dec.setObjectName("pushButton_font_size_dec")
         sizePolicy4 = QSizePolicy(QSizePolicy.Policy.Maximum, QSizePolicy.Policy.Maximum)
         sizePolicy4.setHorizontalStretch(50)
         sizePolicy4.setVerticalStretch(50)
@@ -131,7 +135,7 @@ class Ui_SettingsWindow(object):
         self.pushButton_font_size_dec.setSizePolicy(sizePolicy4)
         self.pushButton_font_size_dec.setMinimumSize(QSize(50, 50))
         self.pushButton_font_size_dec.setMaximumSize(QSize(50, 50))
-        self.pushButton_font_size_dec.setStyleSheet(u"QPushButton {\n"
+        self.pushButton_font_size_dec.setStyleSheet("QPushButton {\n"
 "    color: rgb(255, 255, 255);\n"
 "    background-color: rgb(1, 92, 187);\n"
 "    border: 1px;\n"
@@ -156,7 +160,7 @@ class Ui_SettingsWindow(object):
 "    color: rgb(220,221,229);\n"
 "    background-color: rgb(37, 150, 190);\n"
 "}")
-        self.pushButton_font_size_dec.setText(u"")
+        self.pushButton_font_size_dec.setText("")
         icon1 = QIcon(QIcon.fromTheme(QIcon.ThemeIcon.ListRemove))
         self.pushButton_font_size_dec.setIcon(icon1)
         self.pushButton_font_size_dec.setIconSize(QSize(30, 40))
@@ -164,7 +168,7 @@ class Ui_SettingsWindow(object):
         self.horizontalLayout_2.addWidget(self.pushButton_font_size_dec)
 
         self.lcdNumber_font_size = QLCDNumber(self.card_font_size)
-        self.lcdNumber_font_size.setObjectName(u"lcdNumber_font_size")
+        self.lcdNumber_font_size.setObjectName("lcdNumber_font_size")
         sizePolicy1.setHeightForWidth(self.lcdNumber_font_size.sizePolicy().hasHeightForWidth())
         self.lcdNumber_font_size.setSizePolicy(sizePolicy1)
         self.lcdNumber_font_size.setMinimumSize(QSize(300, 50))
@@ -173,12 +177,12 @@ class Ui_SettingsWindow(object):
         self.horizontalLayout_2.addWidget(self.lcdNumber_font_size)
 
         self.pushButton_font_size_add = QPushButton(self.card_font_size)
-        self.pushButton_font_size_add.setObjectName(u"pushButton_font_size_add")
+        self.pushButton_font_size_add.setObjectName("pushButton_font_size_add")
         sizePolicy4.setHeightForWidth(self.pushButton_font_size_add.sizePolicy().hasHeightForWidth())
         self.pushButton_font_size_add.setSizePolicy(sizePolicy4)
         self.pushButton_font_size_add.setMinimumSize(QSize(50, 50))
         self.pushButton_font_size_add.setMaximumSize(QSize(50, 50))
-        self.pushButton_font_size_add.setStyleSheet(u"QPushButton {\n"
+        self.pushButton_font_size_add.setStyleSheet("QPushButton {\n"
 "    color: rgb(255, 255, 255);\n"
 "    background-color: rgb(1, 92, 187);\n"
 "    border: 1px;\n"
@@ -203,7 +207,7 @@ class Ui_SettingsWindow(object):
 "    color: rgb(220,221,229);\n"
 "    background-color: rgb(37, 150, 190);\n"
 "}")
-        self.pushButton_font_size_add.setText(u"")
+        self.pushButton_font_size_add.setText("")
         icon2 = QIcon(QIcon.fromTheme(QIcon.ThemeIcon.ListAdd))
         self.pushButton_font_size_add.setIcon(icon2)
         self.pushButton_font_size_add.setIconSize(QSize(30, 40))
@@ -221,12 +225,12 @@ class Ui_SettingsWindow(object):
         self.verticalLayout_5.addWidget(self.card_font_size)
 
         self.card_application_size = QWidget(SettingsWindow)
-        self.card_application_size.setObjectName(u"card_application_size")
+        self.card_application_size.setObjectName("card_application_size")
         sizePolicy3.setHeightForWidth(self.card_application_size.sizePolicy().hasHeightForWidth())
         self.card_application_size.setSizePolicy(sizePolicy3)
         self.card_application_size.setMinimumSize(QSize(0, 150))
         self.card_application_size.setMaximumSize(QSize(3840, 2160))
-        self.card_application_size.setStyleSheet(u"QWidget {\n"
+        self.card_application_size.setStyleSheet("QWidget {\n"
 "    border: 2px solid rgb(50, 50, 50);\n"
 "    border-radius: 10px;\n"
 "    background-color: rgb(30, 30, 30);\n"
@@ -237,9 +241,9 @@ class Ui_SettingsWindow(object):
 "    border-radius: 0px; \n"
 "}")
         self.verticalLayout_3 = QVBoxLayout(self.card_application_size)
-        self.verticalLayout_3.setObjectName(u"verticalLayout_3")
+        self.verticalLayout_3.setObjectName("verticalLayout_3")
         self.label_8 = QLabel(self.card_application_size)
-        self.label_8.setObjectName(u"label_8")
+        self.label_8.setObjectName("label_8")
         sizePolicy3.setHeightForWidth(self.label_8.sizePolicy().hasHeightForWidth())
         self.label_8.setSizePolicy(sizePolicy3)
         self.label_8.setMinimumSize(QSize(0, 50))
@@ -248,7 +252,7 @@ class Ui_SettingsWindow(object):
         self.verticalLayout_3.addWidget(self.label_8)
 
         self.horizontalLayout_3 = QHBoxLayout()
-        self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
+        self.horizontalLayout_3.setObjectName("horizontalLayout_3")
         self.horizontalLayout_3.setSizeConstraint(QLayout.SizeConstraint.SetDefaultConstraint)
         self.horizontalLayout_3.setContentsMargins(-1, 8, -1, 8)
         self.comboBox_size = QComboBox(self.card_application_size)
@@ -260,7 +264,7 @@ class Ui_SettingsWindow(object):
         self.comboBox_size.addItem("")
         self.comboBox_size.addItem("")
         self.comboBox_size.addItem("")
-        self.comboBox_size.setObjectName(u"comboBox_size")
+        self.comboBox_size.setObjectName("comboBox_size")
         sizePolicy1.setHeightForWidth(self.comboBox_size.sizePolicy().hasHeightForWidth())
         self.comboBox_size.setSizePolicy(sizePolicy1)
         self.comboBox_size.setMinimumSize(QSize(300, 0))
@@ -273,7 +277,7 @@ class Ui_SettingsWindow(object):
         self.comboBox_window_mode = QComboBox(self.card_application_size)
         self.comboBox_window_mode.addItem("")
         self.comboBox_window_mode.addItem("")
-        self.comboBox_window_mode.setObjectName(u"comboBox_window_mode")
+        self.comboBox_window_mode.setObjectName("comboBox_window_mode")
         sizePolicy1.setHeightForWidth(self.comboBox_window_mode.sizePolicy().hasHeightForWidth())
         self.comboBox_window_mode.setSizePolicy(sizePolicy1)
         self.comboBox_window_mode.setMinimumSize(QSize(300, 0))
@@ -292,12 +296,12 @@ class Ui_SettingsWindow(object):
         self.verticalLayout_5.addWidget(self.card_application_size)
 
         self.card_language = QWidget(SettingsWindow)
-        self.card_language.setObjectName(u"card_language")
+        self.card_language.setObjectName("card_language")
         sizePolicy2.setHeightForWidth(self.card_language.sizePolicy().hasHeightForWidth())
         self.card_language.setSizePolicy(sizePolicy2)
         self.card_language.setMinimumSize(QSize(0, 150))
         self.card_language.setMaximumSize(QSize(3840, 2160))
-        self.card_language.setStyleSheet(u"QWidget {\n"
+        self.card_language.setStyleSheet("QWidget {\n"
 "    border: 2px solid rgb(50, 50, 50);\n"
 "    border-radius: 10px;\n"
 "    background-color: rgb(30, 30, 30);\n"
@@ -308,9 +312,9 @@ class Ui_SettingsWindow(object):
 "    border-radius: 0px; \n"
 "}")
         self.verticalLayout = QVBoxLayout(self.card_language)
-        self.verticalLayout.setObjectName(u"verticalLayout")
+        self.verticalLayout.setObjectName("verticalLayout")
         self.label_7 = QLabel(self.card_language)
-        self.label_7.setObjectName(u"label_7")
+        self.label_7.setObjectName("label_7")
         sizePolicy3.setHeightForWidth(self.label_7.sizePolicy().hasHeightForWidth())
         self.label_7.setSizePolicy(sizePolicy3)
         self.label_7.setMinimumSize(QSize(0, 50))
@@ -321,7 +325,7 @@ class Ui_SettingsWindow(object):
         self.comboBox_language = QComboBox(self.card_language)
         self.comboBox_language.addItem("")
         self.comboBox_language.addItem("")
-        self.comboBox_language.setObjectName(u"comboBox_language")
+        self.comboBox_language.setObjectName("comboBox_language")
         sizePolicy1.setHeightForWidth(self.comboBox_language.sizePolicy().hasHeightForWidth())
         self.comboBox_language.setSizePolicy(sizePolicy1)
         self.comboBox_language.setMinimumSize(QSize(300, 0))
@@ -333,21 +337,21 @@ class Ui_SettingsWindow(object):
         self.verticalLayout_5.addWidget(self.card_language)
 
         self.card_other_settings = QWidget(SettingsWindow)
-        self.card_other_settings.setObjectName(u"card_other_settings")
+        self.card_other_settings.setObjectName("card_other_settings")
         sizePolicy2.setHeightForWidth(self.card_other_settings.sizePolicy().hasHeightForWidth())
         self.card_other_settings.setSizePolicy(sizePolicy2)
         self.card_other_settings.setMinimumSize(QSize(0, 150))
         self.card_other_settings.setMaximumSize(QSize(3840, 2160))
-        self.card_other_settings.setStyleSheet(u"QWidget {\n"
+        self.card_other_settings.setStyleSheet("QWidget {\n"
 "    border: 2px solid rgb(50, 50, 50);\n"
 "    border-radius: 10px;\n"
 "    background-color: rgb(30, 30, 30);\n"
 "    padding: 10px;\n"
 "}")
         self.verticalLayout_4 = QVBoxLayout(self.card_other_settings)
-        self.verticalLayout_4.setObjectName(u"verticalLayout_4")
+        self.verticalLayout_4.setObjectName("verticalLayout_4")
         self.label_9 = QLabel(self.card_other_settings)
-        self.label_9.setObjectName(u"label_9")
+        self.label_9.setObjectName("label_9")
         sizePolicy3.setHeightForWidth(self.label_9.sizePolicy().hasHeightForWidth())
         self.label_9.setSizePolicy(sizePolicy3)
         self.label_9.setMinimumSize(QSize(0, 50))
@@ -356,17 +360,17 @@ class Ui_SettingsWindow(object):
         self.verticalLayout_4.addWidget(self.label_9)
 
         self.horizontalLayout_4 = QHBoxLayout()
-        self.horizontalLayout_4.setObjectName(u"horizontalLayout_4")
+        self.horizontalLayout_4.setObjectName("horizontalLayout_4")
         self.horizontalLayout_4.setSizeConstraint(QLayout.SizeConstraint.SetNoConstraint)
         self.horizontalLayout_4.setContentsMargins(-1, 8, -1, 8)
         self.pushButton_other_settings_dec = QPushButton(self.card_other_settings)
-        self.pushButton_other_settings_dec.setObjectName(u"pushButton_other_settings_dec")
+        self.pushButton_other_settings_dec.setObjectName("pushButton_other_settings_dec")
         sizePolicy1.setHeightForWidth(self.pushButton_other_settings_dec.sizePolicy().hasHeightForWidth())
         self.pushButton_other_settings_dec.setSizePolicy(sizePolicy1)
         self.pushButton_other_settings_dec.setMinimumSize(QSize(50, 50))
         self.pushButton_other_settings_dec.setMaximumSize(QSize(50, 50))
         self.pushButton_other_settings_dec.setSizeIncrement(QSize(50, 50))
-        self.pushButton_other_settings_dec.setStyleSheet(u"QPushButton {\n"
+        self.pushButton_other_settings_dec.setStyleSheet("QPushButton {\n"
 "    color: rgb(255, 255, 255);\n"
 "    background-color: rgb(1, 92, 187);\n"
 "    border: 1px;\n"
@@ -397,7 +401,7 @@ class Ui_SettingsWindow(object):
         self.horizontalLayout_4.addWidget(self.pushButton_other_settings_dec)
 
         self.lcdNumber_other_settings = QLCDNumber(self.card_other_settings)
-        self.lcdNumber_other_settings.setObjectName(u"lcdNumber_other_settings")
+        self.lcdNumber_other_settings.setObjectName("lcdNumber_other_settings")
         sizePolicy1.setHeightForWidth(self.lcdNumber_other_settings.sizePolicy().hasHeightForWidth())
         self.lcdNumber_other_settings.setSizePolicy(sizePolicy1)
         self.lcdNumber_other_settings.setMinimumSize(QSize(300, 50))
@@ -405,12 +409,12 @@ class Ui_SettingsWindow(object):
         self.horizontalLayout_4.addWidget(self.lcdNumber_other_settings)
 
         self.pushButton_other_settings_add = QPushButton(self.card_other_settings)
-        self.pushButton_other_settings_add.setObjectName(u"pushButton_other_settings_add")
+        self.pushButton_other_settings_add.setObjectName("pushButton_other_settings_add")
         sizePolicy1.setHeightForWidth(self.pushButton_other_settings_add.sizePolicy().hasHeightForWidth())
         self.pushButton_other_settings_add.setSizePolicy(sizePolicy1)
         self.pushButton_other_settings_add.setMinimumSize(QSize(50, 50))
         self.pushButton_other_settings_add.setMaximumSize(QSize(50, 50))
-        self.pushButton_other_settings_add.setStyleSheet(u"QPushButton {\n"
+        self.pushButton_other_settings_add.setStyleSheet("QPushButton {\n"
 "    color: rgb(255, 255, 255);\n"
 "    background-color: rgb(1, 92, 187);\n"
 "    border: 1px;\n"
@@ -455,14 +459,14 @@ class Ui_SettingsWindow(object):
         self.verticalLayout_5.addItem(self.verticalSpacer)
 
         self.horizontalLayout_5 = QHBoxLayout()
-        self.horizontalLayout_5.setObjectName(u"horizontalLayout_5")
+        self.horizontalLayout_5.setObjectName("horizontalLayout_5")
         self.horizontalLayout_5.setContentsMargins(-1, 8, -1, 16)
         self.horizontalSpacer_5 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
         self.horizontalLayout_5.addItem(self.horizontalSpacer_5)
 
         self.settings_save = QPushButton(SettingsWindow)
-        self.settings_save.setObjectName(u"settings_save")
+        self.settings_save.setObjectName("settings_save")
         self.settings_save.setEnabled(False)
         sizePolicy5 = QSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed)
         sizePolicy5.setHorizontalStretch(0)
@@ -471,7 +475,7 @@ class Ui_SettingsWindow(object):
         self.settings_save.setSizePolicy(sizePolicy5)
         self.settings_save.setMinimumSize(QSize(200, 50))
         self.settings_save.setFont(font)
-        self.settings_save.setStyleSheet(u"QPushButton {\n"
+        self.settings_save.setStyleSheet("QPushButton {\n"
 "    color: rgb(255, 255, 255);\n"
 "    background-color: rgb(1, 92, 187);\n"
 "    border: 1px;\n"
@@ -516,30 +520,30 @@ class Ui_SettingsWindow(object):
     # setupUi
 
     def retranslateUi(self, SettingsWindow):
-        SettingsWindow.setWindowTitle(QCoreApplication.translate("SettingsWindow", u"Settings", None))
+        SettingsWindow.setWindowTitle(QCoreApplication.translate("SettingsWindow", "Settings", None))
         self.settings_back.setText("")
-        self.label_6.setText(QCoreApplication.translate("SettingsWindow", u"Settings", None))
-        self.label_5.setText(QCoreApplication.translate("SettingsWindow", u"Font Size", None))
-        self.label_8.setText(QCoreApplication.translate("SettingsWindow", u"Application Size", None))
-        self.comboBox_size.setItemText(0, QCoreApplication.translate("SettingsWindow", u"1600x900 (HD+)", None))
-        self.comboBox_size.setItemText(1, QCoreApplication.translate("SettingsWindow", u"1680x1050 (WSXGA+)", None))
-        self.comboBox_size.setItemText(2, QCoreApplication.translate("SettingsWindow", u"1920x1080 (Full HD)", None))
-        self.comboBox_size.setItemText(3, QCoreApplication.translate("SettingsWindow", u"1920x1200 (WUXGA)", None))
-        self.comboBox_size.setItemText(4, QCoreApplication.translate("SettingsWindow", u"2560x1440 (QHD)", None))
-        self.comboBox_size.setItemText(5, QCoreApplication.translate("SettingsWindow", u"2560x1600 (WQXGA)", None))
-        self.comboBox_size.setItemText(6, QCoreApplication.translate("SettingsWindow", u"3840x2160 (4K UHD)", None))
-        self.comboBox_size.setItemText(7, QCoreApplication.translate("SettingsWindow", u"4096x2160 (4K DCI)", None))
+        self.label_6.setText(QCoreApplication.translate("SettingsWindow", "Settings", None))
+        self.label_5.setText(QCoreApplication.translate("SettingsWindow", "Font Size", None))
+        self.label_8.setText(QCoreApplication.translate("SettingsWindow", "Application Size", None))
+        self.comboBox_size.setItemText(0, QCoreApplication.translate("SettingsWindow", "1600x900 (HD+)", None))
+        self.comboBox_size.setItemText(1, QCoreApplication.translate("SettingsWindow", "1680x1050 (WSXGA+)", None))
+        self.comboBox_size.setItemText(2, QCoreApplication.translate("SettingsWindow", "1920x1080 (Full HD)", None))
+        self.comboBox_size.setItemText(3, QCoreApplication.translate("SettingsWindow", "1920x1200 (WUXGA)", None))
+        self.comboBox_size.setItemText(4, QCoreApplication.translate("SettingsWindow", "2560x1440 (QHD)", None))
+        self.comboBox_size.setItemText(5, QCoreApplication.translate("SettingsWindow", "2560x1600 (WQXGA)", None))
+        self.comboBox_size.setItemText(6, QCoreApplication.translate("SettingsWindow", "3840x2160 (4K UHD)", None))
+        self.comboBox_size.setItemText(7, QCoreApplication.translate("SettingsWindow", "4096x2160 (4K DCI)", None))
 
-        self.comboBox_window_mode.setItemText(0, QCoreApplication.translate("SettingsWindow", u"Window", None))
-        self.comboBox_window_mode.setItemText(1, QCoreApplication.translate("SettingsWindow", u"Full Screen", None))
+        self.comboBox_window_mode.setItemText(0, QCoreApplication.translate("SettingsWindow", "Window", None))
+        self.comboBox_window_mode.setItemText(1, QCoreApplication.translate("SettingsWindow", "Full Screen", None))
 
-        self.label_7.setText(QCoreApplication.translate("SettingsWindow", u"Language", None))
-        self.comboBox_language.setItemText(0, QCoreApplication.translate("SettingsWindow", u"English", None))
-        self.comboBox_language.setItemText(1, QCoreApplication.translate("SettingsWindow", u"Deutsch", None))
+        self.label_7.setText(QCoreApplication.translate("SettingsWindow", "Language", None))
+        self.comboBox_language.setItemText(0, QCoreApplication.translate("SettingsWindow", "English", None))
+        self.comboBox_language.setItemText(1, QCoreApplication.translate("SettingsWindow", "Deutsch", None))
 
-        self.label_9.setText(QCoreApplication.translate("SettingsWindow", u"Other Settings", None))
+        self.label_9.setText(QCoreApplication.translate("SettingsWindow", "Other Settings", None))
         self.pushButton_other_settings_dec.setText("")
         self.pushButton_other_settings_add.setText("")
-        self.settings_save.setText(QCoreApplication.translate("SettingsWindow", u"Save", None))
+        self.settings_save.setText(QCoreApplication.translate("SettingsWindow", "Save", None))
     # retranslateUi
 
