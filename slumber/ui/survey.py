@@ -193,7 +193,7 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
 
     # Set the survey name
-    survey_name = "sample_survey"
+    survey_name = "psqi"
 
     # Construct the full path to the survey JSON file based on survey_name
     survey_path = (

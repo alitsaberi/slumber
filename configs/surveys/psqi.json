@@ -1,0 +1,367 @@
+{
+    "title": "Pittsburgh Sleep Quality Index (PSQI)",
+    "description": "The following questions relate to your usual sleep habits during the past month only. Your answers should indicate the most accurate reply for the majority of days and nights in the past month. Please answer all questions.",
+    "logoPosition": "right",
+    "pages": [
+      {
+        "name": "PSQI",
+        "elements": [
+          {
+            "type": "text",
+            "name": "usual_bed_time",
+            "title": "During the past month, what time have you usually gone to bed at night?",
+            "description": "Please use a 24-hour clock (e.g., if you went to bed at 11:00 PM, fill out 23:00).",
+            "isRequired": true,
+            "inputType": "time"
+          },
+          {
+            "type": "text",
+            "name": "usual_time_to_fall_asleep",
+            "title": "During the past month, how long (in minutes) has it usually taken you to fall asleep each night?",
+            "inputType": "number"
+          },
+          {
+            "type": "text",
+            "name": "usual_get_up_time",
+            "title": "During the past month, what time have you usually gotten up in the morning?",
+            "description": "Please use a 24-hour clock (e.g., if you went to bed at 11:00 PM, fill out 23:00).",
+            "isRequired": true,
+            "inputType": "time"
+          },
+          {
+            "type": "text",
+            "name": "actual_sleep_hours",
+            "title": "During the past month, how many hours of actual sleep did you get at night?",
+            "description": "Note: this may be different than the number of hours you spent in bed.",
+            "isRequired": true,
+            "inputType": "number",
+            "min": 0,
+            "step": 0.5
+          },
+          {
+            "type": "panel",
+            "name": "panel_trouble_sleeping",
+            "elements": [
+              {
+                "type": "matrix",
+                "name": "trouble_sleeping",
+                "startWithNewLine": false,
+                "title": "During the past month, how often have you had trouble sleeping because you...",
+                "description": "Note: if you had trouble sleeping for reason(s) other than mentioned here, fill this out below. ",
+                "isRequired": true,
+                "columns": [
+                  {
+                    "value": "0",
+                    "text": "Not during the past month"
+                  },
+                  {
+                    "value": "1",
+                    "text": "Less than once a week"
+                  },
+                  {
+                    "value": "2",
+                    "text": "Once or twice a week"
+                  },
+                  {
+                    "value": "3",
+                    "text": "Three or more times a week"
+                  }
+                ],
+                "rows": [
+                  {
+                    "value": "30minsawake",
+                    "text": "Cannot get to sleep within 30 minutes"
+                  },
+                  {
+                    "value": "wakeup",
+                    "text": "Wake up in the middle of the night or early morning"
+                  },
+                  {
+                    "value": "bathroom",
+                    "text": "Have to get up to use the bathroom"
+                  },
+                  {
+                    "value": "breathing",
+                    "text": "Cannot breathe comfortably"
+                  },
+                  {
+                    "value": "cough_snore",
+                    "text": "Cough or snore loudly"
+                  },
+                  {
+                    "value": "cold",
+                    "text": "Feel too cold"
+                  },
+                  {
+                    "value": "hot",
+                    "text": "Feel too hot"
+                  },
+                  {
+                    "value": "dreams",
+                    "text": "Have bad dreams"
+                  },
+                  {
+                    "value": "pain",
+                    "text": "Have pain"
+                  }
+                ]
+              },
+              {
+                "type": "boolean",
+                "name": "trouble_sleeping_other",
+                "title": "During the past month, have you had trouble sleeping for any other reason(s) not mentioned above?  ",
+                "isRequired": true
+              },
+              {
+                "type": "text",
+                "name": "trouble_sleeping_other_description",
+                "visibleIf": "{trouble_sleeping_other} = true",
+                "title": "Please describe:",
+                "requiredIf": "{trouble_sleeping_other} = true"
+              },
+              {
+                "type": "radiogroup",
+                "name": "trouble_sleeping_other_frequency",
+                "visibleIf": "{trouble_sleeping_other} = true",
+                "title": "During the past month, how often have you had trouble sleeping because of the above described reason(s)?",
+                "isRequired": true,
+                "requiredIf": "{trouble_sleeping_other} = true",
+                "choices": [
+                  {
+                    "value": "0",
+                    "text": "Not during the past month"
+                  },
+                  {
+                    "value": "1",
+                    "text": "Less than once a week"
+                  },
+                  {
+                    "value": "2",
+                    "text": "Once or twice a week"
+                  },
+                  {
+                    "value": "3",
+                    "text": "Three or more times a week"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "radiogroup",
+            "name": "medicin_freq",
+            "title": "During the past month, how often have you taken medicine to help you sleep (prescribed or “over the counter”)?",
+            "isRequired": true,
+            "choices": [
+              {
+                "value": "0",
+                "text": "Not during the past motn"
+              },
+              {
+                "value": "1",
+                "text": "Less than once a week"
+              },
+              {
+                "value": "2",
+                "text": "Once or twice a week"
+              },
+              {
+                "value": "3",
+                "text": "Three or more times a week"
+              }
+            ]
+          },
+          {
+            "type": "radiogroup",
+            "name": "staying_awake_freq",
+            "title": "During the past month, how often have you had trouble staying awake while driving, eating meals, or engaging in social activity?",
+            "isRequired": true,
+            "choices": [
+              {
+                "value": "0",
+                "text": "Not during the past month"
+              },
+              {
+                "value": "1",
+                "text": "Less than once a week"
+              },
+              {
+                "value": "2",
+                "text": "Once or twice a week"
+              },
+              {
+                "value": "3",
+                "text": "Three or more times a week"
+              }
+            ]
+          },
+          {
+            "type": "radiogroup",
+            "name": "problem_enthusiasm_score",
+            "title": "During the past month, how much of a problem has it been for you to keep up enough enthusiasm to get things done?",
+            "isRequired": true,
+            "choices": [
+              {
+                "value": "0",
+                "text": "No problem at all"
+              },
+              {
+                "value": "1",
+                "text": "Only a very slight problem"
+              },
+              {
+                "value": "2",
+                "text": "Somewhat of a problem"
+              },
+              {
+                "value": "3",
+                "text": "A very big problem"
+              }
+            ]
+          },
+          {
+            "type": "radiogroup",
+            "name": "sleep_quality",
+            "title": "During the past month, how would you rate your sleep quality overall?",
+            "isRequired": true,
+            "choices": [
+              {
+                "value": "0",
+                "text": "Very good"
+              },
+              {
+                "value": "1",
+                "text": "Fairly good"
+              },
+              {
+                "value": "2",
+                "text": "Fairly bad"
+              },
+              {
+                "value": "3",
+                "text": "Very bad"
+              }
+            ]
+          },
+          {
+            "type": "panel",
+            "name": "panel_roommate",
+            "elements": [
+              {
+                "type": "radiogroup",
+                "name": "roommate",
+                "title": "Do you have a bed partner or room mate?",
+                "isRequired": true,
+                "choices": [
+                  {
+                    "value": "no",
+                    "text": "No bed partner or room mate"
+                  },
+                  {
+                    "value": "yes_other_room",
+                    "text": "Partner/room mate in other room"
+                  },
+                  {
+                    "value": "yes_other_bed",
+                    "text": "Partner in same room, but not same bed"
+                  },
+                  {
+                    "value": "yes_same_bed",
+                    "text": "Partner in same bed"
+                  }
+                ]
+              },
+              {
+                "type": "matrix",
+                "name": "roommate_restlessness_freq",
+                "visibleIf": "{roommate} = 'yes_other_room' or {roommate} = 'yes_other_bed' or {roommate} = 'yes_same_bed'",
+                "title": "Ask your bed partner/room mate how often in the past month you have had:",
+                "description": "\n",
+                "isRequired": true,
+                "columns": [
+                  {
+                    "value": "0",
+                    "text": "Not during the past month"
+                  },
+                  {
+                    "value": "1",
+                    "text": "Less than once a week"
+                  },
+                  {
+                    "value": "2",
+                    "text": "Once or twice a week"
+                  },
+                  {
+                    "value": "3",
+                    "text": "Three or more times a week"
+                  }
+                ],
+                "rows": [
+                  {
+                    "value": "loud_snoring",
+                    "text": "Loud snoring"
+                  },
+                  {
+                    "value": "pauses_breath",
+                    "text": "Long pauses between breaths while asleep"
+                  },
+                  {
+                    "value": "leg_twitching",
+                    "text": "Legs twitching or jerking while you sleep"
+                  },
+                  {
+                    "value": "disorentation_confusion",
+                    "text": "Episodes of disorientation or confusion during sleep"
+                  }
+                ]
+              },
+              {
+                "type": "boolean",
+                "name": "roommate_restlessness_other",
+                "visibleIf": "{roommate} = 'yes_other_room' or {roommate} = 'yes_other_bed' or {roommate} = 'yes_same_bed'",
+                "title": "Does your room mate or bed partner report that you have had other restlessness while you sleep during the past month?",
+                "isRequired": true
+              },
+              {
+                "type": "text",
+                "name": "roommate_restlessness_other_description",
+                "visibleIf": "{roommate_restlessness_other} = true",
+                "title": "Please describe:",
+                "isRequired": true
+              },
+              {
+                "type": "radiogroup",
+                "name": "roommate_restlessness_other_freq",
+                "visibleIf": "{roommate_restlessness_other} = true",
+                "title": "During the past month, how often has the above described restlessness occurred?",
+                "isRequired": true,
+                "choices": [
+                  {
+                    "value": "0",
+                    "text": "Not during the past month"
+                  },
+                  {
+                    "value": "1",
+                    "text": "Less than once a week"
+                  },
+                  {
+                    "value": "2",
+                    "text": "Once or twice a week"
+                  },
+                  {
+                    "value": "3",
+                    "text": "Three or more times a week"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "showPageTitles": false,
+    "showProgressBar": "auto",
+    "progressBarType": "questions",
+    "completeText": "Submit Answers",
+    "showPreviewBeforeComplete": "showAllQuestions"
+  }
