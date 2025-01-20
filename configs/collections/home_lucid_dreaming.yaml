@@ -1,40 +1,44 @@
 name: HomeLucidDreaming
 
 components:
+  
   ZMAX:
     unit: ZMaxDataReceiver
     settings:
+      zmax:
+        socket_timeout: 1
       data_types:
         - EEG_LEFT
         - EEG_RIGHT
-        - ACCELEROMETER_X
-        - ACCELEROMETER_Y
-        - ACCELEROMETER_Z
+      retry_attempts: 6
+      retry_delay: 10
 
-  ZMAX_STORAGE_QUEUE:
-    unit: CountQueue
-    settings:
-      max_size: 20000
-      leaky: False
-      log_queue_size_interval: 5
-      publish_interval: 5
-      publish_count: 10000
+  # ZMAX_STORAGE_QUEUE:
+  #   unit: CountQueue
+  #   settings:
+  #     max_size: 3000 
+  #     leaky: False
+  #     log_queue_size_interval: 5
+  #     publish_interval: 0.01
+  #     publish_count: 2560
 
   ZMAX_SAMPLE_RATE_REGULATOR:
     unit: TimeQueue
     settings:
-      max_size: 5000
+      max_size: 3000
       leaky: True
       log_queue_size_interval: 5
       publish_interval: 10
       sample_rate: 256
-      interpolate_missing: false
+      gap_threshold: 1.0
+      channel_names: [EEG_LEFT, EEG_RIGHT]
+      timestamp_margin: 1.0
 
-  ZMAX_STORAGE:
-    unit: HDF5Storage
-    settings:
-      file_path: "data/storage.h5"
-      group_name: "zmax_raw"
+  # ZMAX_STORAGE:
+  #   unit: HDF5Storage
+  #   settings:
+  #     file_path: "data/storage.h5"
+  #     group_name: "zmax_raw"
 
   PREPROCESS:
     unit: Transform
@@ -50,7 +54,7 @@ components:
   SLEEP_SCORING_ROLLING_BUFFER:
     unit: RollingBuffer
     settings:
-      size: 105
+      size: 2
 
   SLEEP_SCORING_PREPROCESS:
     unit: Transform
@@ -60,26 +64,92 @@ components:
           kwargs:
             low_cutoff: 0.3
             high_cutoff: 30.0
-            l_trans_bandwidth: 0.3
 
   SLEEP_SCORING:
     unit: SleepScoring
     settings:
       model:
         model_dir: ./tests/resources/sample_utime_model
-        channel_groups: [[0], [1]]
-        n_periods: 105
+        n_periods: 2
         n_samples_per_prediction: 1
       channel_groups: [[EEG_LEFT], [EEG_RIGHT]]
       arg_max: false
 
+  EYE_MOVEMENT_DETECTION_ROLLING_BUFFER:
+    unit: RollingBuffer
+    settings:
+      size: 2
+
+  EYE_MOVEMENT_DETECTION:
+    unit: EyeMovementDetection
+    settings:
+      left_eeg_label: EEG_LEFT
+      right_eeg_label: EEG_RIGHT
+      difference_threshold: 280
+
+  AROUSAL_DETECTION:
+    unit: ArousalDetection
+    settings:
+      wake_n1_threshold: 0.2
+
+  PLOT:
+    unit: Plot
+
+  MASTER:
+    unit: Master
+
+  REM_CUEING:
+    unit: Cueing
+    settings:
+        visual_cueing:
+          led_color: RED
+          repetitions: 3
+          on_duration: 5
+          off_duration: 5
+          intensity:
+            value: 1
+            min: 1
+            max: 100
+            step: 5
+        vibration_cueing:
+          on_duration: 2
+          off_duration: 5
+          intensity:
+            value: 1
+            min: 1
+            max: 3
+            step: 1
+        audio_cueing:
+          text: You are dreaming
+          rate: 175
+          intensity:
+            value: 0
+            min: 0
+            max: 100
+            step: 5
+        enabled: False
+        increase_intensity: False
+        enabled_check_interval: 5.0
+        cueing_interval: 5.0
+
 
 connections:
-  - [ZMAX.SAMPLE, ZMAX_STORAGE_QUEUE.INPUT]
+  # - [ZMAX.SAMPLE, ZMAX_STORAGE_QUEUE.INPUT]
   - [ZMAX.SAMPLE, ZMAX_SAMPLE_RATE_REGULATOR.INPUT]
-  - [ZMAX_STORAGE_QUEUE.OUTPUT, ZMAX_STORAGE.INPUT]
+  # - [ZMAX_STORAGE_QUEUE.OUTPUT, ZMAX_STORAGE.INPUT]
   - [ZMAX_SAMPLE_RATE_REGULATOR.OUTPUT, PREPROCESS.INPUT]
   - [PREPROCESS.OUTPUT, SLEEP_SCORING_ROLLING_BUFFER.INPUT]
   - [SLEEP_SCORING_ROLLING_BUFFER.OUTPUT, SLEEP_SCORING_PREPROCESS.INPUT]
   - [SLEEP_SCORING_PREPROCESS.OUTPUT, SLEEP_SCORING.INPUT]
+  - [PREPROCESS.OUTPUT, EYE_MOVEMENT_DETECTION_ROLLING_BUFFER.INPUT]
+  - [EYE_MOVEMENT_DETECTION_ROLLING_BUFFER.OUTPUT, EYE_MOVEMENT_DETECTION.INPUT]
+  - [EYE_MOVEMENT_DETECTION_ROLLING_BUFFER.OUTPUT, PLOT.INPUT]
+  - [SLEEP_SCORING.OUTPUT, AROUSAL_DETECTION.INPUT]
+  - [MASTER.CUEING_ENABLE_SIGNAL, REM_CUEING.ENABLE_SIGNAL]
+  - [MASTER.CUEING_ENABLE_INCREASE_INTENSITY_SIGNAL, REM_CUEING.ENABLE_INCREASE_INTENSITY_SIGNAL]
+  - [MASTER.CUEING_DECREASE_INTENSITY_SIGNAL, REM_CUEING.DECREASE_INTENSITY_SIGNAL]
+  - [REM_CUEING.ZMAX_STIMULATION_SIGNAL, ZMAX.STIMULATION_SIGNAL]
 
+
+process_components:
+  - PLOT

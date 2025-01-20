@@ -17,10 +17,12 @@ _STIMULATION_RETRIES = 15
 _STIMULATION_RETRY_DELAY = 111  # Milliseconds
 _STIMULATION_FLASH_LED_COMMAND = 4
 _STIMULATION_PWM_MAX = 254  # 100% intensity
-_STIMULATION_MAX_REPETITIONS = 127
-_STIMULATION_MIN_REPETITIONS = 1
-_STIMULATION_MIN_DURATION = 1
-_STIMULATION_MAX_DURATION = 255
+STIMULATION_MAX_REPETITIONS = 127
+STIMULATION_MIN_REPETITIONS = 1
+STIMULATION_MIN_DURATION = 1
+STIMULATION_MAX_DURATION = 255
+LED_MIN_INTENSITY = 1
+LED_MAX_INTENSITY = 100
 SAMPLE_RATE = 256
 
 
@@ -253,7 +255,10 @@ class ZMax:
         return True
 
     def vibrate(
-        self, on_duration: int = 10, off_duration: int = 10, repetitions: int = 1
+        self,
+        on_duration: int,
+        off_duration: int,
+        repetitions: int,
     ) -> None:
         self.stimulate(
             led_color=LEDColor.OFF,
@@ -265,12 +270,12 @@ class ZMax:
 
     def stimulate(
         self,
-        led_color: LEDColor = LEDColor.WHITE,
-        led_intensity: int = 100,
-        on_duration: int = 10,  # 10 units = 1000 ms
-        off_duration: int = 10,  # 10 units = 1000 ms
-        repetitions: int = 5,
-        vibration: bool = True,
+        led_color: LEDColor,
+        on_duration: int,  # 10 units = 1000 ms
+        off_duration: int,  # 10 units = 1000 ms
+        repetitions: int,
+        vibration: bool,
+        led_intensity: int = LED_MAX_INTENSITY,
         alternate_eyes: bool = False,
     ) -> None:
         """
@@ -281,36 +286,40 @@ class ZMax:
 
         Args:
             led_color (LEDColor): Color of the LED.
-            led_intensity (int): Intensity of the LED in percent.
             on_duration (int): Duration of the LED on in 100 ms. (e.g. 10 = 1000ms)
             off_duration (int): Duration of the LED off in 100 ms. (e.g. 10 = 1000ms)
             repetitions (int): Number of repetitions.
             vibration (bool): Whether to vibrate.
-            alternate_eyes (bool): Whether to alternate between the two LEDs.
+            led_intensity (int): Intensity of the LED in percent. Defaults to 100.
+            alternate_eyes (bool): Whether to alternate between the two LEDs. 
+                Defaults to False.
         """
 
         if not (
-            _STIMULATION_MIN_REPETITIONS <= repetitions <= _STIMULATION_MAX_REPETITIONS
+            STIMULATION_MIN_REPETITIONS <= repetitions <= STIMULATION_MAX_REPETITIONS
         ):
             raise ValueError(
-                f"Repetitions must be between {_STIMULATION_MIN_REPETITIONS}"
-                f" and {_STIMULATION_MAX_REPETITIONS}"
+                f"Repetitions must be between {STIMULATION_MIN_REPETITIONS}"
+                f" and {STIMULATION_MAX_REPETITIONS}"
             )
 
-        if not (_STIMULATION_MIN_DURATION <= on_duration <= _STIMULATION_MAX_DURATION):
+        if not (STIMULATION_MIN_DURATION <= on_duration <= STIMULATION_MAX_DURATION):
             raise ValueError(
-                f"On duration must be between {_STIMULATION_MIN_DURATION}"
-                f" and {_STIMULATION_MAX_DURATION}"
+                f"On duration must be between {STIMULATION_MIN_DURATION}"
+                f" and {STIMULATION_MAX_DURATION}"
             )
 
-        if not (_STIMULATION_MIN_DURATION <= off_duration <= _STIMULATION_MAX_DURATION):
+        if not (STIMULATION_MIN_DURATION <= off_duration <= STIMULATION_MAX_DURATION):
             raise ValueError(
-                f"Off duration must be between {_STIMULATION_MIN_DURATION}"
-                f" and {_STIMULATION_MAX_DURATION}"
+                f"Off duration must be between {STIMULATION_MIN_DURATION}"
+                f" and {STIMULATION_MAX_DURATION}"
             )
 
-        if not (1 <= led_intensity <= 100):
-            raise ValueError("LED intensity must be between 1 to 100")
+        if not (LED_MIN_INTENSITY <= led_intensity <= LED_MAX_INTENSITY):
+            raise ValueError(
+                f"LED intensity must be between {LED_MIN_INTENSITY}"
+                f" to {LED_MIN_INTENSITY}"
+            )
 
         led_intensity = int(led_intensity / 100 * _STIMULATION_PWM_MAX)
 

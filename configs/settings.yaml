@@ -43,8 +43,7 @@ audit:
 
 text2speech:
   rate: 175 # Integer speech rate in words per minute.
-  volume: 1.0 # Float volume in the range [0.0, 1.0].
-  voice: com.apple.voice.compact.en-US.Samantha # string identifier of the voice
+  volume: 100 # [0, 100]
 
 lr_eye_movement:
   left_label: L

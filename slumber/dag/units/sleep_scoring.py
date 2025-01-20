@@ -14,7 +14,7 @@ from slumber.utils.data import Data
 class ModelConfig(PydanticSettings):
     model_dir: Path
     weight_file_name: str | None = None
-    n_periods: int | None = Field(gt=0)
+    n_periods: int | None = Field(ge=2)
     n_samples_per_prediction: int = Field(1, gt=0)
 
 

@@ -2,7 +2,7 @@ import asyncio
 import time
 from collections.abc import AsyncGenerator
 from functools import cached_property
-from typing import Annotated
+from typing import Annotated, Any
 
 import ezmsg.core as ez
 from loguru import logger
@@ -50,6 +50,8 @@ class State(ez.State):
 class ZMaxDataReceiver(ez.Unit):
     SETTINGS = Settings
     STATE = State
+    
+    STIMULATION_SIGNAL = ez.InputStream(dict[str, Any])
 
     SAMPLE = ez.OutputStream(Sample)
 
@@ -63,6 +65,7 @@ class ZMaxDataReceiver(ez.Unit):
     async def shutdown(self) -> None:
         self.STATE.zmax.disconnect()
 
+    @ez.main
     @ez.publisher(SAMPLE)
     async def publish_sample(self) -> AsyncGenerator:
         while True:
@@ -94,3 +97,9 @@ class ZMaxDataReceiver(ez.Unit):
                     retry_attempts=self.SETTINGS.retry_attempts,
                     retry_delay=self.SETTINGS.retry_delay,
                 )
+
+    @ez.subscriber(STIMULATION_SIGNAL)
+    async def stimulate(self, signal: dict[str, Any]) -> None:
+        logger.debug(f"Stimulating {signal}")
+        self.STATE.zmax.stimulate(**signal)
+        
