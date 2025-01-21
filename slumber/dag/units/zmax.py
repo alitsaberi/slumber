@@ -1,6 +1,7 @@
 import asyncio
 import time
 from collections.abc import AsyncGenerator
+from dataclasses import asdict, dataclass
 from functools import cached_property
 from typing import Annotated, Any
 
@@ -9,9 +10,40 @@ from loguru import logger
 from pydantic import BaseModel, BeforeValidator, ConfigDict, Field, IPvAnyAddress
 
 from slumber.dag.utils import PydanticSettings
-from slumber.sources.zmax import DEFAULTS, ConnectionClosedError, DataType, ZMax
+from slumber.sources.zmax import (
+    DEFAULTS,
+    LED_MAX_INTENSITY,
+    LED_MIN_INTENSITY,
+    STIMULATION_MAX_DURATION,
+    STIMULATION_MAX_REPETITIONS,
+    STIMULATION_MIN_DURATION,
+    STIMULATION_MIN_REPETITIONS,
+    ConnectionClosedError,
+    DataType,
+    LEDColor,
+    ZMax,
+)
 from slumber.utils.data import Sample
 from slumber.utils.helpers import create_enum_by_name_resolver
+
+
+@dataclass
+class ZMaxStimulationSignal:
+    led_color: Annotated[
+        LEDColor, BeforeValidator(create_enum_by_name_resolver(LEDColor))
+    ]
+    on_duration: int = Field(ge=STIMULATION_MIN_DURATION, le=STIMULATION_MAX_DURATION)
+    off_duration: int = Field(ge=STIMULATION_MIN_DURATION, le=STIMULATION_MAX_DURATION)
+    repetitions: int = Field(
+        ge=STIMULATION_MIN_REPETITIONS, le=STIMULATION_MAX_REPETITIONS
+    )
+    vibration: bool
+    led_intensity: int = Field(
+        default=LED_MAX_INTENSITY,
+        ge=LED_MIN_INTENSITY,
+        le=LED_MAX_INTENSITY,
+    )
+    alternate_eyes: bool = False
 
 
 class ZMaxConfig(BaseModel):
@@ -50,8 +82,8 @@ class State(ez.State):
 class ZMaxDataReceiver(ez.Unit):
     SETTINGS = Settings
     STATE = State
-    
-    STIMULATION_SIGNAL = ez.InputStream(dict[str, Any])
+
+    STIMULATION_SIGNAL = ez.InputStream(ZMaxStimulationSignal)
 
     SAMPLE = ez.OutputStream(Sample)
 
@@ -99,7 +131,6 @@ class ZMaxDataReceiver(ez.Unit):
                 )
 
     @ez.subscriber(STIMULATION_SIGNAL)
-    async def stimulate(self, signal: dict[str, Any]) -> None:
+    async def stimulate(self, signal: ZMaxStimulationSignal) -> None:
         logger.debug(f"Stimulating {signal}")
-        self.STATE.zmax.stimulate(**signal)
-        
+        self.STATE.zmax.stimulate(**asdict(signal))

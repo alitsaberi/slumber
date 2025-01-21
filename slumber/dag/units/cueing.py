@@ -3,10 +3,17 @@ from collections.abc import AsyncGenerator
 from typing import Annotated, Any
 
 import ezmsg.core as ez
-from loguru import logger
 import pyttsx3
-from pydantic import BaseModel, BeforeValidator, Field, field_serializer, model_validator
+from loguru import logger
+from pydantic import (
+    BaseModel,
+    BeforeValidator,
+    Field,
+    field_serializer,
+    model_validator,
+)
 
+from slumber.dag.units.zmax import ZMaxStimulationSignal
 from slumber.dag.utils import PydanticSettings
 from slumber.sources.zmax import (
     STIMULATION_MAX_DURATION,
@@ -93,7 +100,7 @@ class AudioIntensityConfig(CueIntensityConfig):
 
     def _sync_engine_volume(self) -> None:
         self.engine.setProperty("volume", self.value)
-        
+
     @field_serializer("engine")
     def serialize_engine(self, engine: pyttsx3.Engine, _info):
         return {
@@ -129,7 +136,7 @@ class Cueing(ez.Unit):
     ENABLE_INCREASE_INTENSITY_SIGNAL = ez.InputStream(bool)
     DECREASE_INTENSITY_SIGNAL = ez.InputStream(bool)
 
-    ZMAX_STIMULATION_SIGNAL = ez.OutputStream(dict[str, Any])
+    ZMAX_STIMULATION_SIGNAL = ez.OutputStream(ZMaxStimulationSignal)
 
     async def initialize(self) -> None:
         self.STATE.enabled = self.SETTINGS.enabled
@@ -154,6 +161,10 @@ class Cueing(ez.Unit):
 
     @ez.subscriber(ENABLE_SIGNAL)
     async def update_enabled(self, signal: bool) -> None:
+        if signal and not self.STATE.enabled:
+            logger.info("Enabling increase intensity")
+            self.STATE.increase_intensity = True
+
         self.STATE.enabled = signal
         logger.info(f"Cueing is {'' if signal else 'not'}enabled")
 
@@ -184,7 +195,10 @@ class Cueing(ez.Unit):
             if not self.STATE.enabled:
                 continue
 
-            logger.debug(f"Auditory cueing: {self.SETTINGS.audio_cueing.text}. Engine: {self.STATE.audio_intensity.model_dump(include={"engine"})}"))
+            logger.debug(
+                f"Auditory cueing: {self.SETTINGS.audio_cueing.text}."
+                f" Engine: {self.STATE.audio_intensity.model_dump(include={'engine'})}"
+            )
             text2speech(
                 text=self.SETTINGS.audio_cueing.text,
                 engine=self.STATE.audio_intensity.engine,
@@ -202,23 +216,22 @@ class Cueing(ez.Unit):
                 self.STATE.vibration_intensity.increment()
                 self.STATE.vibration_intensity.increment()
                 self.STATE.audio_intensity.increment()
-                
-    def _generate_visual_cueing_signal(self) -> dict[str, Any]:
-        return {
-            "led_color": self.SETTINGS.visual_cueing.led_color,
-            "repetitions": self.SETTINGS.visual_cueing.repetitions,
-            "on_duration": self.SETTINGS.visual_cueing.on_duration,
-            "off_duration": self.SETTINGS.visual_cueing.off_duration,
-            "vibration": False,
-            "led_intensity": self.STATE.visual_intensity.value,
-            "alternate_eyes": self.SETTINGS.visual_cueing.alternate_eyes,
-        }
-        
-    def _generate_vibration_cueing_signal(self) -> dict[str, Any]:
-        return {
-            "led_color": LEDColor.OFF,
-            "repetitions": self.STATE.vibration_intensity.value,
-            "on_duration": self.SETTINGS.vibration_cueing.on_duration,
-            "off_duration": self.SETTINGS.vibration_cueing.off_duration,
-            "vibration": True,
-        }
+
+    def _generate_visual_cueing_signal(self) -> ZMaxStimulationSignal:
+        return ZMaxStimulationSignal(
+            led_color=self.SETTINGS.visual_cueing.led_color,
+            repetitions=self.SETTINGS.visual_cueing.repetitions,
+            on_duration=self.SETTINGS.visual_cueing.on_duration,
+            off_duration=self.SETTINGS.visual_cueing.off_duration,
+            vibration=False,
+            led_intensity=self.STATE.visual_intensity.value,
+            alternate_eyes=self.SETTINGS.visual_cueing.alternate_eyes,
+        )
+    def _generate_vibration_cueing_signal(self) -> ZMaxStimulationSignal:
+        return ZMaxStimulationSignal(
+            led_color=LEDColor.OFF,
+            repetitions=self.STATE.vibration_intensity.value,
+            on_duration=self.SETTINGS.vibration_cueing.on_duration,
+            off_duration=self.SETTINGS.vibration_cueing.off_duration,
+            vibration=True,
+        )

@@ -291,7 +291,7 @@ class ZMax:
             repetitions (int): Number of repetitions.
             vibration (bool): Whether to vibrate.
             led_intensity (int): Intensity of the LED in percent. Defaults to 100.
-            alternate_eyes (bool): Whether to alternate between the two LEDs. 
+            alternate_eyes (bool): Whether to alternate between the two LEDs.
                 Defaults to False.
         """
 

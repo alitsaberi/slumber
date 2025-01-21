@@ -87,21 +87,26 @@ class Resample(Transform):
         )
 
 
-class ChannelSelector(Transform):
+class ArraySelector(Transform):
     def __call__(
         self,
         data: TimestampedArray,
-        channels: list[int] | list[str],
+        start_index: int | None = None,
+        end_index: int | None = None,
+        step: int = 1,
+        channels: list[int] | list[str] | None = None,
     ) -> TimestampedArray:
         """
-        Select specific channels from the data.
+        Select specific channels and/or time slices from the data.
 
         Args:
             data (TimestampedArray): Input TimestampedArray array object
-            channels (list[int] | list[str]):
-                List of channel indices or channel names to select
+            samples (slice | int | list[int] | None): samples tp select
+            channels (list[int] | list[str] | None):
+                List of channel indices or names to select
 
         Returns:
-            TimestampedArray: TimestampedArray object with only the selected channels
+            TimestampedArray: TimestampedArray object with selected data
         """
-        return data[:, channels]
+        samples = slice(start_index, end_index, step)
+        return data[samples, channels]
