@@ -61,6 +61,11 @@ study_config:
   duration: 14
 
 procedure_tasks:
+  - name: Setup SleepPhones
+    header: Setup SleepPhones
+    module: slumber.gui.pages.procedure.tasks.setup_sleepphones
+    type: pre_processing
+    enabled: true
   - name: Pre-Sleeping Survey
     header: Fill in Pre-Sleeping Survey
     module: slumber.gui.pages.procedure.tasks.pre_sleeping_survey

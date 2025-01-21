@@ -1,7 +1,9 @@
+import asyncio
 import os
 import sys
 from datetime import datetime, timedelta
 
+import qasync
 import yaml
 from PySide6.QtWidgets import QApplication
 
@@ -80,11 +82,20 @@ def main():
     study_config = get_study_config()
     tasks = get_tasks()
 
-    # Start the GUI
+    # Create the Qt Application
     app = QApplication(sys.argv)
+
+    # Create the qasync event loop
+    loop = qasync.QEventLoop(app)
+    asyncio.set_event_loop(loop)
+
+    # Initialize and show the main window
     window = MainWindow(gui_config, study_config, tasks)
     window.show()
-    sys.exit(app.exec())
+
+    # Instead of sys.exit(app.exec()), run the integrated asyncio event loop
+    with loop:
+        sys.exit(loop.run_forever())
 
 if __name__ == "__main__":
     main()
