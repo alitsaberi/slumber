@@ -1,13 +1,12 @@
 from collections.abc import Sequence
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import timedelta
 from functools import cached_property
 from typing import Any
 
 import numpy as np
-import pytz
 
-from slumber import settings
+from slumber.utils.time import timestamp_to_datetime
 
 
 class NoSamplesError(ValueError): ...
@@ -22,12 +21,6 @@ def _validate_channel_names(objects: Sequence["ArrayBase"]) -> None:
                 f" Reference: {reference_channels}, got: {obj.channel_names}"
             )
     return reference_channels
-
-
-def timestamp_to_datetime(
-    timestamp: float, tz: str = settings["time_zone"]
-) -> datetime:
-    return datetime.fromtimestamp(timestamp, tz=pytz.timezone(tz))
 
 
 @dataclass

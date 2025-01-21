@@ -1,5 +1,5 @@
-data_dir: "data"
 time_zone: "Europe/Berlin"
+datetime_format: "%Y-%m-%dT%H:%M:%S"
 
 storage:
   survey_data_dir: "data/survey_results" # TODO: we should have a dedicate survey section in the settings
@@ -25,16 +25,18 @@ sleep_scoring:
     unknown: UNKNOWN
 
 logging:
-  console:
-    level: "DEBUG"
-    colorize: True
-  file:
-    file_name: "slumber.log"
-    level: "DEBUG"
-    format: "{time} | {level} | {module}:{function}:{line} | {message}"
-    rotation: "50 MB"
-    serialize: True
-    enqueue: True
+  include_timestamp_in_file_name: true
+  handlers:
+    console:
+      level: "DEBUG"
+      colorize: True
+    file:
+      file_name: "slumber"
+      level: "DEBUG"
+      format: "{time} | {level} | {module}:{function}:{line} | {message}"
+      rotation: "50 MB"
+      serialize: True
+      enqueue: True
 
 audit:
   file_name: "audit.tsv"
