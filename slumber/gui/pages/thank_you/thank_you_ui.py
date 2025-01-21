@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 
 ################################################################################
 ## Form generated from reading UI file 'thank_you.ui'
@@ -7,23 +8,21 @@
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
 
-from PySide6.QtCore import QCoreApplication, QMetaObject, QSize, Qt
-from PySide6.QtGui import QIcon
+from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
+    QMetaObject, QObject, QPoint, QRect,
+    QSize, QTime, QUrl, Qt)
+from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
+    QFont, QFontDatabase, QGradient, QIcon,
+    QImage, QKeySequence, QLinearGradient, QPainter,
+    QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWebEngineWidgets import QWebEngineView
-from PySide6.QtWidgets import (
-    QHBoxLayout,
-    QLayout,
-    QPushButton,
-    QSizePolicy,
-    QSpacerItem,
-    QVBoxLayout,
-)
+from PySide6.QtWidgets import (QApplication, QHBoxLayout, QLayout, QPushButton,
+    QSizePolicy, QSpacerItem, QVBoxLayout, QWidget)
 
-
-class Ui_ThankYouPage:
+class Ui_ThankYouPage(object):
     def setupUi(self, ThankYouPage):
         if not ThankYouPage.objectName():
-            ThankYouPage.setObjectName("ThankYouPage")
+            ThankYouPage.setObjectName(u"ThankYouPage")
         ThankYouPage.setWindowModality(Qt.WindowModality.NonModal)
         ThankYouPage.resize(666, 566)
         sizePolicy = QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
@@ -32,17 +31,17 @@ class Ui_ThankYouPage:
         sizePolicy.setHeightForWidth(ThankYouPage.sizePolicy().hasHeightForWidth())
         ThankYouPage.setSizePolicy(sizePolicy)
         self.verticalLayout_3 = QVBoxLayout(ThankYouPage)
-        self.verticalLayout_3.setObjectName("verticalLayout_3")
+        self.verticalLayout_3.setObjectName(u"verticalLayout_3")
         self.horizontalLayout_2 = QHBoxLayout()
-        self.horizontalLayout_2.setObjectName("horizontalLayout_2")
+        self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
         self.horizontalLayout_2.setSizeConstraint(QLayout.SizeConstraint.SetMaximumSize)
         self.horizontalLayout_2.setContentsMargins(-1, -1, -1, 16)
         self.thank_you_back = QPushButton(ThankYouPage)
-        self.thank_you_back.setObjectName("thank_you_back")
+        self.thank_you_back.setObjectName(u"thank_you_back")
         self.thank_you_back.setMinimumSize(QSize(50, 50))
         self.thank_you_back.setMaximumSize(QSize(50, 50))
         self.thank_you_back.setSizeIncrement(QSize(50, 50))
-        self.thank_you_back.setStyleSheet("QPushButton {\n"
+        self.thank_you_back.setStyleSheet(u"QPushButton {\n"
 "    color: rgb(255, 255, 255);\n"
 "    background-color: rgb(1, 92, 187);\n"
 "    border: 1px;\n"
@@ -72,7 +71,7 @@ class Ui_ThankYouPage:
         self.verticalLayout_3.addLayout(self.horizontalLayout_2)
 
         self.webEngineView_thank_you = QWebEngineView(ThankYouPage)
-        self.webEngineView_thank_you.setObjectName("webEngineView_thank_you")
+        self.webEngineView_thank_you.setObjectName(u"webEngineView_thank_you")
         sizePolicy.setHeightForWidth(self.webEngineView_thank_you.sizePolicy().hasHeightForWidth())
         self.webEngineView_thank_you.setSizePolicy(sizePolicy)
         self.webEngineView_thank_you.setMinimumSize(QSize(0, 0))
@@ -87,7 +86,7 @@ class Ui_ThankYouPage:
     # setupUi
 
     def retranslateUi(self, ThankYouPage):
-        ThankYouPage.setWindowTitle(QCoreApplication.translate("ThankYouPage", "Help", None))
+        ThankYouPage.setWindowTitle(QCoreApplication.translate("ThankYouPage", u"Help", None))
         self.thank_you_back.setText("")
     # retranslateUi
 

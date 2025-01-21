@@ -3,17 +3,18 @@ import sys
 from datetime import datetime, timedelta
 
 import yaml
-from gui.main_window import MainWindow
-from model.gui_config_model import (
+from PySide6.QtWidgets import QApplication
+
+from .gui.main_window import MainWindow
+from .model.gui_config_model import (
     get_gui_config,
     insert_default_gui_config,
 )
-from model.study_calendar_model import populate_study_calendar
-from model.study_config_model import get_study_config, insert_study_config
-from model.task_progress_model import populate_task_progress
-from model.tasks_model import get_tasks, insert_task
-from PySide6.QtWidgets import QApplication
-from utils.db_utils import initialize_db
+from .model.study_calendar_model import populate_study_calendar
+from .model.study_config_model import get_study_config, insert_study_config
+from .model.task_progress_model import populate_task_progress
+from .model.tasks_model import get_tasks, insert_task
+from .utils.db_utils import initialize_db
 
 # Add the parent directory to sys.path
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -74,6 +75,7 @@ def main():
     insert_default_configs(yaml_config)
 
     # Retrieve the updated setup
+    print(get_gui_config())
     gui_config = get_gui_config()
     study_config = get_study_config()
     tasks = get_tasks()

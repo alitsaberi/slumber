@@ -1,8 +1,8 @@
 import sqlite3
 
-from model.study_calendar_model import get_study_calendar
-from model.tasks_model import get_tasks
-from utils.db_utils import get_db_connection
+from ..utils.db_utils import get_db_connection
+from .study_calendar_model import get_study_calendar
+from .tasks_model import get_tasks
 
 
 def insert_task_progress(task_day, task_id, status):
@@ -26,7 +26,7 @@ def get_task_progress():
     ''')
     progress = cursor.fetchall()
     conn.close()
-    return [{key: p[key] for key in p} for p in progress]
+    return [dict(p) for p in progress]
 
 def update_task_progress(task_day_id, task_day, task_id, status):
     conn = get_db_connection()
@@ -118,7 +118,6 @@ def get_diary():
             'name': entry['name'],
             'type': entry['type']
         } for entry in diary_entries]
-        
         return diary
     
     except sqlite3.Error as e:

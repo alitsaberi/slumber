@@ -1,6 +1,6 @@
 import sqlite3
 
-from utils.db_utils import get_db_connection
+from ..utils.db_utils import get_db_connection
 
 
 def insert_task(name, header, module, type):
@@ -24,7 +24,7 @@ def get_tasks():
     ''')
     tasks = cursor.fetchall()
     conn.close()
-    return [{key: task[key] for key in task} for task in tasks]
+    return [dict(task) for task in tasks]
 
 def update_task(task_id, name, header, module, type):
     conn = get_db_connection()

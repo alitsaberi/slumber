@@ -2,12 +2,12 @@
 
 import os
 
-from model.study_calendar_model import get_todays_day_number
-from model.task_progress_model import get_diary
 from PySide6.QtCore import Qt, QUrl
 from PySide6.QtGui import QBrush, QColor, QFont, QStandardItem, QStandardItemModel
 from PySide6.QtWidgets import QAbstractItemView, QHeaderView, QWidget
 
+from ....model.study_calendar_model import get_todays_day_number
+from ....model.task_progress_model import get_diary
 from .home_ui import Ui_HomePage
 
 
