@@ -54,7 +54,7 @@ components:
   SLEEP_SCORING_ROLLING_BUFFER:
     unit: RollingBuffer
     settings:
-      size: 2
+      size: 105
 
   SLEEP_SCORING_PREPROCESS:
     unit: Transform
@@ -75,10 +75,26 @@ components:
       channel_groups: [[EEG_LEFT], [EEG_RIGHT]]
       arg_max: false
 
+  AROUSAL_DETECTION_SCORES_SELECTOR:
+    unit: Transform
+    settings:
+      transforms:
+        - class_name: ArraySelector
+          kwargs:
+            start_index: -3840 # 30 seconds
+      
+  MASTER_SCORES_SELECTOR:
+    unit: Transform
+    settings:
+      transforms:
+        - class_name: ArraySelector
+          kwargs:
+            start_index: -7680 # 60 seconds
+
   EYE_MOVEMENT_DETECTION_ROLLING_BUFFER:
     unit: RollingBuffer
     settings:
-      size: 2
+      size: 3
 
   EYE_MOVEMENT_DETECTION:
     unit: EyeMovementDetection

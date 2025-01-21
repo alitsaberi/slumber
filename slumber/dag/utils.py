@@ -66,7 +66,7 @@ class CollectionConfig(BaseModel):
         min_length=1
     )
     process_components: list[ez.Unit] | None = None
-    root_name: str | None = Field(None, alias="name")
+    name: str | None = Field(None, serialization_alias="root_name")
 
     model_config = ConfigDict(strict=False, arbitrary_types_allowed=True)
 
