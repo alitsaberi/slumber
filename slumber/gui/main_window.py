@@ -1,4 +1,3 @@
-from model.gui_config_model import get_gui_config
 from PySide6.QtWebEngineWidgets import QWebEngineView
 from PySide6.QtWidgets import (
     QComboBox,
@@ -11,6 +10,7 @@ from PySide6.QtWidgets import (
     QTableView,
 )
 
+from ..model.gui_config_model import get_gui_config
 from .main_window_ui import Ui_MainWindow
 from .pages.help.help import HelpPage
 from .pages.home.home import HomePage
@@ -139,6 +139,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.home_page.pushButton_start_procedure.clicked.connect(self.close)
 
     def update_gui_config(self, gui_config):
+        print("Updating GUI config")
         font_size = gui_config['font_size']
         
         # Update font sizes for different widget types

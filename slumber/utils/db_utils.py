@@ -4,8 +4,12 @@ import sqlite3
 
 def get_db_connection():
     db_path = os.path.join(os.path.dirname(__file__), '../app.db')
-    conn = sqlite3.connect(db_path)
-    return conn
+    try:
+        conn = sqlite3.connect(db_path)
+        return conn
+    except sqlite3.Error as e:
+        print(f"Error connecting to database: {e}")
+        return None
 
 def initialize_db():
     conn = get_db_connection()

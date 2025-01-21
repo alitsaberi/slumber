@@ -1,6 +1,6 @@
 import sqlite3
 
-from utils.db_utils import get_db_connection
+from ..utils.db_utils import get_db_connection
 
 
 def insert_study_config(study_duration, start_date, end_date):
@@ -23,7 +23,7 @@ def get_study_config():
     config = cursor.fetchone()
     conn.close()
     if config:
-        return {key: config[key] for key in config}
+        return dict(config)
     return None
 
 def update_study_config(study_duration, start_date, end_date):

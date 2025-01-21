@@ -1,7 +1,7 @@
 import sqlite3
 from datetime import datetime, timedelta
 
-from utils.db_utils import get_db_connection
+from ..utils.db_utils import get_db_connection
 
 
 def get_study_calendar():
@@ -11,7 +11,7 @@ def get_study_calendar():
     cursor.execute('SELECT study_date, day_number FROM study_calendar')
     calendar = cursor.fetchall()
     conn.close()
-    return [{key: c[key] for key in c} for c in calendar]
+    return [dict(c) for c in calendar]
 
 
 def populate_study_calendar(study_duration, start_date):

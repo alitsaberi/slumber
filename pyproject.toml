@@ -34,6 +34,11 @@ ruamel-yaml = "^0.18.7"
 pytest = "^8.3.3"
 pytest-loguru = "^0.4.0"
 
+[tool.poetry.scripts]
+slumber = "slumber.main:main"
+create_task = "slumber.utils.create_procedure_tasks:main"
+generate_ui = "slumber.utils.generate_ui_files:main"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"

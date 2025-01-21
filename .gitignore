@@ -8,4 +8,4 @@ data/*
 logs/*
 models/*
 
-.db
+*.db

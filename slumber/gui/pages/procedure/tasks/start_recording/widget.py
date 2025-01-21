@@ -236,7 +236,7 @@ class WidgetPage(QWidget, Ui_Widget):
             return
         
         print("[INFO] Current Song Metadata:")
-        for key in meta:
+        for key in meta.keys():  # noqa: SIM118 This is the only way to get the keys
             key_name = QMediaMetaData.metaDataKeyToString(key)
             
             try:
@@ -247,5 +247,4 @@ class WidgetPage(QWidget, Ui_Widget):
                 print(f"   {key_name}: [Unconvertible type: {err}]")
                 continue
 
-            # If we made it here, 'value' was successfully converted
             print(f"   {key_name}: {value}")
