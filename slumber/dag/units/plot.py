@@ -1,10 +1,10 @@
 from datetime import datetime
 
 import ezmsg.core as ez
-from loguru import logger
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
 import pytz
+from loguru import logger
 
 from slumber.dag.utils import PydanticSettings
 from slumber.utils.data import (
@@ -47,7 +47,7 @@ class Plot(ez.Unit):
     async def update_figure(self, message: TimestampedArray) -> None:
         plt.figure(self.STATE.figure.number)
         logger.debug(f"Plotting {message}.")
-        
+
         cet = pytz.timezone("Europe/Berlin")
         times = [
             datetime.fromtimestamp(ts, tz=pytz.utc).astimezone(cet)
