@@ -33,7 +33,7 @@ logging:
     file:
       file_name: "slumber"
       level: "DEBUG"
-      format: "{time} | {level} | {module}:{function}:{line} | {message}"
+      format: "{message}"
       rotation: "50 MB"
       serialize: True
       enqueue: True
