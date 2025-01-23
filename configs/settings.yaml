@@ -25,10 +25,10 @@ sleep_scoring:
     unknown: UNKNOWN
 
 logging:
-  include_timestamp_in_file_name: true
+  include_timestamp_in_file_name: false
   handlers:
     console:
-      level: "DEBUG"
+      level: "INFO"
       colorize: True
     file:
       file_name: "slumber"

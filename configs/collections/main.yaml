@@ -37,7 +37,7 @@ components:
   ZMAX_STORAGE:
     unit: HDF5Storage
     settings:
-      file_path: "./home_lucid_dreaming/data/storage.h5"
+      file_path: ./data/storage.h5
       group_name: "zmax_raw"
 
   PREPROCESS:
@@ -69,7 +69,7 @@ components:
     unit: SleepScoring
     settings:
       model:
-        model_dir: ./tests/resources/sample_utime_model
+        model_dir: ../../tests/resources/sample_utime_model
         n_periods: 105
         n_samples_per_prediction: 1
       channel_groups: [[EEG_LEFT], [EEG_RIGHT]]
@@ -160,7 +160,7 @@ components:
   SLEEP_SCORING_STORAGE:
     unit: HDF5Storage
     settings:
-      file_path: "./home_lucid_dreaming/data/storage.h5"
+      file_path: ./data/storage.h5
       group_name: "sleep_scoring"
 
   # EYE_MOVEMENT_DETECTION_STORAGE:

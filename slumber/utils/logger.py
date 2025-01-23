@@ -20,7 +20,9 @@ def _create_file_path(
     include_timestamp: bool = settings["logging"]["include_timestamp_in_file_name"],
 ) -> Path:
     if include_timestamp:
-        file_name = f"{file_name}_{datetime_to_str(now()).replace(':', _TIME_SEPARATOR)}"
+        file_name = (
+            f"{file_name}_{datetime_to_str(now()).replace(':', _TIME_SEPARATOR)}"
+        )
     return log_dir / f"{file_name}.{_FILE_EXTENSION}"
 
 

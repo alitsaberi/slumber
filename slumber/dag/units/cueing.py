@@ -48,13 +48,15 @@ class CueIntensityConfig(BaseModel):
 
     def increment(self) -> None:
         new_value = min(self.max, self.value + self.step)
-        logger.info(f"Incrementing {self!r}", new_value=new_value)
-        self.value = min(self.max, self.value + self.step)
+        if new_value != self.value:
+            logger.info(f"Incrementing {self!r}", new_value=new_value)
+            self.value = min(self.max, self.value + self.step)
 
     def decrement(self) -> None:
         new_value = max(self.min, self.value - self.step)
-        logger.info(f"Decrementing {self!r}", new_value=new_value)
-        self.value = new_value
+        if new_value != self.value:
+            logger.info(f"Decrementing {self!r}", new_value=new_value)
+            self.value = new_value
 
 
 # TODO: Add validations for intensity attributes for each type of cueing
@@ -102,14 +104,14 @@ class AudioIntensityConfig(CueIntensityConfig):
         self._sync_engine_volume()
 
     def _sync_engine_volume(self) -> None:
-        self.engine.setProperty("volume", self.value)
+        self.engine.setProperty("volume", self.value / 100)
 
     @field_serializer("engine")
     def serialize_engine(self, engine: pyttsx3.Engine, _info):
         return {
-            "volume": self.engine.getProperty("volume"),
-            "rate": self.engine.getProperty("rate"),
-            "voice": self.engine.getProperty("voice"),
+            "volume": engine.getProperty("volume"),
+            "rate": engine.getProperty("rate"),
+            "voice": engine.getProperty("voice"),
         }
 
 
@@ -168,17 +170,20 @@ class Cueing(ez.Unit):
 
     @ez.subscriber(ENABLE_SIGNAL)
     async def update_enabled(self, signal: bool) -> None:
-        if signal and not self.STATE.enabled:
-            logger.info("Enabling increase intensity")
-            self.STATE.increase_intensity = True
+        if signal != self.STATE.enabled:
+            logger.info(f"Cueing is {'enabled' if signal else 'disabled'}")
+
+            if signal and not self.STATE.enabled:
+                logger.info("Enabling increase intensity")
+                self.STATE.increase_intensity = True
 
         self.STATE.enabled = signal
-        logger.info(f"Cueing is {'enabled' if signal else 'disabled'}")
 
     @ez.subscriber(ENABLE_INCREASE_INTENSITY_SIGNAL)
     async def update_increase_intensity(self, signal: bool) -> None:
+        if signal != self.STATE.increase_intensity:
+            logger.info(f"Increase intensity is {'' if signal else 'not'}enabled")
         self.STATE.increase_intensity = signal
-        logger.info(f"Increase intensity is {'' if signal else 'not'}enabled")
 
     @ez.subscriber(DECREASE_INTENSITY_SIGNAL)
     async def decrease_intensity(self, _: bool) -> None:
@@ -202,13 +207,13 @@ class Cueing(ez.Unit):
             if not self.STATE.enabled:
                 continue
 
-            logger.debug(
+            logger.info(
                 f"Auditory cueing: {self.SETTINGS.audio_cueing.text}."
                 f" Engine: {self.STATE.audio_intensity.model_dump(include={'engine'})}"
             )
+
             text2speech(
-                text=self.SETTINGS.audio_cueing.text,
-                engine=self.STATE.audio_intensity.engine,
+                self.SETTINGS.audio_cueing.text, self.STATE.audio_intensity.engine
             )
 
             if not self.STATE.enabled:
@@ -220,7 +225,7 @@ class Cueing(ez.Unit):
             await asyncio.sleep(self.SETTINGS.cueing_interval)
 
             if self.STATE.increase_intensity:
-                self.STATE.vibration_intensity.increment()
+                self.STATE.visual_intensity.increment()
                 self.STATE.vibration_intensity.increment()
                 self.STATE.audio_intensity.increment()
 

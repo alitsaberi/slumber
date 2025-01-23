@@ -6,6 +6,8 @@ from slumber import settings
 MIN_VOLUME = 0
 MAX_VOLUME = 100
 
+# TODO: make a wrapper class for this
+
 
 def init_text2speech_engine(
     rate: int = settings["text2speech"]["rate"],
