@@ -192,7 +192,7 @@ class TimeQueue(Queue[Sample]):
             ) > self.SETTINGS.gap_threshold:
                 logger.debug(
                     f"Large gap ({gap} sec) detected in data."
-                    f"Current index: {index}. Finding next closest index ...",
+                    f" Current index: {index}. Finding next closest index ...",
                     sample_timestamp=sample.timestamp,
                     index_timestamp=regular_timestamps[index],
                     gap_threshold=self.SETTINGS.gap_threshold,

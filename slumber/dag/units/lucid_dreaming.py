@@ -2,16 +2,18 @@ import asyncio
 import time
 from collections.abc import AsyncGenerator
 from enum import Enum, auto
+from typing import Annotated
 
 import ezmsg.core as ez
 import numpy as np
 from loguru import logger
-from pydantic import Field
+from pydantic import BeforeValidator, Field
 
 from slumber import settings
 from slumber.dag.units.zmax import ZMaxStimulationSignal
 from slumber.dag.utils import PydanticSettings
 from slumber.utils.data import Data, Event
+from slumber.utils.helpers import create_enum_by_name_resolver
 
 
 class ExperimentState(Enum):
@@ -26,6 +28,9 @@ class Settings(PydanticSettings):
     rem_confidence_threshold: float = Field(ge=0.0, le=1.0)
     accepted_eye_signals: list[str] = Field(default_factory=list, min_length=1)
     wake_up_signal_interval: float = Field(ge=0.0)
+    experiment_state: Annotated[
+        ExperimentState, BeforeValidator(create_enum_by_name_resolver(ExperimentState))
+    ] = ExperimentState.WAKE
 
 
 class State(ez.State):
@@ -54,34 +59,34 @@ class Master(ez.Unit):
 
     async def initialize(self) -> None:
         self.STATE.start_time = time.time()
-        self.STATE.experiment_state = ExperimentState.WAKE
+        self.STATE.experiment_state = self.SETTINGS.experiment_state
         self.STATE.in_rem = False
         self.STATE.aroused = False
         self.STATE.eye_signaling = False
         self.STATE.cueing_enabled = self.SETTINGS.cueing_enabled
 
-    @ez.publisher(CUEING_ENABLE_SIGNAL)
-    @ez.publisher(CUEING_ENABLE_INCREASE_INTENSITY_SIGNAL)
-    @ez.publisher(CUEING_DECREASE_INTENSITY_SIGNAL)
-    async def run(self) -> AsyncGenerator:
-        await asyncio.sleep(5)
-        yield (self.CUEING_ENABLE_SIGNAL, True)
-        await asyncio.sleep(20)
-        for _ in range(3):
-            yield (self.CUEING_ENABLE_INCREASE_INTENSITY_SIGNAL, True)
-            await asyncio.sleep(20)
-        yield (self.CUEING_ENABLE_INCREASE_INTENSITY_SIGNAL, False)
-        await asyncio.sleep(20)
-        yield (self.CUEING_DECREASE_INTENSITY_SIGNAL, True)
-        await asyncio.sleep(20)
-        yield (self.CUEING_ENABLE_SIGNAL, False)
-        await asyncio.sleep(20)
-        raise ez.NormalTermination
+    # @ez.publisher(CUEING_ENABLE_SIGNAL)
+    # @ez.publisher(CUEING_ENABLE_INCREASE_INTENSITY_SIGNAL)
+    # @ez.publisher(CUEING_DECREASE_INTENSITY_SIGNAL)
+    # async def run(self) -> AsyncGenerator:
+    #     await asyncio.sleep(5)
+    #     yield (self.CUEING_ENABLE_SIGNAL, True)
+    #     await asyncio.sleep(20)
+    #     for _ in range(3):
+    #         yield (self.CUEING_ENABLE_INCREASE_INTENSITY_SIGNAL, True)
+    #         await asyncio.sleep(20)
+    #     yield (self.CUEING_ENABLE_INCREASE_INTENSITY_SIGNAL, False)
+    #     await asyncio.sleep(20)
+    #     yield (self.CUEING_DECREASE_INTENSITY_SIGNAL, True)
+    #     await asyncio.sleep(20)
+    #     yield (self.CUEING_ENABLE_SIGNAL, False)
+    #     await asyncio.sleep(20)
+    #     raise ez.NormalTermination
 
     @ez.subscriber(EXPERIMENT_STATE)
     def update_experiment_state(self, state: ExperimentState) -> None:
         logger.info(
-            f"Updating experiment state fro {self.STATE.experiment_state} to {state}."
+            f"Updating experiment state from {self.STATE.experiment_state} to {state}."
         )
         self.STATE.experiment_state = state
 
@@ -96,7 +101,9 @@ class Master(ez.Unit):
             )
             return
 
-        rem_confidence = np.mean(scores[:, settings["sleep_scoring"]["labels"]["rem"]])
+        rem_confidence = np.mean(
+            scores[:, settings["sleep_scoring"]["labels"]["rem"]].array
+        )
         logger.debug(f"REM confidence: {rem_confidence}")
         in_rem = rem_confidence >= self.SETTINGS.rem_confidence_threshold
 
@@ -124,7 +131,9 @@ class Master(ez.Unit):
 
         logger.debug(f"Eye signals: {events}")
         eye_signaling = any(
-            event.label in self.SETTINGS.accepted_eye_signals for event in events
+            event.label.startswith(prefix)
+            for event in events
+            for prefix in self.SETTINGS.accepted_eye_signals
         )
 
         if not eye_signaling and self.STATE.eye_signaling and not self.STATE.in_rem:

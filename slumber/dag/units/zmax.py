@@ -1,9 +1,8 @@
 import asyncio
 import time
 from collections.abc import AsyncGenerator
-from dataclasses import asdict, dataclass
 from functools import cached_property
-from typing import Annotated, Any
+from typing import Annotated
 
 import ezmsg.core as ez
 from loguru import logger
@@ -27,8 +26,8 @@ from slumber.utils.data import Sample
 from slumber.utils.helpers import create_enum_by_name_resolver
 
 
-@dataclass
-class ZMaxStimulationSignal:
+class ZMaxStimulationSignal(BaseModel):
+    vibration: bool
     led_color: Annotated[
         LEDColor, BeforeValidator(create_enum_by_name_resolver(LEDColor))
     ]
@@ -37,9 +36,8 @@ class ZMaxStimulationSignal:
     repetitions: int = Field(
         ge=STIMULATION_MIN_REPETITIONS, le=STIMULATION_MAX_REPETITIONS
     )
-    vibration: bool
     led_intensity: int = Field(
-        default=LED_MAX_INTENSITY,
+        LED_MAX_INTENSITY,
         ge=LED_MIN_INTENSITY,
         le=LED_MAX_INTENSITY,
     )
@@ -87,7 +85,7 @@ class ZMaxDataReceiver(ez.Unit):
 
     SAMPLE = ez.OutputStream(Sample)
 
-    def initialize(self):
+    async def initialize(self):
         self.STATE.zmax = ZMax(**self.SETTINGS.zmax.model_dump())
         self.STATE.zmax.connect(
             retry_attempts=self.SETTINGS.retry_attempts,
@@ -133,4 +131,4 @@ class ZMaxDataReceiver(ez.Unit):
     @ez.subscriber(STIMULATION_SIGNAL)
     async def stimulate(self, signal: ZMaxStimulationSignal) -> None:
         logger.debug(f"Stimulating {signal}")
-        self.STATE.zmax.stimulate(**asdict(signal))
+        self.STATE.zmax.stimulate(**signal.model_dump())

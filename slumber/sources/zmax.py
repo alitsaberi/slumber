@@ -138,7 +138,7 @@ class ZMax:
         self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self._socket.settimeout(self._socket_timeout)
 
-    def __str__(self) -> str:
+    def __repr__(self) -> str:
         return f"ZMax(ip={self._ip}, port={self._port})"
 
     def __enter__(self) -> "ZMax":
@@ -160,7 +160,7 @@ class ZMax:
     def disconnect(self) -> None:
         if self._socket:
             self._socket.close()
-            logger.info(f"Closed connection to ZMax at {self._ip}:{self._port}")
+            logger.info(f"Closed connection to {self!r}")
 
     def connect(
         self,
@@ -168,10 +168,9 @@ class ZMax:
         retry_delay: float = DEFAULTS["retry_delay"],
     ) -> None:
         if self.is_connected():
-            logger.warning("Already connected to ZMax. Closing previous connection.")
+            logger.warning(f"Already connected to {self!r}")
             return
 
-        # TODO: make sure ZMax server is open
         self._initialize_socket()
 
         for attempt in range(retry_attempts):
@@ -181,11 +180,14 @@ class ZMax:
                 logger.info(f"Connected to {self}")
                 return
             except OSError as e:
-                logger.warning(f"Attempt {attempt + 1}/{retry_attempts} failed: {e}")
+                logger.warning(
+                    f"Attempt {attempt + 1}/{retry_attempts} to connect to {self!r}"
+                    f" failed: {e}"
+                )
                 sleep(retry_delay)
 
         raise ConnectionError(
-            f"Failed to connect to {self} after {retry_attempts} attempts."
+            f"Failed to connect to {self!r} after {retry_attempts} attempts"
         )
 
     def is_connected(self) -> bool:

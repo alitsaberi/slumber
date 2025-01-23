@@ -252,7 +252,7 @@ class Data(TimestampedArray):
         self.array = array
         self.sample_rate = sample_rate
         timestamps = timestamps if timestamps is not None else self.index
-        timestamps += timestamp_offset
+        timestamps = timestamps + timestamp_offset
 
         super().__init__(
             array=array,

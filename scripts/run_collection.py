@@ -30,12 +30,12 @@ def main():
     collection_config = load_yaml(args.config_file)
     collection_config = CollectionConfig.model_validate(collection_config)
     logger.info(
-        f"Runninf collection {collection_config.name if collection_config.name else ''}"
+        f"Running collection {collection_config.name if collection_config.name else ''}"
         f": Components: {list(collection_config.components.keys())}"
         f" - {len(collection_config.connections)} connections"
         f" - Process components: {list(collection_config.process_components)}"
     )
-    ez.run(**collection_config.model_dump())
+    ez.run(**collection_config.model_dump(by_alias=True))
 
 
 if __name__ == "__main__":

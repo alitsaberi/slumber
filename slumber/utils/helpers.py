@@ -58,7 +58,7 @@ def get_class_by_name(
             f"Class {class_name} not found in the main module {module.__name__}"
         )
 
-    if search_submodules:
+    if search_submodules and hasattr(module, "__path__"):
         # Search through all submodules
         for _, name, _ in pkgutil.iter_modules(module.__path__):
             full_module_name = f"{module.__name__}.{name}"
@@ -97,11 +97,24 @@ def create_enum_by_name_resolver(
 
 
 def create_class_by_name_resolver(
-    module: ModuleType, base_class: type[T] | None = None
+    modules: ModuleType | list[ModuleType], base_class: type[T] | None = None
 ) -> Callable[[Any], Any]:
+    if not isinstance(modules, list):
+        modules = [modules]
+
     def resolve(v: Any) -> Any:
-        cls = get_class_by_name(v, module, base_class) if isinstance(v, str) else v
-        logger.debug(f"Resolved {v} to {cls}")
-        return cls
+        for module in modules:
+            try:
+                cls = (
+                    get_class_by_name(v, module, base_class)
+                    if isinstance(v, str)
+                    else v
+                )
+                return cls
+            except ValueError as e:
+                logger.debug(e)
+                continue
+
+        raise ValueError(f"No class named '{v}' found in modules {modules}")
 
     return resolve

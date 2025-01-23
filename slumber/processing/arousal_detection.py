@@ -114,7 +114,7 @@ def _find_candidate_intervals(
 
     # If odd number of change points, add the end of array as final point
     if len(change_points) % 2:
-        change_points = np.append(change_points, len(wake_n1_confidence))
+        change_points = np.append(change_points, len(wake_n1_confidence) - 1)
 
     # Convert change points to intervals
     return list(zip(change_points[::2], change_points[1::2], strict=True))

@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing_extensions import Literal
+from typing import Literal
 
 import pytz
 

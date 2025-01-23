@@ -1,6 +1,6 @@
 import asyncio
 from collections.abc import AsyncGenerator
-from typing import Annotated, Any
+from typing import Annotated
 
 import ezmsg.core as ez
 import pyttsx3
@@ -8,6 +8,7 @@ from loguru import logger
 from pydantic import (
     BaseModel,
     BeforeValidator,
+    ConfigDict,
     Field,
     field_serializer,
     model_validator,
@@ -46,14 +47,14 @@ class CueIntensityConfig(BaseModel):
         return self
 
     def increment(self) -> None:
-        old_value = self.value
+        new_value = min(self.max, self.value + self.step)
+        logger.info(f"Incrementing {self!r}", new_value=new_value)
         self.value = min(self.max, self.value + self.step)
-        logger.info(f"Incremented {self} from {old_value}")
 
     def decrement(self) -> None:
-        old_value = self.value
-        self.value = max(self.min, self.value - self.step)
-        logger.info(f"Decremented {self} from {old_value}")
+        new_value = max(self.min, self.value - self.step)
+        logger.info(f"Decrementing {self!r}", new_value=new_value)
+        self.value = new_value
 
 
 # TODO: Add validations for intensity attributes for each type of cueing
@@ -89,6 +90,8 @@ class AudioCueingConfig(BaseModel):
 
 class AudioIntensityConfig(CueIntensityConfig):
     engine: pyttsx3.Engine = Field(repr=False)
+
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
     def increment(self) -> None:
         super().increment()
@@ -147,8 +150,8 @@ class Cueing(ez.Unit):
         self.STATE.vibration_intensity = CueIntensityConfig.model_validate(
             self.SETTINGS.vibration_cueing.intensity
         )
-        self.STATE.audio_intensity = AudioIntensityConfig.model_validate(
-            self.SETTINGS.audio_cueing.intensity,
+        self.STATE.audio_intensity = AudioIntensityConfig(
+            **self.SETTINGS.audio_cueing.intensity.model_dump(),
             engine=init_text2speech_engine(
                 rate=self.SETTINGS.audio_cueing.rate,
                 volume=self.SETTINGS.audio_cueing.intensity.value,
@@ -157,7 +160,11 @@ class Cueing(ez.Unit):
         )
 
     async def shutdown(self) -> None:
-        self.STATE.audio_intensity.engine.stop()
+        try:
+            self.STATE.audio_intensity.engine.stop()
+        except AttributeError as e:
+            logger.error(e)
+            pass
 
     @ez.subscriber(ENABLE_SIGNAL)
     async def update_enabled(self, signal: bool) -> None:
@@ -166,7 +173,7 @@ class Cueing(ez.Unit):
             self.STATE.increase_intensity = True
 
         self.STATE.enabled = signal
-        logger.info(f"Cueing is {'' if signal else 'not'}enabled")
+        logger.info(f"Cueing is {'enabled' if signal else 'disabled'}")
 
     @ez.subscriber(ENABLE_INCREASE_INTENSITY_SIGNAL)
     async def update_increase_intensity(self, signal: bool) -> None:
@@ -227,6 +234,7 @@ class Cueing(ez.Unit):
             led_intensity=self.STATE.visual_intensity.value,
             alternate_eyes=self.SETTINGS.visual_cueing.alternate_eyes,
         )
+
     def _generate_vibration_cueing_signal(self) -> ZMaxStimulationSignal:
         return ZMaxStimulationSignal(
             led_color=LEDColor.OFF,

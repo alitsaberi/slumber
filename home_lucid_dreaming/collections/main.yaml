@@ -1,4 +1,4 @@
-name: HomeLucidDreaming
+name: home_lucid_dreaming
 
 components:
   
@@ -13,19 +13,19 @@ components:
       retry_attempts: 6
       retry_delay: 10
 
-  # ZMAX_STORAGE_QUEUE:
-  #   unit: CountQueue
-  #   settings:
-  #     max_size: 3000 
-  #     leaky: False
-  #     log_queue_size_interval: 5
-  #     publish_interval: 0.01
-  #     publish_count: 2560
+  ZMAX_STORAGE_QUEUE:
+    unit: CountQueue
+    settings:
+      max_size: 5120 
+      leaky: False
+      log_queue_size_interval: 5
+      publish_interval: 0.01
+      publish_count: 2560
 
   ZMAX_SAMPLE_RATE_REGULATOR:
     unit: TimeQueue
     settings:
-      max_size: 3000
+      max_size: 5120
       leaky: True
       log_queue_size_interval: 5
       publish_interval: 10
@@ -34,17 +34,17 @@ components:
       channel_names: [EEG_LEFT, EEG_RIGHT]
       timestamp_margin: 1.0
 
-  # ZMAX_STORAGE:
-  #   unit: HDF5Storage
-  #   settings:
-  #     file_path: "data/storage.h5"
-  #     group_name: "zmax_raw"
+  ZMAX_STORAGE:
+    unit: HDF5Storage
+    settings:
+      file_path: "./home_lucid_dreaming/data/storage.h5"
+      group_name: "zmax_raw"
 
   PREPROCESS:
     unit: Transform
     settings:
       transforms:
-        - class_name: ChannelSelector
+        - class_name: ArraySelector
           kwargs:
             channels: [EEG_LEFT, EEG_RIGHT]
         - class_name: Resample
@@ -70,7 +70,7 @@ components:
     settings:
       model:
         model_dir: ./tests/resources/sample_utime_model
-        n_periods: 2
+        n_periods: 105
         n_samples_per_prediction: 1
       channel_groups: [[EEG_LEFT], [EEG_RIGHT]]
       arg_max: false
@@ -106,13 +106,22 @@ components:
   AROUSAL_DETECTION:
     unit: ArousalDetection
     settings:
-      wake_n1_threshold: 0.2
-
-  PLOT:
-    unit: Plot
+      wake_n1_threshold: 0.4
 
   MASTER:
     unit: Master
+    settings:
+      wake_up_signal:
+        vibration: true
+        led_color: "OFF"
+        on_duration: 5
+        off_duration: 5
+        repetitions: 3
+      cueing_enabled: true
+      rem_confidence_threshold: 0.8
+      accepted_eye_signals: [LRL, RLR]
+      wake_up_signal_interval: 2
+      experiment_state: SLEEP
 
   REM_CUEING:
     unit: Cueing
@@ -143,29 +152,51 @@ components:
             min: 0
             max: 100
             step: 5
-        enabled: False
-        increase_intensity: False
+        enabled: false
+        increase_intensity: false
         enabled_check_interval: 5.0
         cueing_interval: 5.0
 
+  SLEEP_SCORING_STORAGE:
+    unit: HDF5Storage
+    settings:
+      file_path: "./home_lucid_dreaming/data/storage.h5"
+      group_name: "sleep_scoring"
+
+  # EYE_MOVEMENT_DETECTION_STORAGE:
+  #   unit: MessageLogger
+  #   settings:
+  #     output: ./home_lucid_dreaming/data/eye_movement_detection.json
+
+  # AROUSAAL_DETECTION_STORAGE:
+  #   unit: MessageLogger
+  #   settings:
+  #     output: ./home_lucid_dreaming/data/arousal_detection.json
+       
 
 connections:
-  # - [ZMAX.SAMPLE, ZMAX_STORAGE_QUEUE.INPUT]
+  - [ZMAX.SAMPLE, ZMAX_STORAGE_QUEUE.INPUT]
   - [ZMAX.SAMPLE, ZMAX_SAMPLE_RATE_REGULATOR.INPUT]
-  # - [ZMAX_STORAGE_QUEUE.OUTPUT, ZMAX_STORAGE.INPUT]
+  - [ZMAX_STORAGE_QUEUE.OUTPUT, ZMAX_STORAGE.INPUT]
   - [ZMAX_SAMPLE_RATE_REGULATOR.OUTPUT, PREPROCESS.INPUT]
   - [PREPROCESS.OUTPUT, SLEEP_SCORING_ROLLING_BUFFER.INPUT]
   - [SLEEP_SCORING_ROLLING_BUFFER.OUTPUT, SLEEP_SCORING_PREPROCESS.INPUT]
   - [SLEEP_SCORING_PREPROCESS.OUTPUT, SLEEP_SCORING.INPUT]
   - [PREPROCESS.OUTPUT, EYE_MOVEMENT_DETECTION_ROLLING_BUFFER.INPUT]
   - [EYE_MOVEMENT_DETECTION_ROLLING_BUFFER.OUTPUT, EYE_MOVEMENT_DETECTION.INPUT]
-  - [EYE_MOVEMENT_DETECTION_ROLLING_BUFFER.OUTPUT, PLOT.INPUT]
-  - [SLEEP_SCORING.OUTPUT, AROUSAL_DETECTION.INPUT]
+  - [SLEEP_SCORING.OUTPUT, AROUSAL_DETECTION_SCORES_SELECTOR.INPUT]
+  - [AROUSAL_DETECTION_SCORES_SELECTOR.OUTPUT, AROUSAL_DETECTION.INPUT]
+  - [SLEEP_SCORING.OUTPUT, MASTER_SCORES_SELECTOR.INPUT]
+  - [MASTER_SCORES_SELECTOR.OUTPUT, MASTER.SLEEP_SCORES]
+  - [EYE_MOVEMENT_DETECTION.OUTPUT, MASTER.EYE_MOVEMENT_EVENTS]
+  - [AROUSAL_DETECTION.OUTPUT, MASTER.AROUSAL_EVENTS]
   - [MASTER.CUEING_ENABLE_SIGNAL, REM_CUEING.ENABLE_SIGNAL]
   - [MASTER.CUEING_ENABLE_INCREASE_INTENSITY_SIGNAL, REM_CUEING.ENABLE_INCREASE_INTENSITY_SIGNAL]
   - [MASTER.CUEING_DECREASE_INTENSITY_SIGNAL, REM_CUEING.DECREASE_INTENSITY_SIGNAL]
   - [REM_CUEING.ZMAX_STIMULATION_SIGNAL, ZMAX.STIMULATION_SIGNAL]
+  - [SLEEP_SCORING.OUTPUT, SLEEP_SCORING_STORAGE.INPUT]
+  # - [EYE_MOVEMENT_DETECTION.OUTPUT, EYE_MOVEMENT_DETECTION_STORAGE.INPUT_MESSAGE]
+  # - [AROUSAL_DETECTION.OUTPUT, AROUSAAL_DETECTION_STORAGE.INPUT_MESSAGE]
 
 
-process_components:
-  - PLOT
+process_components: [MASTER, ZMAX, SLEEP_SCORING]

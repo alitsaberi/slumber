@@ -1,6 +1,7 @@
 from typing import Annotated, Any
 
 import ezmsg.core as ez
+import ezmsg.util as ezutil
 from loguru import logger
 from pydantic import (
     BaseModel,
@@ -47,7 +48,7 @@ class PydanticState(ez.State):
 class ComponentConfig(BaseModel):
     unit: Annotated[
         type[ez.Unit],
-        BeforeValidator(create_class_by_name_resolver(units, ez.Unit)),
+        BeforeValidator(create_class_by_name_resolver([units, ezutil], ez.Unit)),
     ]
     settings: dict[str, Any] = Field(default_factory=dict)
     # TODO: validate based on unit.SETTINGS
@@ -55,8 +56,11 @@ class ComponentConfig(BaseModel):
     model_config = ConfigDict(strict=False, arbitrary_types_allowed=True)
 
     def configure(self) -> ez.Unit:
-        logger.debug(f"Configuring {self.unit.address}")
-        settings = self.unit.SETTINGS.model_validate(self.settings)
+        try:
+            settings = self.unit.SETTINGS.model_validate(self.settings)
+        except AttributeError:
+            settings = self.unit.SETTINGS(**self.settings)
+        logger.info(f"Configured {self.unit.__name__} with settings: {settings}")
         return self.unit(settings)
 
 
@@ -65,7 +69,7 @@ class CollectionConfig(BaseModel):
     connections: tuple[tuple[ez.OutputStream, ez.InputStream], ...] = Field(
         min_length=1
     )
-    process_components: list[ez.Unit] | None = None
+    process_components: tuple[ez.Unit, ...] = Field(default_factory=tuple)
     name: str | None = Field(None, serialization_alias="root_name")
 
     model_config = ConfigDict(strict=False, arbitrary_types_allowed=True)
