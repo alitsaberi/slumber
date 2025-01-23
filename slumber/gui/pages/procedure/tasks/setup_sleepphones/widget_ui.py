@@ -91,6 +91,9 @@ class Ui_Widget(object):
         self.verticalLayout_3 = QVBoxLayout()
         self.verticalLayout_3.setObjectName(u"verticalLayout_3")
         self.verticalLayout_3.setContentsMargins(-1, -1, -1, 0)
+        self.horizontalLayout = QHBoxLayout()
+        self.horizontalLayout.setObjectName(u"horizontalLayout")
+        self.horizontalLayout.setContentsMargins(-1, 0, -1, -1)
         self.label = QLabel(Widget)
         self.label.setObjectName(u"label")
         font1 = QFont()
@@ -98,11 +101,12 @@ class Ui_Widget(object):
         font1.setPointSize(18)
         self.label.setFont(font1)
 
-        self.verticalLayout_3.addWidget(self.label)
+        self.horizontalLayout.addWidget(self.label)
 
-        self.horizontalLayout = QHBoxLayout()
-        self.horizontalLayout.setObjectName(u"horizontalLayout")
-        self.horizontalLayout.setContentsMargins(-1, 0, -1, -1)
+        self.horizontalSpacer_3 = QSpacerItem(18, 20, QSizePolicy.Policy.Maximum, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout.addItem(self.horizontalSpacer_3)
+
         self.radio_status = QRadioButton(Widget)
         self.radio_status.setObjectName(u"radio_status")
         font2 = QFont()
@@ -157,6 +161,13 @@ class Ui_Widget(object):
         self.list_bluetooth_devices = QListWidget(Widget)
         QListWidgetItem(self.list_bluetooth_devices)
         self.list_bluetooth_devices.setObjectName(u"list_bluetooth_devices")
+        sizePolicy2 = QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+        sizePolicy2.setHorizontalStretch(0)
+        sizePolicy2.setVerticalStretch(0)
+        sizePolicy2.setHeightForWidth(self.list_bluetooth_devices.sizePolicy().hasHeightForWidth())
+        self.list_bluetooth_devices.setSizePolicy(sizePolicy2)
+        self.list_bluetooth_devices.setMinimumSize(QSize(0, 150))
+        self.list_bluetooth_devices.setMaximumSize(QSize(16777215, 150))
 
         self.verticalLayout_3.addWidget(self.list_bluetooth_devices)
 

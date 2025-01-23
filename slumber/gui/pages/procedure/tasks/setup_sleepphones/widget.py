@@ -2,9 +2,8 @@ import asyncio
 import os
 
 from bleak import BleakClient, BleakError, BleakScanner
-from PySide6.QtCore import QSize, QTimer, QUrl, Signal
-from PySide6.QtWebEngineWidgets import QWebEngineView
-from PySide6.QtWidgets import QDialog, QListWidgetItem, QPushButton, QWidget
+from PySide6.QtCore import QTimer, QUrl, Signal
+from PySide6.QtWidgets import QDialog, QListWidgetItem, QWidget
 
 from .help_ui import Ui_HelpDialog
 from .widget_ui import Ui_Widget
@@ -12,9 +11,8 @@ from .widget_ui import Ui_Widget
 
 class WidgetPage(QWidget, Ui_Widget):
     """
-    Example widget that scans Bluetooth devices asynchronously using Bleak.
-    This code assumes that the main PySide6 application event loop is integrated
-    with asyncio via qasync, so `asyncio.create_task()` will work without errors.
+    Widget for scanning and connecting to Bluetooth devices asynchronously using Bleak.
+    Assumes integration with qasync for PySide6 event loop compatibility with asyncio.
     """
     is_done_signal = Signal(int)
     bluetooth_status = False
@@ -22,59 +20,53 @@ class WidgetPage(QWidget, Ui_Widget):
 
     def __init__(self, index, status=1, parent=None):
         super().__init__(parent)
-        self.index = index
-        self.status = status
-        self.connected_client = None
-        self.setupUi(self)  # Setup the UI from the generated .ui file
+        self.index = index  # Index identifier for the widget
+        self.status = status  # Status indicator for the widget
+        self.connected_client = None  # Placeholder for the connected Bluetooth client
+        self.setupUi(self)  # Set up the UI components
 
-        # Connect the info button to open the help dialog
+        # Set up the help dialog button functionality
         self.button_info.clicked.connect(self.open_help_dialog)
 
-         # Load the HTML file into the QWebEngineView
+        # Load the initial HTML file into the QWebEngineView
         html_file_path = os.path.join(os.path.dirname(__file__), 'assets/html/index.html')
         self.webEngineView_sleep_phones.setUrl(QUrl.fromLocalFile(html_file_path))
 
-        # Connect the refresh button to scan for Bluetooth devices
+        # Connect the refresh button to the Bluetooth scanning functionality
         self.button_refresh.clicked.connect(self.scan_bluetooth_devices)
 
-        # 2) Listen for double-clicks on the list to trigger connection
+        # Handle double-clicks on the device list to initiate connection
         self.list_bluetooth_devices.itemDoubleClicked.connect(self.on_device_double_clicked)
 
-        # Example "Done" button (not in your .ui, but added programmatically)
-        self.button_done = QPushButton("Done", self)
-        self.button_done.setObjectName("button_done")
-        self.button_done.setMinimumSize(QSize(100, 40))
-        self.verticalLayout.addWidget(self.button_done)
-        self.button_done.clicked.connect(self.emit_done_signal)
-
-        # Check Bluetooth status on initialization
-        # SingleShot(0, ...) schedules this check right after the widget is shown
+        # Check Bluetooth status when the widget is initialized
         QTimer.singleShot(0, self.start_check_bluetooth_status)
 
-        # 4) Check if we are already connected (example: if your app reuses
-        #    a BleakClient from a prior step). For this demo, it's just a 
-        #    placeholder call:
+        # Perform any checks for existing connections
         self.check_if_already_connected()
 
-        # 5) Hook the radio button's "toggled" signal to color text green if checked
+        # Set up the radio button toggling behavior
         self.radio_status.toggled.connect(self.on_radio_status_toggled)
 
     def start_check_bluetooth_status(self):
+        """Start the Bluetooth status check asynchronously."""
         asyncio.create_task(self.perform_bluetooth_initialization())
 
     def start(self):
+        """Start or indicate the status of a task based on the current widget state."""
         if self.status == 1:
             print("Task started")
         else:
             print("Task already done")
 
     def open_help_dialog(self):
+        """Open a help dialog with basic information and options."""
         dialog = QDialog(self)
         dialog.setWindowTitle("Help")
 
         ui = Ui_HelpDialog()
         ui.setupUi(dialog)
 
+        # Connect dialog buttons to appropriate handlers
         ui.button_ok.clicked.connect(
             lambda: self.handle_help_response(dialog, accepted=True)
         )
@@ -85,6 +77,7 @@ class WidgetPage(QWidget, Ui_Widget):
         dialog.exec()
 
     def handle_help_response(self, dialog, accepted):
+        """Handle the response from the help dialog."""
         if accepted:
             print("OK button pressed in Help Dialog")
         else:
@@ -92,30 +85,27 @@ class WidgetPage(QWidget, Ui_Widget):
         dialog.close()
 
     def emit_done_signal(self):
+        """Emit a signal indicating the task is done."""
         if self.status == 1:
             self.is_done_signal.emit(self.index)
         self.status = 2
 
     async def async_scan_bluetooth_devices(self):
-        """Asynchronously discover BLE devices, then populate the list widget."""
+        """Scan for Bluetooth devices asynchronously and update the device list."""
         self.radio_status.setText("Status: Loading...")
-        self.list_bluetooth_devices.clear()  # Clear the list before scanning
+        self.list_bluetooth_devices.clear()
 
         try:
-            # Perform async BLE scan
+            # Discover Bluetooth devices asynchronously
             devices = await BleakScanner.discover()
 
-            # Filter out devices with no name
-            named_devices = [
-                d for d in devices if d.name
-            ]  # Keep only those with a non-empty name
-
-            # Populate the list with named devices
+            # Filter and display devices with names
+            named_devices = [d for d in devices if d.name]
             for device in named_devices:
                 item = QListWidgetItem(f"{device.name} ({device.address})")
                 self.list_bluetooth_devices.addItem(item)
 
-            # Update the status label based on how many named devices were found
+            # Update status based on the number of devices found
             count_named = len(named_devices)
             if count_named > 0:
                 self.radio_status.setText(f"Status: Found {count_named} devices")
@@ -123,22 +113,16 @@ class WidgetPage(QWidget, Ui_Widget):
                 self.radio_status.setText("Status: No devices found")
 
         except BleakError as e:
-            # On error, show the error text
+            # Handle errors during scanning
             self.radio_status.setText(f"Status: Error ({str(e)})")
 
     def scan_bluetooth_devices(self):
-        """
-        This slot is called when the refresh button is clicked.
-        We show 'loading' text and then schedule the async scan.
-        """
-        # 1) Set the radio_status text to indicate scanning/ loading
+        """Initiate scanning for Bluetooth devices."""
         self.radio_status.setText("Status: Loading...")
-
-        # 2) Kick off the async scan in the background
         asyncio.create_task(self.async_scan_bluetooth_devices())
 
     async def check_bluetooth_status(self):
-        """Async check of whether Bluetooth is 'on' or 'off' (heuristic)."""
+        """Check whether Bluetooth is enabled and update the UI accordingly."""
         if self.bluetooth_status:
             self.button_refresh.setEnabled(True)
         else:
@@ -146,32 +130,19 @@ class WidgetPage(QWidget, Ui_Widget):
             self.button_refresh.setEnabled(False)
 
     async def is_bluetooth_on(self):
-        """
-        A simple check: tries to discover devices. If Bleak can find
-        something, we treat it as 'Bluetooth on.'
-        """
+        """Check if Bluetooth is on by attempting to discover devices."""
         try:
             devices = await BleakScanner.discover()
-            return bool(devices)  # True if any devices found
+            return bool(devices)  # Return True if devices are found
         except BleakError:
-            # BleakError can happen if the adapter is not available or off
-            return False
-        
+            return False  # Handle errors as Bluetooth being off
 
     def on_device_double_clicked(self, item):
-        """
-        Triggered when the user double-clicks on a device in the list.
-        We attempt to connect to that device.
-        """
+        """Handle a double-click event on a Bluetooth device to connect."""
         asyncio.create_task(self.async_connect_to_device(item.text()))
 
     async def async_connect_to_device(self, device_text):
-        """
-        Parse device address from the item text,
-        attempt to connect using Bleak.
-        """
-        # Example: item_text = "My Headphones (AA:BB:CC:DD:EE:FF)"
-        # We'll parse out the address in parentheses:
+        """Connect to the selected Bluetooth device asynchronously."""
         address = self._parse_device_address(device_text)
         if not address:
             self.radio_status.setText("Status: Invalid address")
@@ -179,27 +150,24 @@ class WidgetPage(QWidget, Ui_Widget):
 
         self.radio_status.setText("Status: Connecting...")
         self.radio_status.setChecked(False)
-        self.radio_status.setStyleSheet("")  # default color
+        self.radio_status.setStyleSheet("")
 
-        # If we already have a client, disconnect first (optional)
+        # Disconnect from any existing client before connecting
         if self.connected_client and self.connected_client.is_connected:
             import contextlib
             with contextlib.suppress(Exception):
                 await self.connected_client.disconnect()
             self.connected_client = None
 
-        # Attempt new connection
         try:
+            # Attempt to connect to the new device
             client = BleakClient(address)
             await client.connect()
             if client.is_connected:
-                # Mark as connected
                 self.connected_client = client
                 self.radio_status.setText("Status: Connected")
                 self.radio_status.setChecked(True)
-                # Make text green if radio is checked:
                 self.radio_status.setStyleSheet("color: green;")
-                # Emit signal if you want to indicate "Done" or "Connected"
                 self.is_done_signal.emit(self.index)
             else:
                 self.radio_status.setText("Status: Could not connect")
@@ -207,11 +175,7 @@ class WidgetPage(QWidget, Ui_Widget):
             self.radio_status.setText(f"Status: Error connecting ({str(e)})")
 
     def _parse_device_address(self, item_text: str) -> str:
-        """
-        Helper function to extract the BLE address from item text like
-        'My Device (12:34:56:78:9A:BC)'. 
-        Returns None if not found.
-        """
+        """Extract the Bluetooth address from the device text."""
         import re
         match = re.search(r"\(([^)]+)\)", item_text)
         if match:
@@ -219,29 +183,26 @@ class WidgetPage(QWidget, Ui_Widget):
         return None
 
     def check_if_already_connected(self):
-        """
-        Placeholder. If your app logic knows you're already connected to a device
-        or re-uses an existing BleakClient, you can check that here.
-        Then set the status to "Connected", etc.
-        """
+        """Check and update the UI if already connected to a device."""
         if self.connected_client and self.connected_client.is_connected:
             self.radio_status.setText("Status: Connected")
             self.radio_status.setChecked(True)
             self.radio_status.setStyleSheet("color: green;")
             self.is_done_signal.emit(self.index)
         else:
-            # Not connected
             self.radio_status.setText("Status")
             self.radio_status.setChecked(False)
             self.radio_status.setStyleSheet("")
 
     def on_radio_status_toggled(self, checked: bool):
+        """Change the text color based on the radio button status."""
         if checked:
             self.radio_status.setStyleSheet("color: green;")
         else:
             self.radio_status.setStyleSheet("")
 
     async def perform_bluetooth_initialization(self):
+        """Perform initial Bluetooth setup and scan for devices."""
         self.bluetooth_status = 1 if await self.is_bluetooth_on() else 0
         await self.check_bluetooth_status()
         await self.async_scan_bluetooth_devices()
