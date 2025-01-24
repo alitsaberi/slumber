@@ -29,7 +29,8 @@ class WidgetPage(QWidget, Ui_Widget):
         self.button_info.clicked.connect(self.open_help_dialog)
 
         # Load the initial HTML file into the QWebEngineView
-        html_file_path = os.path.join(os.path.dirname(__file__), 'assets/html/index.html')
+        html_dir = os.path.dirname(__file__)
+        html_file_path = os.path.join(html_dir, 'assets/html/index.html')
         self.webEngineView_sleep_phones.setUrl(QUrl.fromLocalFile(html_file_path))
 
         # Connect the refresh button to the Bluetooth scanning functionality
