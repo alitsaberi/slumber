@@ -41,6 +41,7 @@ class ArrayBase:
                 f" must match number of channels ({self.n_channels})."
             )
 
+    # TODO: use dataclass methods for serialization
     def __str__(self) -> str:
         attrs = [f"{k}={v}" for k, v in self.attributes.items()]
         return f"{self.__class__.__name__}(shape={self.shape}, {', '.join(attrs)})"
@@ -76,13 +77,14 @@ class ArrayBase:
 @dataclass
 class Sample(ArrayBase):
     timestamp: float
+    # TODO: non-default argument 'timestamp' follows default argument
 
     def __post_init__(self):
         super().__post_init__()
 
         if self.array.ndim != 1:
             raise ValueError(
-                f"Data must be 1D with shape (n_channels,), " f"got shape {self.shape}"
+                f"Data must be 1D with shape (n_channels,), got shape {self.shape}"
             )
 
     @property

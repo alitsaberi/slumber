@@ -11,7 +11,7 @@ from slumber.utils.helpers import load_yaml
 from slumber.utils.logger import setup_logging
 from slumber.utils.time import datetime_to_str, now
 
-RUNS_DIR = "runs"
+RUNS_DIR = "sessions"
 CONFIGS_DIR = "configs"
 LOGS_DIR = "logs"
 DATA_DIR = "data"

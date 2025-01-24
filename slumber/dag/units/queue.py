@@ -92,7 +92,9 @@ class Queue(ez.Unit, Generic[T]):
             try:
                 self.STATE.queue.put_nowait(message)
             except asyncio.QueueFull:
-                logger.warning(f"{self.address} queue is full, dropping sample.")
+                logger.warning(
+                    f"{self.address} queue is full, dropping message.", message=message
+                )
                 self.STATE.queue.get_nowait()
                 self.STATE.queue.put_nowait(message)
 
