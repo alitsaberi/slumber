@@ -46,16 +46,15 @@ class CueIntensityConfig(BaseModel):
 
         return self
 
-    def increment(self) -> None:
-        new_value = min(self.max, self.value + self.step)
+    def adjust(self, increment: bool) -> None:
+        new_value = (
+            min(self.max, self.value + self.step)
+            if increment
+            else max(self.min, self.value - self.step)
+        )
         if new_value != self.value:
-            logger.info(f"Incrementing {self!r}", new_value=new_value)
-            self.value = min(self.max, self.value + self.step)
-
-    def decrement(self) -> None:
-        new_value = max(self.min, self.value - self.step)
-        if new_value != self.value:
-            logger.info(f"Decrementing {self!r}", new_value=new_value)
+            action = "Incrementing" if increment else "Decrementing"
+            logger.info(f"{action} {self!r} to {new_value}.")
             self.value = new_value
 
 
@@ -73,7 +72,6 @@ class VibrationCueingConfig(BaseModel):
 
 
 class VisualCueingConfig(VibrationCueingConfig):
-    intensity: CueIntensityConfig
     led_color: Annotated[
         LEDColor, BeforeValidator(create_enum_by_name_resolver(LEDColor))
     ] = LEDColor.RED
@@ -95,15 +93,8 @@ class AudioIntensityConfig(CueIntensityConfig):
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
-    def increment(self) -> None:
-        super().increment()
-        self._sync_engine_volume()
-
-    def decrement(self) -> None:
-        super().decrement()
-        self._sync_engine_volume()
-
-    def _sync_engine_volume(self) -> None:
+    def adjust(self, increment: bool) -> None:
+        super().adjust(increment)
         self.engine.setProperty("volume", self.value / 100)
 
     @field_serializer("engine")
@@ -139,7 +130,7 @@ class Cueing(ez.Unit):
 
     ENABLE_SIGNAL = ez.InputStream(bool)
     ENABLE_INCREASE_INTENSITY_SIGNAL = ez.InputStream(bool)
-    DECREASE_INTENSITY_SIGNAL = ez.InputStream(bool)
+    ADJUST_INTENSITY_SIGNAL = ez.InputStream(bool)
 
     ZMAX_STIMULATION_SIGNAL = ez.OutputStream(ZMaxStimulationSignal)
 
@@ -171,31 +162,28 @@ class Cueing(ez.Unit):
     @ez.subscriber(ENABLE_SIGNAL)
     async def update_enabled(self, signal: bool) -> None:
         if signal != self.STATE.enabled:
-            logger.info(f"Cueing is {'enabled' if signal else 'disabled'}")
-
-            if signal and not self.STATE.enabled:
-                logger.info("Enabling increase intensity")
-                self.STATE.increase_intensity = True
+            logger.info(f"{'Enabling' if signal else 'Disabling'} cueing")
 
         self.STATE.enabled = signal
 
     @ez.subscriber(ENABLE_INCREASE_INTENSITY_SIGNAL)
     async def update_increase_intensity(self, signal: bool) -> None:
         if signal != self.STATE.increase_intensity:
-            logger.info(f"Increase intensity is {'' if signal else 'not'}enabled")
+            logger.info(f"{'Enabling' if signal else 'Disabling'} increase intensity")
         self.STATE.increase_intensity = signal
 
-    @ez.subscriber(DECREASE_INTENSITY_SIGNAL)
-    async def decrease_intensity(self, _: bool) -> None:
-        self.STATE.visual_intensity.decrement()
-        self.STATE.vibration_intensity.decrement()
-        self.STATE.audio_intensity.decrement()
+    @ez.subscriber(ADJUST_INTENSITY_SIGNAL)
+    async def adjust_intensity(self, increment: bool) -> None:
+        self._adjust_intensity(increment)
 
     @ez.publisher(ZMAX_STIMULATION_SIGNAL)
     async def run(self) -> AsyncGenerator:
         while True:
             if not self.STATE.enabled:
-                logger.debug("Cueing is disabled")
+                logger.info(
+                    "Cueing is disabled. Trying again in "
+                    f" {self.SETTINGS.enabled_check_interval} second."
+                )
                 await asyncio.sleep(self.SETTINGS.enabled_check_interval)
                 continue
 
@@ -207,14 +195,14 @@ class Cueing(ez.Unit):
             if not self.STATE.enabled:
                 continue
 
-            logger.info(
+            logger.debug(
                 f"Auditory cueing: {self.SETTINGS.audio_cueing.text}."
                 f" Engine: {self.STATE.audio_intensity.model_dump(include={'engine'})}"
             )
-
             text2speech(
                 self.SETTINGS.audio_cueing.text, self.STATE.audio_intensity.engine
             )
+            await asyncio.sleep(self.SETTINGS.cueing_interval)
 
             if not self.STATE.enabled:
                 continue
@@ -225,10 +213,9 @@ class Cueing(ez.Unit):
             await asyncio.sleep(self.SETTINGS.cueing_interval)
 
             if self.STATE.increase_intensity:
-                self.STATE.visual_intensity.increment()
-                self.STATE.vibration_intensity.increment()
-                self.STATE.audio_intensity.increment()
+                self._adjust_intensity(True)
 
+    
     def _generate_visual_cueing_signal(self) -> ZMaxStimulationSignal:
         return ZMaxStimulationSignal(
             led_color=self.SETTINGS.visual_cueing.led_color,
@@ -248,3 +235,8 @@ class Cueing(ez.Unit):
             off_duration=self.SETTINGS.vibration_cueing.off_duration,
             vibration=True,
         )
+        
+    def _adjust_intensity(self, increment: bool) -> None:
+        self.STATE.visual_intensity.adjust(increment)
+        self.STATE.vibration_intensity.adjust(increment)
+        self.STATE.audio_intensity.adjust(increment)

@@ -93,6 +93,7 @@ class Master(ez.Unit):
     @ez.subscriber(SLEEP_SCORES)
     @ez.publisher(WAKE_UP_SIGNAL)
     @ez.publisher(CUEING_ENABLE_SIGNAL)
+    @ez.publisher(CUEING_ENABLE_INCREASE_INTENSITY_SIGNAL)
     async def update_in_rem(self, scores: Data) -> AsyncGenerator:
         if self.STATE.experiment_state != ExperimentState.SLEEP:
             logger.debug(
@@ -114,6 +115,7 @@ class Master(ez.Unit):
         elif in_rem and not self.STATE.in_rem and self.STATE.cueing_enabled:
             logger.info("Participant is now in REM. Enabling cueing...")
             yield (self.CUEING_ENABLE_SIGNAL, True)
+            yield (self.CUEING_ENABLE_INCREASE_INTENSITY_SIGNAL, True)
 
         self.STATE.in_rem = in_rem
 
@@ -170,7 +172,8 @@ class Master(ez.Unit):
         ):
             logger.info("Participant is aroused in REM. Disabling cueing...")
             yield (self.CUEING_ENABLE_SIGNAL, False)
-            yield (self.CUEING_DECREASE_INTENSITY_SIGNAL, True)
+            yield (self.CUEING_ENABLE_INCREASE_INTENSITY_SIGNAL, False)
+            yield (self.CUEING_DECREASE_INTENSITY_SIGNAL, False)
         elif (
             not aroused
             and self.STATE.aroused
@@ -188,5 +191,5 @@ class Master(ez.Unit):
 
         while self.STATE.experiment_state != ExperimentState.WAKE:
             yield (self.WAKE_UP_SIGNAL, self.SETTINGS.wake_up_signal)
-            logger.info("Wake up signal sent.", signal=self.SETTINGS.wake_up_signal)
+            logger.info("Wake up signal sent", signal=self.SETTINGS.wake_up_signal)
             await asyncio.sleep(self.SETTINGS.wake_up_signal_interval)
