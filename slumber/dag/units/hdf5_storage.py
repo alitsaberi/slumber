@@ -6,6 +6,7 @@ import ezmsg.core as ez
 import h5py
 import numpy as np
 from loguru import logger
+from pydantic import Field
 
 from slumber import settings
 from slumber.dag.utils import PydanticSettings
@@ -19,12 +20,14 @@ from slumber.utils.hdf5 import (
 class Settings(PydanticSettings):
     file_path: Path
     group_name: str
+    flush_after: int | None = Field(None, ge=1)
     compression: str = settings["hdf5"]["compression"]
 
 
 class State(ez.State):
     hdf5_manager: HDF5Manager
     group: h5py.Group
+    write_counter: int
 
 
 class HDF5Storage(ez.Unit):
@@ -38,6 +41,7 @@ class HDF5Storage(ez.Unit):
         self.STATE.group = self.STATE.hdf5_manager.create_group(
             self.SETTINGS.group_name
         )
+        self.STATE.write_counter = 0
 
     def shutdown(self):
         self.STATE.hdf5_manager.close()
@@ -47,6 +51,18 @@ class HDF5Storage(ez.Unit):
         self.STATE.group.attrs.update(message.attributes)
         for dataset_name, data in message.datasets.items():
             self._store_data(data, dataset_name)
+
+        self.STATE.write_counter += 1
+        if (
+            self.SETTINGS.flush_after
+            and self.STATE.write_counter >= self.SETTINGS.flush_after
+        ):
+            logger.info(
+                f"{self.address} is flushing {self.STATE.hdf5_manager.file_path}",
+                flush_after=self.SETTINGS.flush_after,
+            )
+            self.STATE.hdf5_manager.file.flush()
+            self.STATE.write_counter = 0
 
     def _store_data(self, data: np.ndarray, dataset_name: str) -> None:
         if data.size == 0:
@@ -68,9 +84,8 @@ class HDF5Storage(ez.Unit):
                 data=data,
                 compression=self.SETTINGS.compression,
             )
+
         logger.info(
             f"Stored data {data.shape} in datast {dataset_name}"
             f" in {time.time() - start_time} seconds."
         )
-
-        # TODO: Handle exceptions to store data in case of errors

@@ -215,7 +215,6 @@ class Cueing(ez.Unit):
             if self.STATE.increase_intensity:
                 self._adjust_intensity(True)
 
-    
     def _generate_visual_cueing_signal(self) -> ZMaxStimulationSignal:
         return ZMaxStimulationSignal(
             led_color=self.SETTINGS.visual_cueing.led_color,
@@ -235,7 +234,7 @@ class Cueing(ez.Unit):
             off_duration=self.SETTINGS.vibration_cueing.off_duration,
             vibration=True,
         )
-        
+
     def _adjust_intensity(self, increment: bool) -> None:
         self.STATE.visual_intensity.adjust(increment)
         self.STATE.vibration_intensity.adjust(increment)

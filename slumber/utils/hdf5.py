@@ -18,8 +18,8 @@ class DatasetDoesNotExistError(ValueError):
 
 class HDF5Manager:
     def __init__(self, file_path: Path):
-        self._file_path = file_path
-        self._file = h5py.File(self._file_path, "a")
+        self.file_path = file_path
+        self.file = h5py.File(self.file_path, "a")
 
     def __enter__(self) -> "HDF5Manager":
         return self
@@ -33,15 +33,15 @@ class HDF5Manager:
         self.close()
 
     def close(self) -> None:
-        if self._file.id:
-            self._file.close()
+        if self.file.id:
+            self.file.close()
 
     @property
     def groups(self) -> list[str]:
-        return list(self._file.keys())
+        return list(self.file.keys())
 
     def create_group(self, group_name: str, **attributes) -> h5py.Group:
-        group = self._file.create_group(group_name)
+        group = self.file.create_group(group_name)
         group.attrs.update(attributes)
         return group
 
@@ -80,7 +80,7 @@ class HDF5Manager:
         Returns:
             h5py.Dataset: The created dataset.
         """
-        if group_name not in self._file:
+        if group_name not in self.file:
             raise GroupDoesNotExistError(f"Group {group_name} does not exist.")
 
         if data is None and shape is None:
@@ -97,7 +97,7 @@ class HDF5Manager:
         max_shape = max_shape or len(data.shape if data is not None else shape) * (
             None,
         )
-        dataset = self._file[group_name].create_dataset(
+        dataset = self.file[group_name].create_dataset(
             dataset_name,
             data=data,
             shape=shape,
@@ -109,18 +109,18 @@ class HDF5Manager:
         return dataset
 
     def get_dataset(self, group_name: str, dataset_name: str) -> h5py.Dataset:
-        return self._file[group_name][dataset_name]
+        return self.file[group_name][dataset_name]
 
     def append(self, group_name: str, dataset_name: str, data: np.ndarray) -> None:
-        if group_name not in self._file:
+        if group_name not in self.file:
             raise GroupDoesNotExistError(f"Group {group_name} does not exist.")
 
-        if dataset_name not in self._file[group_name]:
+        if dataset_name not in self.file[group_name]:
             raise DatasetDoesNotExistError(
                 f"Dataset {dataset_name} does not exist in group {group_name}."
             )
 
-        dataset = self._file[group_name][dataset_name]
+        dataset = self.file[group_name][dataset_name]
         logger.debug(
             f"Appending data to dataset {dataset_name} in group {group_name}"
             f" with shape {dataset.shape}."
