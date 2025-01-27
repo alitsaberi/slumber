@@ -38,11 +38,6 @@ logging:
       serialize: True
       enqueue: True
 
-audit:
-  file_name: "audit.tsv"
-  rotation: "50 MB"
-  enqueue: True
-
 text2speech:
   rate: 175 # Integer speech rate in words per minute.
   volume: 100 # [0, 100]

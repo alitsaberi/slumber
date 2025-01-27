@@ -14,6 +14,8 @@ from pydantic import (
     model_validator,
 )
 
+from slumber.dag.units.event_logger import Event
+from slumber.dag.units.lucid_dreaming import EventType
 from slumber.dag.units.zmax import ZMaxStimulationSignal
 from slumber.dag.utils import PydanticSettings
 from slumber.sources.zmax import (
@@ -133,6 +135,7 @@ class Cueing(ez.Unit):
     ADJUST_INTENSITY_SIGNAL = ez.InputStream(bool)
 
     ZMAX_STIMULATION_SIGNAL = ez.OutputStream(ZMaxStimulationSignal)
+    OUTPUT_EVENT = ez.OutputStream(Event)
 
     async def initialize(self) -> None:
         self.STATE.enabled = self.SETTINGS.enabled
@@ -177,11 +180,12 @@ class Cueing(ez.Unit):
         self._adjust_intensity(increment)
 
     @ez.publisher(ZMAX_STIMULATION_SIGNAL)
+    @ez.publisher(OUTPUT_EVENT)
     async def run(self) -> AsyncGenerator:
         while True:
             if not self.STATE.enabled:
                 logger.info(
-                    "Cueing is disabled. Trying again in "
+                    "Cueing is disabled. Trying again in"
                     f" {self.SETTINGS.enabled_check_interval} second."
                 )
                 await asyncio.sleep(self.SETTINGS.enabled_check_interval)
@@ -189,6 +193,12 @@ class Cueing(ez.Unit):
 
             visual_cueing_signal = self._generate_visual_cueing_signal()
             logger.debug(f"Visual cueing signal: {visual_cueing_signal}")
+            yield (
+                self.OUTPUT_EVENT,
+                Event(
+                    type=EventType.VISUAL_CUE, value=self.STATE.visual_intensity.value
+                ),
+            )
             yield (self.ZMAX_STIMULATION_SIGNAL, visual_cueing_signal)
             await asyncio.sleep(self.SETTINGS.cueing_interval)
 
@@ -198,6 +208,12 @@ class Cueing(ez.Unit):
             logger.debug(
                 f"Auditory cueing: {self.SETTINGS.audio_cueing.text}."
                 f" Engine: {self.STATE.audio_intensity.model_dump(include={'engine'})}"
+            )
+            yield (
+                self.OUTPUT_EVENT,
+                Event(
+                    type=EventType.AUDITORY_CUE, value=self.STATE.audio_intensity.value
+                ),
             )
             text2speech(
                 self.SETTINGS.audio_cueing.text, self.STATE.audio_intensity.engine
@@ -209,6 +225,13 @@ class Cueing(ez.Unit):
 
             vibration_cueing_signal = self._generate_vibration_cueing_signal()
             logger.debug(f"Vibration cueing signal: {vibration_cueing_signal}")
+            yield (
+                self.OUTPUT_EVENT,
+                Event(
+                    type=EventType.TACTILE_CUE,
+                    value=self.STATE.vibration_intensity.value,
+                ),
+            )
             yield (self.ZMAX_STIMULATION_SIGNAL, vibration_cueing_signal)
             await asyncio.sleep(self.SETTINGS.cueing_interval)
 

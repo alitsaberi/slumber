@@ -10,10 +10,20 @@ from loguru import logger
 from pydantic import BeforeValidator, Field
 
 from slumber import settings
+from slumber.dag.units.event_logger import Event as LogEvent
 from slumber.dag.units.zmax import ZMaxStimulationSignal
 from slumber.dag.utils import PydanticSettings
 from slumber.utils.data import Data, Event
 from slumber.utils.helpers import create_enum_by_name_resolver
+
+
+class EventType(Enum):
+    EYE_MOVEMENT = "eye_movement"
+    AROUSAL = "arousal"
+    VISUAL_CUE = "visual_cue"
+    AUDITORY_CUE = "auditory_cue"
+    TACTILE_CUE = "tactile_cue"
+    WAKING_UP = "waking_up"
 
 
 class ExperimentState(Enum):
@@ -54,6 +64,7 @@ class Master(ez.Unit):
     CUEING_ENABLE_SIGNAL = ez.OutputStream(bool)
     CUEING_ENABLE_INCREASE_INTENSITY_SIGNAL = ez.OutputStream(bool)
     CUEING_DECREASE_INTENSITY_SIGNAL = ez.OutputStream(bool)
+    OUTPUT_EVENT = ez.OutputStream(LogEvent)
 
     WAKE_UP_SIGNAL = ez.OutputStream(ZMaxStimulationSignal)
 
@@ -64,24 +75,6 @@ class Master(ez.Unit):
         self.STATE.aroused = False
         self.STATE.eye_signaling = False
         self.STATE.cueing_enabled = self.SETTINGS.cueing_enabled
-
-    # @ez.publisher(CUEING_ENABLE_SIGNAL)
-    # @ez.publisher(CUEING_ENABLE_INCREASE_INTENSITY_SIGNAL)
-    # @ez.publisher(CUEING_DECREASE_INTENSITY_SIGNAL)
-    # async def run(self) -> AsyncGenerator:
-    #     await asyncio.sleep(5)
-    #     yield (self.CUEING_ENABLE_SIGNAL, True)
-    #     await asyncio.sleep(20)
-    #     for _ in range(3):
-    #         yield (self.CUEING_ENABLE_INCREASE_INTENSITY_SIGNAL, True)
-    #         await asyncio.sleep(20)
-    #     yield (self.CUEING_ENABLE_INCREASE_INTENSITY_SIGNAL, False)
-    #     await asyncio.sleep(20)
-    #     yield (self.CUEING_DECREASE_INTENSITY_SIGNAL, True)
-    #     await asyncio.sleep(20)
-    #     yield (self.CUEING_ENABLE_SIGNAL, False)
-    #     await asyncio.sleep(20)
-    #     raise ez.NormalTermination
 
     @ez.subscriber(EXPERIMENT_STATE)
     def update_experiment_state(self, state: ExperimentState) -> None:
@@ -94,6 +87,7 @@ class Master(ez.Unit):
     @ez.publisher(WAKE_UP_SIGNAL)
     @ez.publisher(CUEING_ENABLE_SIGNAL)
     @ez.publisher(CUEING_ENABLE_INCREASE_INTENSITY_SIGNAL)
+    @ez.publisher(OUTPUT_EVENT)
     async def update_in_rem(self, scores: Data) -> AsyncGenerator:
         if self.STATE.experiment_state != ExperimentState.SLEEP:
             logger.debug(
@@ -123,7 +117,11 @@ class Master(ez.Unit):
     @ez.publisher(WAKE_UP_SIGNAL)
     @ez.publisher(CUEING_ENABLE_SIGNAL)
     @ez.publisher(CUEING_ENABLE_INCREASE_INTENSITY_SIGNAL)
+    @ez.publisher(OUTPUT_EVENT)
     async def update_eye_signaling(self, events: list[Event]) -> AsyncGenerator:
+        async for output_event in self._log_events(events, EventType.EYE_MOVEMENT):
+            yield output_event
+
         if self.STATE.experiment_state != ExperimentState.SLEEP:
             logger.debug(
                 "Experiment is not in sleep state. Ignoring eye movement events.",
@@ -154,6 +152,11 @@ class Master(ez.Unit):
     @ez.publisher(CUEING_ENABLE_SIGNAL)
     @ez.publisher(CUEING_DECREASE_INTENSITY_SIGNAL)
     async def update_aroused(self, events: list[Event]) -> AsyncGenerator:
+        async for output_event in self._log_events(
+            events, EventType.AROUSAL, include_label=False
+        ):
+            yield output_event
+
         if self.STATE.experiment_state != ExperimentState.SLEEP:
             logger.debug(
                 "Experiment is not in sleep state. Ignoring arousal events.",
@@ -187,9 +190,24 @@ class Master(ez.Unit):
 
     async def _wake_up(self) -> AsyncGenerator:
         self.STATE.experiment_state = ExperimentState.WAKING
+        yield (self.OUTPUT_EVENT, LogEvent(type=EventType.WAKING_UP))
         yield (self.CUEING_ENABLE_SIGNAL, False)
 
         while self.STATE.experiment_state != ExperimentState.WAKE:
             yield (self.WAKE_UP_SIGNAL, self.SETTINGS.wake_up_signal)
             logger.info("Wake up signal sent", signal=self.SETTINGS.wake_up_signal)
             await asyncio.sleep(self.SETTINGS.wake_up_signal_interval)
+
+    async def _log_events(
+        self, events: list[Event], event_type: EventType, include_label: bool = True
+    ) -> AsyncGenerator:
+        for event in events:
+            yield (
+                self.OUTPUT_EVENT,
+                LogEvent(
+                    type=event_type,
+                    timestamp=event.start_time,
+                    duration=event.end_time - event.start_time,
+                    label=event.label if include_label else None,
+                ),
+            )
