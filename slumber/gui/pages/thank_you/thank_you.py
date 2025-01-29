@@ -18,7 +18,7 @@ class ThankYouPage(QWidget, Ui_ThankYouPage):
 
         # Load the HTML file
         html_dir = os.path.dirname(__file__)
-        html_file_path = os.path.join(html_dir, './assets/html/index.html')
+        html_file_path = os.path.join(html_dir, "./assets/html/index.html")
         self.webEngineView_thank_you.setUrl(QUrl.fromLocalFile(html_file_path))
 
     def on_back_button_clicked(self):

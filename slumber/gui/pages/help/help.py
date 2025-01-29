@@ -18,7 +18,7 @@ class HelpPage(QWidget, Ui_HelpPage):
 
         # Load the HTML file
         html_file_path = os.path.join(
-            os.path.dirname(__file__), './assets/html/index.html'
+            os.path.dirname(__file__), "./assets/html/index.html"
         )
         self.webEngineView_help.setUrl(QUrl.fromLocalFile(html_file_path))
 

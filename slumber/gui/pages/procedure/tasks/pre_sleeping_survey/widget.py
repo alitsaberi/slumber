@@ -54,8 +54,6 @@ class ChannelObject(QObject):
 
         # Notify WidgetPage that the survey is complete
         self.form_complete_signal.emit()
-        
-
 
     @Slot(str)
     def logError(self, error_message: str) -> None:
@@ -66,6 +64,7 @@ class ChannelObject(QObject):
             error_message: Error message from JavaScript
         """
         print(f"Survey GUI Error: {error_message}")
+
 
 class WidgetPage(QWidget, Ui_Widget):
     is_done_signal = Signal(int)
@@ -91,7 +90,6 @@ class WidgetPage(QWidget, Ui_Widget):
         self.channel.registerObject("channelObject", self.channel_object)
         self.webEngineView_pre_survey.page().setWebChannel(self.channel)
 
-
         self._load_survey()
         self.channel_object.form_complete_signal.connect(self.emit_done_signal)
 
@@ -111,7 +109,6 @@ class WidgetPage(QWidget, Ui_Widget):
     def emit_done_signal(self):
         print(f"Survey for task {self.index} is complete.")
         self.is_done_signal.emit(self.index)
-
 
     def start(self):
         if self.status == 1:

@@ -3,7 +3,7 @@ import sqlite3
 
 
 def get_db_connection():
-    db_path = os.path.join(os.path.dirname(__file__), '../app.db')
+    db_path = os.path.join(os.path.dirname(__file__), "../app.db")
     try:
         conn = sqlite3.connect(db_path)
         return conn
@@ -11,12 +11,13 @@ def get_db_connection():
         print(f"Error connecting to database: {e}")
         return None
 
+
 def initialize_db():
     conn = get_db_connection()
     cursor = conn.cursor()
 
     # Create tables with enums defined directly
-    cursor.execute('''
+    cursor.execute("""
         CREATE TABLE IF NOT EXISTS gui_config (
             font_size INTEGER CHECK(font_size >= 0 AND font_size <= 10),
             app_width INTEGER,
@@ -24,21 +25,21 @@ def initialize_db():
             app_mode TEXT CHECK(app_mode IN ('window', 'full_screen')),
             language VARCHAR
         )
-    ''')
-    cursor.execute('''
+    """)
+    cursor.execute("""
         CREATE TABLE IF NOT EXISTS study_config (
             study_duration INTEGER,
             start_date DATE,
             end_date DATE
         )
-    ''')
-    cursor.execute('''
+    """)
+    cursor.execute("""
         CREATE TABLE IF NOT EXISTS study_calendar (
             study_date DATE,
             day_number INTEGER
         )
-    ''')
-    cursor.execute('''
+    """)
+    cursor.execute("""
         CREATE TABLE IF NOT EXISTS tasks (
             task_id INTEGER PRIMARY KEY AUTOINCREMENT,
             name VARCHAR,
@@ -48,8 +49,8 @@ def initialize_db():
                 type IN ('pre_processing', 'post_processing', 'action', 'recording')
             )
         )
-    ''')
-    cursor.execute('''
+    """)
+    cursor.execute("""
         CREATE TABLE IF NOT EXISTS task_progress (
             task_day_id INTEGER PRIMARY KEY AUTOINCREMENT,
             task_day INTEGER,
@@ -58,8 +59,8 @@ def initialize_db():
             FOREIGN KEY (task_day) REFERENCES study_calendar(day_number),
             FOREIGN KEY (task_id) REFERENCES tasks(task_id)
         )
-    ''')
-    cursor.execute('''
+    """)
+    cursor.execute("""
         CREATE TABLE IF NOT EXISTS task_history (
             history_id INTEGER PRIMARY KEY AUTOINCREMENT,
             timestamp TIMESTAMP,
@@ -68,7 +69,7 @@ def initialize_db():
             task_day_id INTEGER,
             FOREIGN KEY (task_day_id) REFERENCES task_progress(task_day_id)
         )
-    ''')
+    """)
 
     conn.commit()
     conn.close()

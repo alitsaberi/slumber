@@ -17,7 +17,7 @@ class ProcedurePage(QWidget, Ui_ProcedurePage):
         super().__init__(parent)
         self.setupUi(self)  # Setup the UI from the generated class
 
-        self.tasks = sorted(tasks, key=lambda x: x['task_id'])
+        self.tasks = sorted(tasks, key=lambda x: x["task_id"])
         self.current_index = 0
         self.widgets = []  # Initialize the widget list
         self.completed_tasks = set()  # Track completed task indices
@@ -45,7 +45,7 @@ class ProcedurePage(QWidget, Ui_ProcedurePage):
             self.procedureStepList.addItem(item)
 
             # QStackedWidget
-            module_path = task['module']
+            module_path = task["module"]
             print("-----------------")
             print(module_path)
             try:
@@ -87,7 +87,7 @@ class ProcedurePage(QWidget, Ui_ProcedurePage):
     def mark_task_completed(self, index):
         if 0 <= index < self.procedureStepList.count():
             item = self.procedureStepList.item(index)
-            item.setBackground(Qt.green)            # Set background color to green
+            item.setBackground(Qt.green)  # Set background color to green
             item.setText(f"{index + 1}. {item.text().split('. ', 1)[1]} ✅")
             self.completed_tasks.add(index)
 

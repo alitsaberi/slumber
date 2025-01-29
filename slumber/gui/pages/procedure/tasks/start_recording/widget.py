@@ -32,7 +32,7 @@ class WidgetPage(QWidget, Ui_Widget):
         self.player_next.setAudioOutput(self.audio_output_next)
         self.audio_output_next.setVolume(0.0)
 
-        assets_path = os.path.join(os.path.dirname(__file__), 'assets', 'music')
+        assets_path = os.path.join(os.path.dirname(__file__), "assets", "music")
         if not os.path.exists(assets_path):
             print(f"[WARNING] Assets path does not exist: {assets_path}")
             self.mp3_files = []
@@ -40,7 +40,7 @@ class WidgetPage(QWidget, Ui_Widget):
             self.mp3_files = [
                 os.path.join(assets_path, file)
                 for file in os.listdir(assets_path)
-                if file.lower().endswith('.mp3')
+                if file.lower().endswith(".mp3")
             ]
 
         if not self.mp3_files:
@@ -111,7 +111,7 @@ class WidgetPage(QWidget, Ui_Widget):
                 "Stop Recording",
                 "Are you sure you want to stop recording?",
                 QMessageBox.Yes | QMessageBox.No,
-                QMessageBox.No
+                QMessageBox.No,
             )
             if reply == QMessageBox.Yes:
                 self.emit_done_signal()
@@ -127,7 +127,7 @@ class WidgetPage(QWidget, Ui_Widget):
         current_song = self.mp3_files[self.current_song_index]
         self.player_current.setSource(QUrl.fromLocalFile(current_song))
         self.player_current.play()
-        
+
         print(f"[INFO] Playing: {current_song}")
         print(f"[INFO] Started at: {self.get_current_timestamp()}")
 
@@ -163,8 +163,10 @@ class WidgetPage(QWidget, Ui_Widget):
             new_next_volume = min(1.0, next_volume + self.fade_step)
             self.audio_output_next.setVolume(new_next_volume)
 
-        if (self.audio_output_current.volume() == 0 and 
-            self.audio_output_next.volume() == 1.0):
+        if (
+            self.audio_output_current.volume() == 0
+            and self.audio_output_next.volume() == 1.0
+        ):
             self.crossfade_timer.stop()
             self.player_current.stop()
             end_timestamp = self.get_current_timestamp()
@@ -172,7 +174,8 @@ class WidgetPage(QWidget, Ui_Widget):
             print(f"[INFO] Finished playing: {current_song} at {end_timestamp}")
             # Swap players without disconnecting signals
             self.player_current, self.player_next = (
-                self.player_next, self.player_current
+                self.player_next,
+                self.player_current,
             )
             self.audio_output_current = self.audio_output_next
             self.audio_output_next = self.audio_output_current
@@ -186,8 +189,9 @@ class WidgetPage(QWidget, Ui_Widget):
             if sender == self.player_current and not self.fading:
                 current_song = self.mp3_files[self.current_song_index]
                 print(f"[INFO] Finished playing: {current_song} at {end_timestamp}")
-                self.current_song_index = (
-                    self.current_song_index + 1) % len(self.mp3_files)
+                self.current_song_index = (self.current_song_index + 1) % len(
+                    self.mp3_files
+                )
                 self.play_current_song()
             elif sender == self.player_next:
                 next_song = self.mp3_files[self.next_song_index]
@@ -197,8 +201,10 @@ class WidgetPage(QWidget, Ui_Widget):
     def emit_done_signal(self):
         if self.status == 1:
             self.is_done_signal.emit(self.index)
-            print(f"[INFO] Emit done signal for index {self.index} at "
-                  f"{self.get_current_timestamp()}")
+            print(
+                f"[INFO] Emit done signal for index {self.index} at "
+                f"{self.get_current_timestamp()}"
+            )
         self.status = 2
 
     def open_help_dialog(self):
@@ -234,15 +240,15 @@ class WidgetPage(QWidget, Ui_Widget):
         if meta.isEmpty():
             print("[DEBUG] No metadata available.")
             return
-        
+
         print("[INFO] Current Song Metadata:")
         for key in meta.keys():  # noqa: SIM118 This is the only way to get the keys
             key_name = QMediaMetaData.metaDataKeyToString(key)
-            
+
             try:
                 value = meta.value(key)
             except RuntimeError as err:
-                # This handles the "Can't find converter for 
+                # This handles the "Can't find converter for
                 # 'QMediaFormat::FileFormat'" error
                 print(f"   {key_name}: [Unconvertible type: {err}]")
                 continue

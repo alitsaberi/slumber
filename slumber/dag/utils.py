@@ -56,7 +56,7 @@ class ComponentConfig(BaseModel):
 class CollectionConfig(BaseModel):
     components: dict[str, ez.Unit] = Field(min_length=1)
     connections: tuple[tuple[ez.OutputStream, ez.InputStream], ...] = Field(
-        min_length=1
+        default_factory=tuple
     )
     process_components: tuple[ez.Unit, ...] = Field(default_factory=tuple)
     name: str | None = Field(None, serialization_alias="root_name")

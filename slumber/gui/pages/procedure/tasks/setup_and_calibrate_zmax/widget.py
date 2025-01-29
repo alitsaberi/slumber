@@ -1,4 +1,3 @@
-
 from PySide6.QtCore import QSize, Signal
 from PySide6.QtWidgets import QDialog, QPushButton, QWidget
 
@@ -12,7 +11,7 @@ class WidgetPage(QWidget, Ui_Widget):
     # Getting a index as well as status parameter to set the status of the task
     # 1: Task is not done
     # 2: Task is done
-    def __init__(self, index, status= 1, parent=None):
+    def __init__(self, index, status=1, parent=None):
         super().__init__(parent)
         self.index = index
         self.status = status
@@ -28,16 +27,14 @@ class WidgetPage(QWidget, Ui_Widget):
         self.verticalLayout.addWidget(self.button_done)
         self.button_done.clicked.connect(self.emit_done_signal)
 
-        
     def start(self):
-        # TODO: Implement your functionality here, which will be called when the task 
-        # opens. Make sure to use the status as well, to make sure to not call this 
+        # TODO: Implement your functionality here, which will be called when the task
+        # opens. Make sure to use the status as well, to make sure to not call this
         # function several times
         if self.status == 1:
             print("Task started")
         else:
             print("Task already done")
-        
 
     def open_help_dialog(self):
         # Create a QDialog instance

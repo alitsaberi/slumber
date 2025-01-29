@@ -9,51 +9,60 @@ Describe what it does, the problem it solves, and why it’s useful.
 
 ## Table of Contents
 
-- [SLUMBER - Sleep Logging and Unsupervised Monitoring through BioElectrical Recordings](#slumber---sleep-logging-and-unsupervised-monitoring-through-bioelectrical-recordings)
-  - [Description](#description)
-  - [Table of Contents](#table-of-contents)
-  - [Prerequisites](#prerequisites)
-  - [Installation](#installation)
-  - [Usage](#usage)
-  - [Add a Procedure Task](#add-a-procedure-task)
-    - [Running the Script](#running-the-script)
-      - [Files Created](#files-created)
-      - [YAML Configuration Update](#yaml-configuration-update)
-    - [How is the added task work?](#how-is-the-added-task-work)
-    - [How to adjust the UI](#how-to-adjust-the-ui)
-  - [Configuration](#configuration)
-  - [Testing](#testing)
-  - [Deployment](#deployment)
-  - [Contributing](#contributing)
-  - [License](#license)
-  - [Contact](#contact)
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Add a Procedure Task](#add-a-procedure-task)
+   - [Running the Script](#running-the-script)
+   - [Files Created](#files-created)
+   - [YAML Configuration Update](#yaml-configuration-update)
+   - [How is the added task work?](#how-is-the-added-task-work)
+   - [How to adjust the UI](#how-to-adjust-the-ui)
+- [Configuration](#configuration)
+- [Testing](#testing)
+- [Deployment](#deployment)
+- [Contributing](#contributing)
+- [License](#license)
+- [Contact](#contact)
 
 ## Prerequisites
 
-<!--
-List any prerequisites for your project such as Python version or system requirements.
-For example:
-- Python >= 3.9
-- Poetry >= 1.0
--->
+- Python 3.10
 
 ## Installation
 
-<!--
-Describe how to set up your development environment.
-Include steps to install Poetry and any other dependencies required for the project.
--->
+1. Clone the repository
+   ```bash
+   git clone https://gitlab-sim.informatik.uni-stuttgart.de/morgansl/slumber.git
+   ```
 
-1. **Clone the repository**
+2. Navigate to the project directory
    ```bash
-   git clone https://github.com/yourusername/yourproject.git
+   cd slumber
    ```
-2. **Navigate to the project directory**
-   ```bash
-   cd yourproject
+
+3. Create a virtual environment and activate it
+
+   **macOS & Linux**
    ```
-3. **Install dependencies with Poetry**
-   ```bash
+   python -m venv $VENV_PATH
+   source $VENV_PATH/bin/activate 
+   ```
+
+   **Windows (Command Prompt)**
+   ```
+   python -m venv %VENV_PATH%
+   %VENV_PATH%\Scripts\activate
+   ```
+
+4. Install [Poetry](https://python-poetry.org/docs/#installing-manually)
+   ```
+   pip install -U pip setuptools
+   pip install poetry
+   ```
+
+5. Install dependencies
+   ```
    poetry install
    ```
 

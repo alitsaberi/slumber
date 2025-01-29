@@ -5,11 +5,7 @@ from ruamel.yaml import YAML
 
 
 def select_task_type():
-    options = {
-        "1": "pre_processing",
-        "2": "post_processing",
-        "3": "action"
-    }
+    options = {"1": "pre_processing", "2": "post_processing", "3": "action"}
     print("Select task type:")
     for key, value in options.items():
         print(f"{key}. {value}")
@@ -19,6 +15,7 @@ def select_task_type():
             return options[choice]
         else:
             print("Invalid selection. Please try again.")
+
 
 def load_yaml(settings_path):
     yaml = YAML()
@@ -33,6 +30,7 @@ def load_yaml(settings_path):
         print(f"Error reading YAML file: {e}")
         return {}
 
+
 def save_yaml(data, settings_path):
     yaml = YAML()
     yaml.preserve_quotes = True
@@ -42,6 +40,7 @@ def save_yaml(data, settings_path):
             yaml.dump(data, f)
     except Exception as e:
         print(f"Error writing YAML file: {e}")
+
 
 def create_widget_ui(file_path, header, name):
     template = f"""<?xml version="1.0" encoding="UTF-8"?>
@@ -204,6 +203,7 @@ QPushButton:pressed {{
     except Exception as e:
         print(f"Error writing widget.ui: {e}")
 
+
 def create_help_ui(file_path, header, name):
     template = f"""<?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
@@ -296,6 +296,7 @@ def create_help_ui(file_path, header, name):
     except Exception as e:
         print(f"Error writing help.ui: {e}")
 
+
 def create_widget_py(file_path, header, name):
     template = """from PySide6.QtWidgets import QWidget, QDialog, QPushButton
 from PySide6.QtCore import Signal, QSize
@@ -379,12 +380,10 @@ class WidgetPage(QWidget, Ui_Widget):
     except Exception as e:
         print(f"Error writing widget.py: {e}")
 
+
 def generate_ui_py(ui_path, output_path):
     try:
-        subprocess.run(
-            ["pyside6-uic", ui_path, "-o", output_path],
-            check=True
-        )
+        subprocess.run(["pyside6-uic", ui_path, "-o", output_path], check=True)
         print(f"Generated {output_path} from {ui_path}")
     except subprocess.CalledProcessError as e:
         print(f"Error generating {output_path}: {e}")
@@ -393,6 +392,7 @@ def generate_ui_py(ui_path, output_path):
             "pyside6-uic command not found. Please ensure PySide6 is installed "
             "and pyside6-uic is in your PATH."
         )
+
 
 def ensure_init_files(full_path):
     """
@@ -413,13 +413,14 @@ def ensure_init_files(full_path):
     current = ""
     for folder in dirs:
         current = os.path.join(current, folder)
-        init_path = os.path.join(current, '__init__.py')
+        init_path = os.path.join(current, "__init__.py")
         if not os.path.exists(init_path):
             try:
-                open(init_path, "w").close() 
+                open(init_path, "w").close()
                 print(f"Created {init_path}")
             except Exception as e:
                 print(f"Error creating {init_path}: {e}")
+
 
 def main():
     # 1. Collect inputs
@@ -449,7 +450,7 @@ def main():
         "header": header,
         "module": f"slumber.gui.pages.procedure.tasks.{adjusted_name}",
         "type": task_type,
-        "enabled": True
+        "enabled": True,
     }
     procedure_tasks.append(entry)
 
@@ -500,11 +501,7 @@ def main():
         for sub in ["html", "css", "js"]:
             os.makedirs(os.path.join(assets_path, sub), exist_ok=True)
             print(f"Created directory: {os.path.join(assets_path, sub)}")
-        html_files = {
-            "html/index.html": "",
-            "css/styles.css": "",
-            "js/script.js": ""
-        }
+        html_files = {"html/index.html": "", "css/styles.css": "", "js/script.js": ""}
         for path, content in html_files.items():
             file_path = os.path.join(assets_path, path)
             if not os.path.exists(file_path):
@@ -516,6 +513,7 @@ def main():
                     print(f"Error creating {path}: {e}")
 
     print("Procedure task added successfully.")
+
 
 if __name__ == "__main__":
     main()

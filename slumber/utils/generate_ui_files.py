@@ -15,9 +15,11 @@ def generate_ui_files(directory):
                 except subprocess.CalledProcessError as e:
                     print(f"Error generating {py_file} from {ui_file}: {e}")
 
+
 def main():
-    ui_directory = os.path.join(os.path.dirname(__file__), '../gui')
+    ui_directory = os.path.join(os.path.dirname(__file__), "../gui")
     generate_ui_files(ui_directory)
+
 
 if __name__ == "__main__":
     main()
