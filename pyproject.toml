@@ -16,6 +16,7 @@ mne = "^1.8.0"
 loguru = "^0.7.2"
 pyttsx3 = "^2.98"
 pyside6 = "^6.8.1.1"
+jinja2 = "^3.1.5"
 
 [tool.poetry.group.sleep_scoring.dependencies]
 tensorflow-io-gcs-filesystem = "~0.31"
@@ -36,7 +37,7 @@ pytest-loguru = "^0.4.0"
 
 [tool.poetry.scripts]
 run_session = "slumber.scripts.run_session:main"
-create_task = "slumber.utils.create_procedure_tasks:main"
+create_task = "slumber.scripts.create_task:main"
 generate_ui = "slumber.utils.generate_ui_files:main"
 
 [build-system]
@@ -72,8 +73,7 @@ exclude = [
     "site-packages",
     "venv",
     ".db",
-    "*_ui.py",
-    "*.ui", 
+    "*_ui.py", 
 ]
 
 line-length = 88

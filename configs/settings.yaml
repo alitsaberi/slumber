@@ -71,3 +71,6 @@ gui:
 
 study:
   duration: 14
+
+tasks:
+  default: empty
