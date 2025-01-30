@@ -34,7 +34,7 @@
                     </property>
                     <widget class="QLabel" name="label_body">
                         <property name="text">
-                            <string>{{ name}} - dialog window works.</string>
+                            <string>{{ name }} - dialog window works.</string>
                         </property>
                         <property name="font">
                             <font>

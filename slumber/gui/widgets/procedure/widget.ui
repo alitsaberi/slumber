@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>ProcedurePage</class>
- <widget class="QWidget" name="ProcedurePage">
+ <class>mainWidget</class>
+ <widget class="QWidget" name="mainWidget">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -98,58 +98,59 @@
          </property>
          <property name="styleSheet">
           <string notr="true">/* Style for the QListWidget */
-QListWidget {
-    background-color: #F5F5F5;
-    border: 1px solid #CCCCCC;
-    border-radius: 8px;
-    padding: 5px;
-}
+                                            QListWidget {
+                                            background-color: #F5F5F5;
+                                            border: 1px solid #CCCCCC;
+                                            border-radius: 8px;
+                                            padding: 5px;
+                                            }
 
-/* Style for QListWidgetItem (Default/Inactive) */
-QListWidget::item {
-    background-color: #FFFFFF;
-    border: 1px solid #E0E0E0;
-    border-radius: 5px;
-    margin: 16px;
-    padding: 6px;
-    color: #555555; /* Text color for inactive items */
-}
+                                            /* Style for QListWidgetItem (Default/Inactive) */
+                                            QListWidget::item {
+                                            background-color: #FFFFFF;
+                                            border: 1px solid #E0E0E0;
+                                            border-radius: 5px;
+                                            margin: 16px;
+                                            padding: 6px;
+                                            color: #555555; /* Text color for inactive items */
+                                            }
 
-/* Style for selected QListWidgetItem */
-QListWidget::item:selected {
-    background-color: #D0E7FF;
-    border: 2px solid #3399FF;
-    color: #000000; /* Text color for selected items */
-}
+                                            /* Style for selected QListWidgetItem */
+                                            QListWidget::item:selected {
+                                            background-color: #D0E7FF;
+                                            border: 2px solid #3399FF;
+                                            color: #000000; /* Text color for selected items */
+                                            }
 
-/* Style for hovered QListWidgetItem */
-QListWidget::item:hover {
-    background-color: #E6F2FF;
-    border: 1px solid #66B2FF;
-    color: #333333; /* Text color on hover */
-}
+                                            /* Style for hovered QListWidgetItem */
+                                            QListWidget::item:hover {
+                                            background-color: #E6F2FF;
+                                            border: 1px solid #66B2FF;
+                                            color: #333333; /* Text color on hover */
+                                            }
 
-/* Style for disabled QListWidgetItem */
-QListWidget::item:disabled {
-    background-color: #F0F0F0;
-    border: 1px solid #D3D3D3;
-    color: #A9A9A9; /* Grey text for disabled items */
-}
+                                            /* Style for disabled QListWidgetItem */
+                                            QListWidget::item:disabled {
+                                            background-color: #F0F0F0;
+                                            border: 1px solid #D3D3D3;
+                                            color: #A9A9A9; /* Grey text for disabled items */
+                                            }
 
-/* Style for QLabel within the items */
-QLabel {
-    color: #555555;
-    font-size: 14px;
-}
+                                            /* Style for QLabel within the items */
+                                            QLabel {
+                                            color: #555555;
+                                            font-size: 14px;
+                                            }
 
-/* Optional: Alternating item backgrounds for better readability */
-QListWidget::item:nth-child(even) {
-    background-color: #FAFAFA;
-}
+                                            /* Optional: Alternating item backgrounds for better
+                                            readability */
+                                            QListWidget::item:nth-child(even) {
+                                            background-color: #FAFAFA;
+                                            }
 
-QListWidget::item:nth-child(odd) {
-    background-color: #FFFFFF;
-}</string>
+                                            QListWidget::item:nth-child(odd) {
+                                            background-color: #FFFFFF;
+                                            }</string>
          </property>
          <property name="autoScroll">
           <bool>false</bool>
@@ -222,26 +223,26 @@ QListWidget::item:nth-child(odd) {
            </property>
            <property name="styleSheet">
             <string notr="true">QPushButton {
-	color: rgb(255, 255, 255);
-	background-color: rgb(1, 92, 187);
-	border: 1px;
-	border-radius: 10px;
-}
+                                                    color: rgb(255, 255, 255);
+                                                    background-color: rgb(1, 92, 187);
+                                                    border: 1px;
+                                                    border-radius: 10px;
+                                                    }
 
-QPushButton:hover {
-	color: rgb(220,221,229);
-	background-color: rgb(37, 150, 190);
-}
+                                                    QPushButton:hover {
+                                                    color: rgb(220,221,229);
+                                                    background-color: rgb(37, 150, 190);
+                                                    }
 
-QPushButton:pressed {
-	color: rgb(220,221,229);
-	background-color: rgb(37, 150, 190);
-}
+                                                    QPushButton:pressed {
+                                                    color: rgb(220,221,229);
+                                                    background-color: rgb(37, 150, 190);
+                                                    }
 
-QPushButton:disabled {
-    color: rgb(190, 190, 190);
-    background-color: rgb(100, 100, 100);
-}</string>
+                                                    QPushButton:disabled {
+                                                    color: rgb(190, 190, 190);
+                                                    background-color: rgb(100, 100, 100);
+                                                    }</string>
            </property>
            <property name="text">
             <string>Previous</string>
@@ -270,26 +271,26 @@ QPushButton:disabled {
            </property>
            <property name="styleSheet">
             <string notr="true">QPushButton {
-	color: rgb(255, 255, 255);
-	background-color: rgb(1, 92, 187);
-	border: 1px;
-	border-radius: 10px;
-}
+                                                    color: rgb(255, 255, 255);
+                                                    background-color: rgb(1, 92, 187);
+                                                    border: 1px;
+                                                    border-radius: 10px;
+                                                    }
 
-QPushButton:hover {
-	color: rgb(220,221,229);
-	background-color: rgb(37, 150, 190);
-}
+                                                    QPushButton:hover {
+                                                    color: rgb(220,221,229);
+                                                    background-color: rgb(37, 150, 190);
+                                                    }
 
-QPushButton:pressed {
-	color: rgb(220,221,229);
-	background-color: rgb(37, 150, 190);
-}
+                                                    QPushButton:pressed {
+                                                    color: rgb(220,221,229);
+                                                    background-color: rgb(37, 150, 190);
+                                                    }
 
-QPushButton:disabled {
-    color: rgb(190, 190, 190);
-    background-color: rgb(100, 100, 100);
-}</string>
+                                                    QPushButton:disabled {
+                                                    color: rgb(190, 190, 190);
+                                                    background-color: rgb(100, 100, 100);
+                                                    }</string>
            </property>
            <property name="text">
             <string>Next</string>

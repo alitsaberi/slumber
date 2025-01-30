@@ -9,35 +9,30 @@ from PySide6.QtWidgets import (
     QSizePolicy,
     QTableView,
 )
+from loguru import logger
 
-from ..models.gui_config_model import get_gui_config
 from .main_window_ui import Ui_MainWindow
-from .pages.help.help import HelpPage
-from .pages.home.home import HomePage
-from .pages.procedure.procedure import ProcedurePage
-from .pages.settings.settings import SettingsPage
-from .pages.thank_you.thank_you import ThankYouPage
+from .widgets.procedure.procedure import ProcedurePage
 
 
 class MainWindow(QMainWindow, Ui_MainWindow):
-    def __init__(self, gui_config, study_config, tasks, parent=None):
-        super().__init__(parent)
+    def __init__(self, gui_config, tasks):
+        super().__init__()
         self.setupUi(self)  # Setup the UI from the generated class
 
         self.home_page = HomePage(self)
         self.settings_page = SettingsPage(gui_config, self)
         self.help_page = HelpPage(self)
         self.procedure_page = ProcedurePage(tasks, self)
-        self.thank_you_page = ThankYouPage(self)
 
         self.home_page.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        self.settings_page.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        # self.settings_page.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.help_page.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.procedure_page.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.thank_you_page.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
         self.stackedWidgetPages.addWidget(self.home_page)
-        self.stackedWidgetPages.addWidget(self.settings_page)
+        # self.stackedWidgetPages.addWidget(self.settings_page)
         self.stackedWidgetPages.addWidget(self.help_page)
         self.stackedWidgetPages.addWidget(self.procedure_page)
         self.stackedWidgetPages.addWidget(self.thank_you_page)
@@ -49,8 +44,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         # Connect the config_changed signal and config_back signal
         # from the settings window
-        self.settings_page.config_changed_signal.connect(self.on_config_changed)
-        self.settings_page.config_back_signal.connect(self.go_back_pressed)
+        # self.settings_page.config_changed_signal.connect(self.on_config_changed)
+        # self.settings_page.config_back_signal.connect(self.go_back_pressed)
 
         # Connect the help_back signal from the help page
         self.help_page.help_back_signal.connect(self.go_back_pressed)
@@ -72,7 +67,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.default_font_sizes = {}
         self.store_default_font_sizes()
 
-        self.update_gui_config(gui_config)
+        # self.update_gui_config(gui_config)
 
         # Check if procedure is already started
         self.procedure_started = False
@@ -100,17 +95,17 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.default_font_sizes[widget] = widget.font().pointSize()
 
     def on_start_procedure_clicked(self):
-        print("Start Procedure button pressed")
+        logger.info("Start Procedure button pressed")
         self.procedure_started = True
         self.stackedWidgetPages.setCurrentWidget(self.procedure_page)
 
     def on_help_button_clicked(self):
-        print("Help button pressed")
+        logger.info("Help button pressed")
         self.stackedWidgetPages.setCurrentWidget(self.help_page)
 
     def on_settings_button_clicked(self):
-        print("Settings button pressed")
-        self.stackedWidgetPages.setCurrentWidget(self.settings_page)
+        logger.info("Settings button pressed")
+        # self.stackedWidgetPages.setCurrentWidget(self.settings_page)
 
     def disable_buttons(self):
         self.pushButton_help.setEnabled(False)
@@ -121,8 +116,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.pushButton_settings.setEnabled(True)
 
     def on_config_changed(self):
-        print("Config updated")
-        self.update_gui_config(get_gui_config())
+        logger.info("Config updated")
+        # self.update_gui_config(get_gui_config())
 
     def go_back_pressed(self):
         print("Config back")
@@ -139,59 +134,59 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.home_page.pushButton_start_procedure.clicked.disconnect()
         self.home_page.pushButton_start_procedure.clicked.connect(self.close)
 
-    def update_gui_config(self, gui_config):
-        print("Updating GUI config")
-        font_size = gui_config["font_size"]
+    # def update_gui_config(self, gui_config):
+    #     print("Updating GUI config")
+    #     font_size = gui_config["font_size"]
 
-        # Update font sizes for different widget types
-        for widget in self.findChildren(QLabel):
-            font = widget.font()
-            default_font_size = self.default_font_sizes[widget]
-            font.setPointSize(default_font_size + font_size)
-            widget.setFont(font)
+    #     # Update font sizes for different widget types
+    #     for widget in self.findChildren(QLabel):
+    #         font = widget.font()
+    #         default_font_size = self.default_font_sizes[widget]
+    #         font.setPointSize(default_font_size + font_size)
+    #         widget.setFont(font)
 
-        for widget in self.findChildren(QPushButton):
-            font = widget.font()
-            default_font_size = self.default_font_sizes[widget]
-            font.setPointSize(default_font_size + font_size)
-            widget.setFont(font)
+    #     for widget in self.findChildren(QPushButton):
+    #         font = widget.font()
+    #         default_font_size = self.default_font_sizes[widget]
+    #         font.setPointSize(default_font_size + font_size)
+    #         widget.setFont(font)
 
-        for widget in self.findChildren(QTableView):
-            font = widget.font()
-            default_font_size = self.default_font_sizes[widget]
-            font.setPointSize(default_font_size + font_size)
-            widget.setFont(font)
+    #     for widget in self.findChildren(QTableView):
+    #         font = widget.font()
+    #         default_font_size = self.default_font_sizes[widget]
+    #         font.setPointSize(default_font_size + font_size)
+    #         widget.setFont(font)
 
-        for widget in self.findChildren(QComboBox):
-            font = widget.font()
-            default_font_size = self.default_font_sizes[widget]
-            font.setPointSize(default_font_size + font_size)
-            widget.setFont(font)
+    #     for widget in self.findChildren(QComboBox):
+    #         font = widget.font()
+    #         default_font_size = self.default_font_sizes[widget]
+    #         font.setPointSize(default_font_size + font_size)
+    #         widget.setFont(font)
 
-        for widget in self.findChildren(QLCDNumber):
-            font = widget.font()
-            default_font_size = self.default_font_sizes[widget]
-            font.setPointSize(default_font_size + font_size)
-            widget.setFont(font)
+    #     for widget in self.findChildren(QLCDNumber):
+    #         font = widget.font()
+    #         default_font_size = self.default_font_sizes[widget]
+    #         font.setPointSize(default_font_size + font_size)
+    #         widget.setFont(font)
 
-        for widget in self.findChildren(QWebEngineView):
-            default_zoom_factor = self.default_font_sizes[widget]
-            # Adjust zoom factor based on font size
-            widget.setZoomFactor(default_zoom_factor + (font_size * 0.1))
+    #     for widget in self.findChildren(QWebEngineView):
+    #         default_zoom_factor = self.default_font_sizes[widget]
+    #         # Adjust zoom factor based on font size
+    #         widget.setZoomFactor(default_zoom_factor + (font_size * 0.1))
 
-        for widget in self.findChildren(QListWidget):
-            font = widget.font()
-            default_font_size = self.default_font_sizes[widget]
-            font.setPointSize(default_font_size + font_size)
-            widget.setFont(font)
+    #     for widget in self.findChildren(QListWidget):
+    #         font = widget.font()
+    #         default_font_size = self.default_font_sizes[widget]
+    #         font.setPointSize(default_font_size + font_size)
+    #         widget.setFont(font)
 
-        # Change main window size
-        if gui_config["app_mode"] == "full_screen":
-            self.showFullScreen()
-        else:
-            self.showNormal()
-            self.resize(gui_config["app_width"], gui_config["app_height"])
+    #     # Change main window size
+    #     if gui_config["app_mode"] == "full_screen":
+    #         self.showFullScreen()
+    #     else:
+    #         self.showNormal()
+    #         self.resize(gui_config["app_width"], gui_config["app_height"])
 
     def on_procedure_completed(self):
-        print("Procedure completed")
+        logger.info("Procedure completed")
         self.stackedWidgetPages.setCurrentWidget(self.thank_you_page)

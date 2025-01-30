@@ -113,10 +113,10 @@ def main():
     _setup_logging(run_directory)
     os.chdir(run_directory)
 
-    initialize_db()
+    # initialize_db()
 
     session_config = CollectionConfig.model_validate(load_yaml(config_file))
-    insert_default_configs(**asdict(session_config.components["GUI"].SETTINGS))
+    # insert_default_configs(**asdict(session_config.components["GUI"].SETTINGS))
     logger.info(
         f"Running collection {session_config.name if session_config.name else ''}"
         f": Components: {list(session_config.components.keys())}"

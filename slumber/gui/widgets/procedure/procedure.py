@@ -6,6 +6,8 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from slumber.dag.units.gui import Task
+
 from .procedure_ui import Ui_ProcedurePage
 
 
@@ -13,15 +15,15 @@ class ProcedurePage(QWidget, Ui_ProcedurePage):
     page_changed_signal = Signal()
     procedure_completed_signal = Signal()
 
-    def __init__(self, tasks, parent=None):
+    def __init__(self, tasks: Task, parent: QWidget = None):
         super().__init__(parent)
         self.setupUi(self)  # Setup the UI from the generated class
+        self.tasks = tasks
 
-        self.tasks = sorted(tasks, key=lambda x: x["task_id"])
         self.current_index = 0
         self.widgets = []  # Initialize the widget list
         self.completed_tasks = set()  # Track completed task indices
-        self.load_config(self.tasks)
+        self._load_tasks()
 
         # Connect navigation buttons
         self.nextButton.clicked.connect(self.next_page)
@@ -30,14 +32,12 @@ class ProcedurePage(QWidget, Ui_ProcedurePage):
         # Connect list selection change
         self.procedureStepList.currentRowChanged.connect(self.on_list_selection_changed)
 
-    def load_config(self, tasks):
-        # Initialize QListWidget
-        print(tasks)
+    def _load_tasks(self):
         self.procedureStepList.clear()
         self.completed_tasks = set()
 
         # Populate the QListWidget and QStackedWidget with the tasks
-        for idx, task in enumerate(tasks):
+        for idx, task in enumerate(self._load_tasks):
             # QListWidget
             item = QListWidgetItem()
             item.setText(f"{idx + 1}. {task['name']}")

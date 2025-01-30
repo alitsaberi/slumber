@@ -36,37 +36,37 @@ def initialize_db():
             day_number INTEGER
         )
     """)
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS tasks (
-            task_id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name VARCHAR,
-            header VARCHAR,
-            module VARCHAR,
-            type TEXT CHECK(
-                type IN ('pre_processing', 'post_processing', 'action', 'recording')
-            )
-        )
-    """)
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS task_progress (
-            task_day_id INTEGER PRIMARY KEY AUTOINCREMENT,
-            task_day INTEGER,
-            task_id INTEGER,
-            status TEXT CHECK(status IN ('progress', 'open', 'closed')),
-            FOREIGN KEY (task_day) REFERENCES study_calendar(day_number),
-            FOREIGN KEY (task_id) REFERENCES tasks(task_id)
-        )
-    """)
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS task_history (
-            history_id INTEGER PRIMARY KEY AUTOINCREMENT,
-            timestamp TIMESTAMP,
-            description VARCHAR,
-            activity VARCHAR,
-            task_day_id INTEGER,
-            FOREIGN KEY (task_day_id) REFERENCES task_progress(task_day_id)
-        )
-    """)
+    # cursor.execute("""
+    #     CREATE TABLE IF NOT EXISTS tasks (
+    #         task_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    #         name VARCHAR,
+    #         header VARCHAR,
+    #         module VARCHAR,
+    #         type TEXT CHECK(
+    #             type IN ('pre_processing', 'post_processing', 'action', 'recording')
+    #         )
+    #     )
+    # """)
+    # cursor.execute("""
+    #     CREATE TABLE IF NOT EXISTS task_progress (
+    #         task_day_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    #         task_day INTEGER,
+    #         task_id INTEGER,
+    #         status TEXT CHECK(status IN ('progress', 'open', 'closed')),
+    #         FOREIGN KEY (task_day) REFERENCES study_calendar(day_number),
+    #         FOREIGN KEY (task_id) REFERENCES tasks(task_id)
+    #     )
+    # """)
+    # cursor.execute("""
+    #     CREATE TABLE IF NOT EXISTS task_history (
+    #         history_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    #         timestamp TIMESTAMP,
+    #         description VARCHAR,
+    #         activity VARCHAR,
+    #         task_day_id INTEGER,
+    #         FOREIGN KEY (task_day_id) REFERENCES task_progress(task_day_id)
+    #     )
+    # """)
 
     connection.commit()
     connection.close()

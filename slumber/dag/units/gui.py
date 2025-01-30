@@ -1,6 +1,10 @@
+from dataclasses import asdict
+from importlib import import_module
+from types import ModuleType
+from typing import Any
 import ezmsg.core as ez
 from loguru import logger
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, field_validator
 from PySide6.QtWidgets import QApplication
 
 from slumber.dag.utils import PydanticSettings
@@ -8,18 +12,31 @@ from slumber.gui.main_window import MainWindow
 from slumber.models.gui_config_model import get_gui_config
 from slumber.models.study_config_model import get_study_config
 from slumber.models.tasks_model import get_tasks
-
-
+from slumber.scripts.create_task import TASKS_DIR_NAME
+from slumber import settings
+    
+    
+DEFAULTS = settings["gui"]
+    
 class Task(BaseModel):
+    title: str = Field(min_length=1)
+    module: ModuleType
+
+    @field_validator("module", mode="before")
+    @classmethod
+    def validate_tasks(cls, module: Any) -> list[ModuleType]:
+        if isinstance(module, str):
+            module = import_module(f".{TASKS_DIR_NAME}.module")
+        return module
+
+    
+class Procedure(BaseModel):
     name: str
-    header: str
-    module: str
-    type: str
-    enabled: bool
+    tasks: list[Task]
 
 
 class Settings(PydanticSettings):
-    tasks: list[Task]
+    procedures = list[Procedure]
 
 
 class State(ez.State):
@@ -33,12 +50,7 @@ class GUI(ez.Unit):
 
     def initialize(self) -> None:
         self.STATE.app = QApplication()
-
-        gui_config = get_gui_config()
-        study_config = get_study_config()
-        tasks = get_tasks()
-        logger.error(tasks)
-        self.STATE.window = MainWindow(gui_config, study_config, tasks)
+        self.STATE.window = MainWindow(**asdict(self.SETTINGS))
         self.STATE.window.show()
 
     def shutdown(self):

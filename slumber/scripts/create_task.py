@@ -13,45 +13,6 @@ TASKS_DIR_NAME = "tasks"
 ASSETS = ["html/index.html", "css/styles.css", "js/script.js"]
 
 
-def save_yaml(data, settings_path):
-    yaml = YAML()
-    yaml.preserve_quotes = True
-    yaml.indent(mapping=2, sequence=4, offset=2)
-    try:
-        with open(settings_path, "w") as f:
-            yaml.dump(data, f)
-    except Exception as e:
-        print(f"Error writing YAML file: {e}")
-
-
-def ensure_init_files(full_path):
-    """
-    Ensures that __init__.py exists in all directories along the given path.
-    Creates an empty __init__.py if it does not exist.
-    """
-    full_path = os.path.abspath(full_path)
-    dirs = []
-    while True:
-        full_path, folder = os.path.split(full_path)
-        if folder:
-            dirs.insert(0, folder)
-        else:
-            if full_path:
-                dirs.insert(0, full_path)
-            break
-
-    current = ""
-    for folder in dirs:
-        current = os.path.join(current, folder)
-        init_path = os.path.join(current, "__init__.py")
-        if not os.path.exists(init_path):
-            try:
-                open(init_path, "w").close()
-                print(f"Created {init_path}")
-            except Exception as e:
-                print(f"Error creating {init_path}: {e}")
-
-
 def _create_assets_directory(task_directory: Path, html_support: bool) -> None:
     assets_directory = task_directory / "assets"
     assets_directory.mkdir()

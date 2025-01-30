@@ -38,7 +38,7 @@ pytest-loguru = "^0.4.0"
 [tool.poetry.scripts]
 run_session = "slumber.scripts.run_session:main"
 create_task = "slumber.scripts.create_task:main"
-generate_ui = "slumber.utils.generate_ui_files:main"
+compile_ui_files = "slumber.scripts.compile_ui_files:main"
 
 [build-system]
 requires = ["poetry-core"]
