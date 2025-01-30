@@ -1,6 +1,8 @@
 import sqlite3
 
-from ..utils.db_utils import get_db_connection
+from loguru import logger
+
+from ..utils.database import get_db_connection
 from .study_calendar_model import get_study_calendar
 from .tasks_model import get_tasks
 
@@ -55,24 +57,22 @@ def populate_task_progress():
         study_calendar = get_study_calendar()
 
         if not tasks:
-            print(
+            logger.error(
                 "No tasks found. Please ensure that tasks are inserted before "
                 "populating task_progress."
             )
             return
 
         if not study_calendar:
-            print(
+            logger.error(
                 "No study calendar entries found. Please ensure that study_calendar "
                 "is populated before populating task_progress."
             )
             return
 
-        # Connect to the database once for all insertions
         conn = get_db_connection()
         cursor = conn.cursor()
 
-        # Iterate through all study days and tasks to insert task_progress entries
         for day in study_calendar:
             day_number = day["day_number"]
             for task in tasks:
@@ -93,14 +93,13 @@ def populate_task_progress():
                         f"task_day {day_number} and task_id {task_id}."
                     )
 
-        # Commit all insertions and close the connection
         conn.commit()
         conn.close()
 
     except sqlite3.Error as e:
-        print(f"SQLite Error during population: {e}")
-    except Exception as ex:
-        print(f"An unexpected error occurred during population: {ex}")
+        logger.error(f"SQLite Error during population: {e}")
+    except Exception as e:
+        logger.error(f"An unexpected error occurred during population: {e}")
 
 
 def get_diary():
@@ -142,8 +141,8 @@ def get_diary():
         return diary
 
     except sqlite3.Error as e:
-        print(f"SQLite Error in get_diary: {e}")
+        logger.error(f"SQLite Error in get_diary: {e}")
         return []
-    except Exception as ex:
-        print(f"An unexpected error occurred in get_diary: {ex}")
+    except Exception as e:
+        logger.error(f"An unexpected error occurred in get_diary: {e}")
         return []

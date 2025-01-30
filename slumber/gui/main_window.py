@@ -10,7 +10,7 @@ from PySide6.QtWidgets import (
     QTableView,
 )
 
-from ..model.gui_config_model import get_gui_config
+from ..models.gui_config_model import get_gui_config
 from .main_window_ui import Ui_MainWindow
 from .pages.help.help import HelpPage
 from .pages.home.home import HomePage

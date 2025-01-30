@@ -1,20 +1,25 @@
-import asyncio
-
 import ezmsg.core as ez
-import qasync
+from loguru import logger
+from pydantic import BaseModel
 from PySide6.QtWidgets import QApplication
 
 from slumber.dag.utils import PydanticSettings
 from slumber.gui.main_window import MainWindow
-from slumber.main import insert_default_configs, read_yaml_config
-from slumber.model.gui_config_model import get_gui_config
-from slumber.model.study_config_model import get_study_config
-from slumber.model.tasks_model import get_tasks
-from slumber.utils.db_utils import initialize_db
+from slumber.models.gui_config_model import get_gui_config
+from slumber.models.study_config_model import get_study_config
+from slumber.models.tasks_model import get_tasks
+
+
+class Task(BaseModel):
+    name: str
+    header: str
+    module: str
+    type: str
+    enabled: bool
 
 
 class Settings(PydanticSettings):
-    pass
+    tasks: list[Task]
 
 
 class State(ez.State):
@@ -28,26 +33,19 @@ class GUI(ez.Unit):
 
     def initialize(self) -> None:
         self.STATE.app = QApplication()
-        self.STATE.loop = qasync.QEventLoop(self.STATE.app)
-        asyncio.set_event_loop(self.STATE.loop)
-        yaml_config_path = "C:/Users/Mahdad/Projects/slumber/configs/settings.yaml"
-        yaml_config = read_yaml_config(yaml_config_path)
-
-        # Initialize the database
-        initialize_db()
-
-        # Insert default configs if not exists
-        insert_default_configs(yaml_config)
 
         gui_config = get_gui_config()
         study_config = get_study_config()
         tasks = get_tasks()
+        logger.error(tasks)
         self.STATE.window = MainWindow(gui_config, study_config, tasks)
         self.STATE.window.show()
 
     def shutdown(self):
-        pass
+        self.STATE.window.close()
+        self.STATE.app.quit()
 
     @ez.task
     async def run(self) -> None:
         self.STATE.app.exec()
+        raise ez.NormalTermination

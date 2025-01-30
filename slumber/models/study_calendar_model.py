@@ -1,7 +1,7 @@
 import sqlite3
 from datetime import datetime, timedelta
 
-from ..utils.db_utils import get_db_connection
+from ..utils.database import get_db_connection
 
 
 def get_study_calendar():

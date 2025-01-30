@@ -1,6 +1,6 @@
 import sqlite3
 
-from ..utils.db_utils import get_db_connection
+from ..utils.database import get_db_connection
 
 
 def insert_study_config(study_duration, start_date, end_date):

@@ -1,20 +1,17 @@
-import os
 import sqlite3
+from pathlib import Path
+
+from slumber import settings
 
 
 def get_db_connection():
-    db_path = os.path.join(os.path.dirname(__file__), "../app.db")
-    try:
-        conn = sqlite3.connect(db_path)
-        return conn
-    except sqlite3.Error as e:
-        print(f"Error connecting to database: {e}")
-        return None
+    db_path = Path("../../") / settings["database"]["name"]
+    return sqlite3.connect(db_path)
 
 
 def initialize_db():
-    conn = get_db_connection()
-    cursor = conn.cursor()
+    connection = get_db_connection()
+    cursor = connection.cursor()
 
     # Create tables with enums defined directly
     cursor.execute("""
@@ -71,5 +68,5 @@ def initialize_db():
         )
     """)
 
-    conn.commit()
-    conn.close()
+    connection.commit()
+    connection.close()

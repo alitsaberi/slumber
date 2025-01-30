@@ -1,7 +1,7 @@
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import QWidget
 
-from ....model.gui_config_model import update_gui_config
+from ....models.gui_config_model import update_gui_config
 from .settings_ui import Ui_SettingsWindow
 
 

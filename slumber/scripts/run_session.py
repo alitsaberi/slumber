@@ -1,12 +1,21 @@
 import argparse
 import os
+from dataclasses import asdict
+from datetime import timedelta
 from pathlib import Path
 
 import ezmsg.core as ez
 from loguru import logger
 
 from slumber import settings
+from slumber.dag.units.gui import Task
 from slumber.dag.utils import CollectionConfig
+from slumber.models.gui_config_model import get_gui_config, insert_default_gui_config
+from slumber.models.study_calendar_model import populate_study_calendar
+from slumber.models.study_config_model import get_study_config, insert_study_config
+from slumber.models.task_progress_model import populate_task_progress
+from slumber.models.tasks_model import get_tasks, insert_task
+from slumber.utils.database import initialize_db
 from slumber.utils.helpers import load_yaml
 from slumber.utils.logger import setup_logging
 from slumber.utils.time import datetime_to_str, now
@@ -17,6 +26,29 @@ LOGS_DIR = "logs"
 DATA_DIR = "data"
 RUN_DIR_SUBDIRECTORIES = [LOGS_DIR, DATA_DIR]
 RUN_NAME_TIME_SEPARATOR = "-"
+
+
+# TODO: should be move to experiment setup
+def insert_default_configs(tasks: list[Task]):
+    gui_config = get_gui_config()
+    if gui_config is None:
+        logger.info("No GUI config found, inserting default GUI config...")
+        insert_default_gui_config(**settings["gui"])
+
+    study_config = get_study_config()
+    if study_config is None:
+        logger.info("No study config found, updating db...")
+        start_date = now().date()  # should come from the configuration file
+        end_date = start_date + timedelta(days=settings["study"]["duration"])
+        insert_study_config(settings["study"]["duration"], start_date, end_date)
+        populate_study_calendar(settings["study"]["duration"], start_date)
+
+    if not get_tasks():
+        logger.info("No tasks found, inserting default tasks")
+        for task in tasks:
+            insert_task(**task.model_dump(exclude={"enabled"}))
+
+        populate_task_progress()
 
 
 def _create_run_subdirectories(run_directory: Path) -> None:
@@ -81,7 +113,10 @@ def main():
     _setup_logging(run_directory)
     os.chdir(run_directory)
 
+    initialize_db()
+
     session_config = CollectionConfig.model_validate(load_yaml(config_file))
+    insert_default_configs(**asdict(session_config.components["GUI"].SETTINGS))
     logger.info(
         f"Running collection {session_config.name if session_config.name else ''}"
         f": Components: {list(session_config.components.keys())}"
