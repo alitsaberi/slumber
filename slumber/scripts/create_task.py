@@ -1,10 +1,8 @@
 import argparse
-import os
 from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader
 from loguru import logger
-from ruamel.yaml import YAML
 
 from slumber import settings
 

@@ -1,26 +1,23 @@
-from dataclasses import asdict
 from importlib import import_module
 from types import ModuleType
 from typing import Any
+
 import ezmsg.core as ez
-from loguru import logger
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 from PySide6.QtWidgets import QApplication
 
+from slumber import settings
 from slumber.dag.utils import PydanticSettings
 from slumber.gui.main_window import MainWindow
-from slumber.models.gui_config_model import get_gui_config
-from slumber.models.study_config_model import get_study_config
-from slumber.models.tasks_model import get_tasks
 from slumber.scripts.create_task import TASKS_DIR_NAME
-from slumber import settings
-    
-    
+
 DEFAULTS = settings["gui"]
     
 class Task(BaseModel):
     title: str = Field(min_length=1)
     module: ModuleType
+    
+    model_config = ConfigDict(strict=False, arbitrary_types_allowed=True)
 
     @field_validator("module", mode="before")
     @classmethod
@@ -50,7 +47,7 @@ class GUI(ez.Unit):
 
     def initialize(self) -> None:
         self.STATE.app = QApplication()
-        self.STATE.window = MainWindow(**asdict(self.SETTINGS))
+        self.STATE.window = MainWindow()
         self.STATE.window.show()
 
     def shutdown(self):

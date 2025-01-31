@@ -1,6 +1,5 @@
 import argparse
 import os
-from dataclasses import asdict
 from datetime import timedelta
 from pathlib import Path
 
@@ -15,7 +14,6 @@ from slumber.models.study_calendar_model import populate_study_calendar
 from slumber.models.study_config_model import get_study_config, insert_study_config
 from slumber.models.task_progress_model import populate_task_progress
 from slumber.models.tasks_model import get_tasks, insert_task
-from slumber.utils.database import initialize_db
 from slumber.utils.helpers import load_yaml
 from slumber.utils.logger import setup_logging
 from slumber.utils.time import datetime_to_str, now

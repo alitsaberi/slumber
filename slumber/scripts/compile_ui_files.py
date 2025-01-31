@@ -1,12 +1,8 @@
 import argparse
-import os
-from pathlib import Path
 import subprocess
+from pathlib import Path
 
 from loguru import logger
-
-from slumber.scripts.create_task import TASKS_DIR_NAME
-
 
 UI_EXTENSION = "ui"
 COMPILED_FILE_NAME_FORMAT = "{}_ui.py"
