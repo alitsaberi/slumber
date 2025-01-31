@@ -1,4 +1,3 @@
-
 from PySide6.QtCore import QSize, Signal
 from PySide6.QtWidgets import QDialog, QPushButton, QWidget
 

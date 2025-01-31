@@ -1,45 +1,58 @@
 from loguru import logger
 from PySide6.QtWidgets import (
     QMainWindow,
+    QSizePolicy,
 )
 
-from .main_window_ui import Ui_main_window
+from slumber.gui.widgets.help.widget import HelpPage
+from slumber.gui.widgets.home.widget import HomePage
+
+from .main_window_ui import Ui_MainWindow
 
 
-class MainWindow(QMainWindow, Ui_main_window):
+class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self):
         super().__init__()
         self.setupUi(self)  # Setup the UI from the generated class
 
-        # self.home_page = HomePage(self)
+        # Home page
+        self.home_page = HomePage()
+        self.home_page.setSizePolicy(
+            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding
+        )
+        self.body_stacked_widget.addWidget(self.home_page)
+        self.stacked_widget.setCurrentWidget(self.home_page)
+        self.home_page.start_signal.connect(self._start_procedure)
+
+        # Help page
+        self.help_page = HelpPage()
+        self.help_page.setSizePolicy(
+            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding
+        )
+        self.stacked_widget.addWidget(self.help_page)
+        self.help_button.clicked.connect(self._on_help_button_clicked)
+        self.help_page.back_signal.connect(self._open_main_page)
+
         # self.settings_page = SettingsPage(gui_config, self)
-        # self.help_page = HelpPage(self)
         # self.procedure_page = ProcedurePage(tasks, self)
 
-        # self.home_page.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         # self.settings_page.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        # self.help_page.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         # self.procedure_page.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         # self.thank_you_page.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
         # self.stackedWidgetPages.addWidget(self.home_page)
         # self.stackedWidgetPages.addWidget(self.settings_page)
-        # self.stackedWidgetPages.addWidget(self.help_page)
         # self.stackedWidgetPages.addWidget(self.procedure_page)
         # self.stackedWidgetPages.addWidget(self.thank_you_page)
 
         # self.stackedWidgetPages.setCurrentWidget(self.home_page)
 
-        # self.pushButton_help.clicked.connect(self.on_help_button_clicked)
         # self.pushButton_settings.clicked.connect(self.on_settings_button_clicked)
 
         # Connect the config_changed signal and config_back signal
         # from the settings window
         # self.settings_page.config_changed_signal.connect(self.on_config_changed)
         # self.settings_page.config_back_signal.connect(self.go_back_pressed)
-
-        # Connect the help_back signal from the help page
-        # self.help_page.help_back_signal.connect(self.go_back_pressed)
 
         # Connect the start_procedure signal from the home page
         # self.home_page.pushButton_start_procedure.clicked.connect(
@@ -90,19 +103,19 @@ class MainWindow(QMainWindow, Ui_main_window):
     #     self.procedure_started = True
     #     self.stackedWidgetPages.setCurrentWidget(self.procedure_page)
 
-    def on_help_button_clicked(self):
-        logger.info("Help button pressed")
-        # self.stacket.setCurrentWidget(self.help_page)
+    def _on_help_button_clicked(self):
+        logger.info("Help button clicked")
+        self.stacked_widget.setCurrentWidget(self.help_page)
 
-    def on_settings_button_clicked(self):
-        logger.info("Settings button pressed")
+    def _on_settings_button_clicked(self):
+        logger.info("Settings button clicked")
         # self.stackedWidgetPages.setCurrentWidget(self.settings_page)
 
-    def disable_buttons(self):
+    def _disable_buttons(self):
         self.help_button.setEnabled(False)
         self.settings_button.setEnabled(False)
 
-    def enable_buttons(self):
+    def _enable_buttons(self):
         self.help_button.setEnabled(True)
         self.settings_button.setEnabled(True)
 
@@ -110,5 +123,9 @@ class MainWindow(QMainWindow, Ui_main_window):
     #     logger.info("Config updated")
     #     # self.update_gui_config(get_gui_config())
 
-    def reset_central_widget(self):
-        self.setCentralWidget(self.central_widget)
+    def _open_main_page(self):
+        logger.info("Main page opened")
+        self.stacked_widget.setCurrentWidget(self.main_page)
+
+    def _start_procedure(self):
+        pass

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'help.ui'
+## Form generated from reading UI file 'widget.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.8.1
 ##
@@ -33,16 +33,16 @@ class Ui_HelpPage(object):
         HelpPage.setSizePolicy(sizePolicy)
         self.verticalLayout_3 = QVBoxLayout(HelpPage)
         self.verticalLayout_3.setObjectName(u"verticalLayout_3")
-        self.horizontalLayout_2 = QHBoxLayout()
-        self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
-        self.horizontalLayout_2.setSizeConstraint(QLayout.SizeConstraint.SetMaximumSize)
-        self.horizontalLayout_2.setContentsMargins(-1, -1, -1, 16)
-        self.help_back = QPushButton(HelpPage)
-        self.help_back.setObjectName(u"help_back")
-        self.help_back.setMinimumSize(QSize(50, 50))
-        self.help_back.setMaximumSize(QSize(50, 50))
-        self.help_back.setSizeIncrement(QSize(50, 50))
-        self.help_back.setStyleSheet(u"QPushButton {\n"
+        self.horizontal_layout = QHBoxLayout()
+        self.horizontal_layout.setObjectName(u"horizontal_layout")
+        self.horizontal_layout.setSizeConstraint(QLayout.SizeConstraint.SetMaximumSize)
+        self.horizontal_layout.setContentsMargins(-1, -1, -1, 16)
+        self.back_button = QPushButton(HelpPage)
+        self.back_button.setObjectName(u"back_button")
+        self.back_button.setMinimumSize(QSize(50, 50))
+        self.back_button.setMaximumSize(QSize(50, 50))
+        self.back_button.setSizeIncrement(QSize(50, 50))
+        self.back_button.setStyleSheet(u"QPushButton {\n"
 "    color: rgb(255, 255, 255);\n"
 "    background-color: rgb(1, 92, 187);\n"
 "    border: 1px;\n"
@@ -59,10 +59,10 @@ class Ui_HelpPage(object):
 "    background-color: rgb(37, 150, 190);\n"
 "}")
         icon = QIcon(QIcon.fromTheme(QIcon.ThemeIcon.GoPrevious))
-        self.help_back.setIcon(icon)
-        self.help_back.setIconSize(QSize(32, 32))
+        self.back_button.setIcon(icon)
+        self.back_button.setIconSize(QSize(32, 32))
 
-        self.horizontalLayout_2.addWidget(self.help_back)
+        self.horizontal_layout.addWidget(self.back_button)
 
         self.label = QLabel(HelpPage)
         self.label.setObjectName(u"label")
@@ -71,23 +71,23 @@ class Ui_HelpPage(object):
         font.setPointSize(36)
         self.label.setFont(font)
 
-        self.horizontalLayout_2.addWidget(self.label)
+        self.horizontal_layout.addWidget(self.label)
 
-        self.horizontalSpacer_7 = QSpacerItem(40, 50, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+        self.horizontal_spacer = QSpacerItem(40, 50, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
-        self.horizontalLayout_2.addItem(self.horizontalSpacer_7)
+        self.horizontal_layout.addItem(self.horizontal_spacer)
 
 
-        self.verticalLayout_3.addLayout(self.horizontalLayout_2)
+        self.verticalLayout_3.addLayout(self.horizontal_layout)
 
-        self.webEngineView_help = QWebEngineView(HelpPage)
-        self.webEngineView_help.setObjectName(u"webEngineView_help")
-        sizePolicy.setHeightForWidth(self.webEngineView_help.sizePolicy().hasHeightForWidth())
-        self.webEngineView_help.setSizePolicy(sizePolicy)
-        self.webEngineView_help.setMinimumSize(QSize(0, 0))
-        self.webEngineView_help.setMaximumSize(QSize(3840, 2160))
+        self.web_engine_view = QWebEngineView(HelpPage)
+        self.web_engine_view.setObjectName(u"web_engine_view")
+        sizePolicy.setHeightForWidth(self.web_engine_view.sizePolicy().hasHeightForWidth())
+        self.web_engine_view.setSizePolicy(sizePolicy)
+        self.web_engine_view.setMinimumSize(QSize(0, 0))
+        self.web_engine_view.setMaximumSize(QSize(3840, 2160))
 
-        self.verticalLayout_3.addWidget(self.webEngineView_help)
+        self.verticalLayout_3.addWidget(self.web_engine_view)
 
 
         self.retranslateUi(HelpPage)
@@ -97,7 +97,7 @@ class Ui_HelpPage(object):
 
     def retranslateUi(self, HelpPage):
         HelpPage.setWindowTitle(QCoreApplication.translate("HelpPage", u"Help", None))
-        self.help_back.setText("")
+        self.back_button.setText("")
         self.label.setText(QCoreApplication.translate("HelpPage", u"Help", None))
     # retranslateUi
 

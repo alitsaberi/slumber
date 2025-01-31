@@ -24,7 +24,7 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_3">
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_2">
+    <layout class="QHBoxLayout" name="horizontal_layout">
      <property name="sizeConstraint">
       <enum>QLayout::SizeConstraint::SetMaximumSize</enum>
      </property>
@@ -32,7 +32,7 @@
       <number>16</number>
      </property>
      <item>
-      <widget class="QPushButton" name="help_back">
+      <widget class="QPushButton" name="back_button">
        <property name="minimumSize">
         <size>
          <width>50</width>
@@ -97,7 +97,7 @@ QPushButton:pressed {
       </widget>
      </item>
      <item>
-      <spacer name="horizontalSpacer_7">
+      <spacer name="horizontal_spacer">
        <property name="orientation">
         <enum>Qt::Orientation::Horizontal</enum>
        </property>
@@ -112,7 +112,7 @@ QPushButton:pressed {
     </layout>
    </item>
    <item>
-    <widget class="QWebEngineView" name="webEngineView_help" native="true">
+    <widget class="QWebEngineView" name="web_engine_view" native="true">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
        <horstretch>0</horstretch>

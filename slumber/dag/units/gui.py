@@ -12,11 +12,12 @@ from slumber.gui.main_window import MainWindow
 from slumber.scripts.create_task import TASKS_DIR_NAME
 
 DEFAULTS = settings["gui"]
-    
+
+
 class Task(BaseModel):
     title: str = Field(min_length=1)
     module: ModuleType
-    
+
     model_config = ConfigDict(strict=False, arbitrary_types_allowed=True)
 
     @field_validator("module", mode="before")
@@ -26,7 +27,7 @@ class Task(BaseModel):
             module = import_module(f".{TASKS_DIR_NAME}.module")
         return module
 
-    
+
 class Procedure(BaseModel):
     name: str
     tasks: list[Task]

@@ -30,7 +30,7 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_5">
    <item>
-    <widget class="QWebEngineView" name="webEngineView_main" native="true">
+    <widget class="QWebEngineView" name="web_engine_view" native="true">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
        <horstretch>0</horstretch>
@@ -46,12 +46,12 @@
     </widget>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_6">
+    <layout class="QHBoxLayout" name="horizontal_layout">
      <property name="sizeConstraint">
       <enum>QLayout::SizeConstraint::SetMaximumSize</enum>
      </property>
      <item>
-      <widget class="QPushButton" name="pushButton_start_procedure">
+      <widget class="QPushButton" name="start_button">
        <property name="minimumSize">
         <size>
          <width>400</width>
@@ -75,31 +75,31 @@
        </property>
        <property name="styleSheet">
         <string notr="true">QPushButton {
-    color: rgb(255, 255, 255);
-    background-color: rgb(1, 92, 187);
-    border: 1px;
-    border-radius: 10px;
-}
+                                    color: rgb(255, 255, 255);
+                                    background-color: rgb(1, 92, 187);
+                                    border: 1px;
+                                    border-radius: 10px;
+                                    }
 
-QPushButton:hover {
-    color: rgb(220,221,229);
-    background-color: rgb(37, 150, 190);
-}
+                                    QPushButton:hover {
+                                    color: rgb(220,221,229);
+                                    background-color: rgb(37, 150, 190);
+                                    }
 
-QPushButton:pressed {
-    color: rgb(220,221,229);
-    background-color: rgb(37, 150, 190);
-}</string>
+                                    QPushButton:pressed {
+                                    color: rgb(220,221,229);
+                                    background-color: rgb(37, 150, 190);
+                                    }</string>
        </property>
        <property name="text">
-        <string>Start Procedure</string>
+        <string>Start</string>
        </property>
       </widget>
      </item>
     </layout>
    </item>
    <item>
-    <widget class="QLabel" name="label_diary">
+    <widget class="QLabel" name="overview_label">
      <property name="maximumSize">
       <size>
        <width>16777215</width>
@@ -113,12 +113,12 @@ QPushButton:pressed {
       </font>
      </property>
      <property name="text">
-      <string>Diary</string>
+      <string>Overview</string>
      </property>
     </widget>
    </item>
    <item>
-    <widget class="QTableView" name="tableView_diary">
+    <widget class="QTableView" name="overview_table">
      <property name="maximumSize">
       <size>
        <width>16777215</width>
