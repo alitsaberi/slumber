@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'help.ui'
+## Form generated from reading UI file 'info.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.8.1
 ##
@@ -18,20 +18,20 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
 from PySide6.QtWidgets import (QApplication, QDialog, QSizePolicy, QVBoxLayout,
     QWidget)
 
-class Ui_HelpDialog(object):
-    def setupUi(self, HelpDialog):
-        if not HelpDialog.objectName():
-            HelpDialog.setObjectName(u"HelpDialog")
-        HelpDialog.resize(400, 300)
+class Ui_InfoDialog(object):
+    def setupUi(self, InfoDialog):
+        if not InfoDialog.objectName():
+            InfoDialog.setObjectName(u"InfoDialog")
+        InfoDialog.resize(400, 300)
         sizePolicy = QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(HelpDialog.sizePolicy().hasHeightForWidth())
-        HelpDialog.setSizePolicy(sizePolicy)
-        HelpDialog.setMinimumSize(QSize(400, 300))
-        self.verticalLayout = QVBoxLayout(HelpDialog)
+        sizePolicy.setHeightForWidth(InfoDialog.sizePolicy().hasHeightForWidth())
+        InfoDialog.setSizePolicy(sizePolicy)
+        InfoDialog.setMinimumSize(QSize(400, 300))
+        self.verticalLayout = QVBoxLayout(InfoDialog)
         self.verticalLayout.setObjectName(u"verticalLayout")
-        self.body = QWidget(HelpDialog)
+        self.body = QWidget(InfoDialog)
         self.body.setObjectName(u"body")
         sizePolicy.setHeightForWidth(self.body.sizePolicy().hasHeightForWidth())
         self.body.setSizePolicy(sizePolicy)
@@ -40,12 +40,12 @@ class Ui_HelpDialog(object):
         self.verticalLayout.addWidget(self.body)
 
 
-        self.retranslateUi(HelpDialog)
+        self.retranslateUi(InfoDialog)
 
-        QMetaObject.connectSlotsByName(HelpDialog)
+        QMetaObject.connectSlotsByName(InfoDialog)
     # setupUi
 
-    def retranslateUi(self, HelpDialog):
-        HelpDialog.setWindowTitle(QCoreApplication.translate("HelpDialog", u"Information", None))
+    def retranslateUi(self, InfoDialog):
+        InfoDialog.setWindowTitle(QCoreApplication.translate("InfoDialog", u"Information", None))
     # retranslateUi
 

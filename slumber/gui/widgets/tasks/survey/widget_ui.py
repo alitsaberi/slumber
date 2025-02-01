@@ -15,27 +15,28 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
+from PySide6.QtWebEngineWidgets import QWebEngineView
 from PySide6.QtWidgets import (QApplication, QHBoxLayout, QLabel, QLayout,
     QPushButton, QSizePolicy, QSpacerItem, QVBoxLayout,
     QWidget)
 
-class Ui_TaskPage(object):
-    def setupUi(self, TaskPage):
-        if not TaskPage.objectName():
-            TaskPage.setObjectName(u"TaskPage")
-        TaskPage.resize(800, 600)
+class Ui_SurveyPage(object):
+    def setupUi(self, SurveyPage):
+        if not SurveyPage.objectName():
+            SurveyPage.setObjectName(u"SurveyPage")
+        SurveyPage.resize(800, 600)
         sizePolicy = QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(TaskPage.sizePolicy().hasHeightForWidth())
-        TaskPage.setSizePolicy(sizePolicy)
-        TaskPage.setMaximumSize(QSize(3840, 2160))
-        self.verticalLayout = QVBoxLayout(TaskPage)
+        sizePolicy.setHeightForWidth(SurveyPage.sizePolicy().hasHeightForWidth())
+        SurveyPage.setSizePolicy(sizePolicy)
+        SurveyPage.setMaximumSize(QSize(3840, 2160))
+        self.verticalLayout = QVBoxLayout(SurveyPage)
         self.verticalLayout.setObjectName(u"verticalLayout")
         self.header = QHBoxLayout()
         self.header.setObjectName(u"header")
         self.header.setSizeConstraint(QLayout.SizeConstraint.SetMaximumSize)
-        self.title = QLabel(TaskPage)
+        self.title = QLabel(SurveyPage)
         self.title.setObjectName(u"title")
         self.title.setMaximumSize(QSize(16777215, 100))
         font = QFont()
@@ -49,7 +50,7 @@ class Ui_TaskPage(object):
 
         self.header.addItem(self.horizontal_spacer)
 
-        self.info_button = QPushButton(TaskPage)
+        self.info_button = QPushButton(SurveyPage)
         self.info_button.setObjectName(u"info_button")
         self.info_button.setMinimumSize(QSize(50, 50))
         self.info_button.setMaximumSize(QSize(50, 50))
@@ -81,31 +82,24 @@ class Ui_TaskPage(object):
         self.body = QVBoxLayout()
         self.body.setObjectName(u"body")
         self.body.setSizeConstraint(QLayout.SizeConstraint.SetMaximumSize)
-        self.done_button = QPushButton(TaskPage)
-        self.done_button.setObjectName(u"done_button")
-        sizePolicy1 = QSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
-        sizePolicy1.setHorizontalStretch(0)
-        sizePolicy1.setVerticalStretch(0)
-        sizePolicy1.setHeightForWidth(self.done_button.sizePolicy().hasHeightForWidth())
-        self.done_button.setSizePolicy(sizePolicy1)
-        self.done_button.setCheckable(False)
+        self.web_engine_view = QWebEngineView(SurveyPage)
+        self.web_engine_view.setObjectName(u"web_engine_view")
 
-        self.body.addWidget(self.done_button, 0, Qt.AlignmentFlag.AlignHCenter|Qt.AlignmentFlag.AlignVCenter)
+        self.body.addWidget(self.web_engine_view)
 
         self.body.setStretch(0, 1)
 
         self.verticalLayout.addLayout(self.body)
 
 
-        self.retranslateUi(TaskPage)
+        self.retranslateUi(SurveyPage)
 
-        QMetaObject.connectSlotsByName(TaskPage)
+        QMetaObject.connectSlotsByName(SurveyPage)
     # setupUi
 
-    def retranslateUi(self, TaskPage):
-        TaskPage.setWindowTitle(QCoreApplication.translate("TaskPage", u"{{ header}}", None))
-        self.title.setText(QCoreApplication.translate("TaskPage", u"{{ header }}", None))
+    def retranslateUi(self, SurveyPage):
+        SurveyPage.setWindowTitle(QCoreApplication.translate("SurveyPage", u"{{ header}}", None))
+        self.title.setText(QCoreApplication.translate("SurveyPage", u"{{ header }}", None))
         self.info_button.setText("")
-        self.done_button.setText(QCoreApplication.translate("TaskPage", u"Done", None))
     # retranslateUi
 

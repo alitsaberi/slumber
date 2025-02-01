@@ -3,9 +3,6 @@ time_zone: "Europe/Amsterdam"
 database:
   name: slumber.db
 
-storage:
-  survey_data_dir: "data/survey_results" # TODO: we should have a dedicate survey section in the settings
-
 hdf5:
   compression: gzip
 
@@ -74,3 +71,6 @@ study:
 
 tasks:
   default: base
+
+survey:
+  response_indent: 4

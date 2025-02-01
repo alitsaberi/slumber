@@ -12,6 +12,9 @@ if typing.TYPE_CHECKING:
 
 from .widget_ui import Ui_ProcedurePage
 
+INITIAL_INDEX = 0
+TASK_TITLE_FORMAT = "{index}. {title}"
+
 
 def _set_item_enabled(item: QListWidgetItem, enabled: bool) -> None:
     flags = item.flags()
@@ -23,14 +26,11 @@ def _set_item_enabled(item: QListWidgetItem, enabled: bool) -> None:
 
 
 class ProcedurePage(QWidget, Ui_ProcedurePage):
-    INITIAL_INDEX = 0
-
     done_signal = Signal()
 
     def __init__(self, parent: QWidget | None = None):
         super().__init__(parent)
         self.setupUi(self)  # Setup the UI from the generated class
-
         self._connect_signals()
         self.procedure = None
 
@@ -47,15 +47,16 @@ class ProcedurePage(QWidget, Ui_ProcedurePage):
             raise ValueError("Tasks list is empty")
 
         self.procedure = procedure
+        self._clear_widgets()
         self._load_tasks()
-        self._open_task(self.INITIAL_INDEX)
+        self._open_task(INITIAL_INDEX)
         self.done_button.setEnabled(False)
 
     def reset_procedure(self) -> None:
         self.set_procedure(self.procedure)
 
     def is_on_first_task(self) -> bool:
-        return self.current_index == self.INITIAL_INDEX
+        return self.current_index == INITIAL_INDEX
 
     def is_on_last_task(self) -> bool:
         return self.current_index == self.n_tasks - 1
@@ -67,22 +68,28 @@ class ProcedurePage(QWidget, Ui_ProcedurePage):
         self.done_button.clicked.connect(self._on_done_button_clicked)
 
     def _load_tasks(self) -> None:
-        self.task_list.clear()
-
+        logger.info(f"Loading {self.n_tasks} tasks")
         for idx, task in enumerate(self.procedure.tasks):
             title = f"{idx + 1}. {task.title}"
             self._add_task_item(idx, title)
-            self._add_task_page(task, idx, title)
+            self._add_task_page(task, idx, title, **task.kwargs)
+
+    def _clear_widgets(self) -> None:
+        self.task_list.clear()
+        while self.stacked_widget.count() > 0:
+            widget = self.stacked_widget.widget(0)
+            self.stacked_widget.removeWidget(widget)
+            widget.deleteLater()
 
     def _add_task_item(self, idx: int, title: str) -> None:
         item = QListWidgetItem()
         item.setText(title)
         item.setCheckState(Qt.CheckState.Unchecked)
-        _set_item_enabled(item, idx == self.INITIAL_INDEX)
+        _set_item_enabled(item, idx == INITIAL_INDEX)
         self.task_list.addItem(item)
 
-    def _add_task_page(self, task: "Task", idx: int, title: str) -> None:
-        task_page = task.widget(idx, title, self)
+    def _add_task_page(self, task: "Task", idx: int, title: str, **kwargs) -> None:
+        task_page = task.widget(idx, title, **kwargs, parent=self)
         task_page.done_signal.connect(self._on_task_done)
         self.stacked_widget.addWidget(task_page)
 

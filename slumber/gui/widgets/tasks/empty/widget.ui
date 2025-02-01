@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>TaskPage</class>
- <widget class="QWidget" name="TaskPage">
+ <class>EmptyPage</class>
+ <widget class="QWidget" name="EmptyPage">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -116,19 +116,16 @@
      <property name="sizeConstraint">
       <enum>QLayout::SizeConstraint::SetMaximumSize</enum>
      </property>
-     <item alignment="Qt::AlignmentFlag::AlignHCenter|Qt::AlignmentFlag::AlignVCenter">
+     <item alignment="Qt::AlignmentFlag::AlignHCenter">
       <widget class="QPushButton" name="done_button">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+        <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
        <property name="text">
         <string>Done</string>
-       </property>
-       <property name="checkable">
-        <bool>false</bool>
        </property>
       </widget>
      </item>

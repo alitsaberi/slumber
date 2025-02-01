@@ -1,0 +1,129 @@
+import json
+from pathlib import Path
+
+from loguru import logger
+from PySide6.QtCore import QObject, QUrl, Signal, Slot
+from PySide6.QtWebChannel import QWebChannel
+from PySide6.QtWidgets import QDialog, QWidget
+
+from slumber import settings
+from slumber.gui.widgets.tasks.base import TaskPage
+from slumber.utils.time import create_timestamped_name
+
+from .widget_ui import Ui_SurveyPage
+
+ENCODING = "utf-8"
+HTML_FILE_PATH = Path(__file__).parent / "assets" / "html" / "index.html"
+SURVEY_RESPONSE_EXTENSION = "json"
+
+
+class ChannelObject(QObject):
+    survey_complete = Signal(str)
+    """Handle JavaScript-Python communication via QWebChannel.
+
+    This class provides methods that can be accessed from JavaScript to
+    save survey data and log error messages to the Python backend.
+    """
+
+    @Slot(str)
+    def handle_survey_submission(self, survey_data: str) -> None:
+        """
+        Validate and emit survey data received from JavaScript.
+
+        Args:
+            survey_data (str): JSON string containing survey responses
+        """
+        try:
+            _ = json.loads(survey_data)  # Validate JSON format
+            self.survey_complete.emit(survey_data)
+        except json.JSONDecodeError as e:
+            logger.error(f"Invalid survey data received: {e}")
+
+    @Slot(str)
+    def handle_error(self, error_message: str) -> None:
+        """
+        Handle error messages from JavaScript frontend.
+
+        Args:
+            error_message: Error message from JavaScript
+        """
+        logger.error(f"JavaScript error: {error_message}")
+
+
+class SurveyPage(TaskPage, Ui_SurveyPage):
+    def __init__(
+        self,
+        index: int,
+        title: str,
+        survey_config_path: Path | str,
+        output_directory: Path | str,
+        parent: QWidget | None = None,
+    ):
+        super().__init__(parent)
+        self.setupUi(self)  # Setup the UI from the generated class
+
+        self.index = index
+        self.title.setText(title)
+        self.info_dialog = self._init_info_dialog()
+
+        self.survey_config_path = Path(survey_config_path).absolute()
+        if not self.survey_config_path.exists():
+            raise FileNotFoundError(f"Survey file not found: {self.survey_config_path}")
+
+        self.output_directory = Path(output_directory)
+        if not self.output_directory.exists():
+            self.output_directory.mkdir(parents=True, exist_ok=True)
+
+        self._init_web_channel()
+        self._load_survey()
+        self._connect_signals()
+
+    def _init_web_channel(self) -> None:
+        """Initialize and set up the WebChannel for JavaScript-Python communication."""
+        self.channel = QWebChannel()
+        self.channel_object = ChannelObject()
+        self.channel.registerObject("channelObject", self.channel_object)
+        self.web_engine_view.page().setWebChannel(self.channel)
+
+    def _connect_signals(self) -> None:
+        self.info_button.clicked.connect(self.open_info_dialog)
+        self.channel_object.survey_complete.connect(self.done)
+
+    def _load_survey(self) -> None:
+        """Load the survey HTML file and pass the full survey path as a parameter."""
+
+        if not HTML_FILE_PATH.exists():
+            raise FileNotFoundError(f"HTML template not found: {HTML_FILE_PATH}")
+
+        html_url = QUrl.fromLocalFile(HTML_FILE_PATH)
+        html_url.setQuery(f"survey_path={self.survey_config_path}")
+
+        logger.debug(f"Loading survey from {html_url}")
+        self.web_engine_view.setUrl(html_url)
+
+    def _init_info_dialog(self) -> QDialog:
+        from .info_ui import Ui_InfoDialog
+
+        dialog = QDialog(self)
+        ui = Ui_InfoDialog()
+        ui.setupUi(dialog)
+        return dialog
+
+    def open_info_dialog(self) -> None:
+        logger.info("Opening info dialog")
+        self.info_dialog.exec()
+
+    def done(self, survey_data: str) -> None:
+        survey_data_path = self.output_directory / create_timestamped_name(
+            self.survey_config_path.stem, "json"
+        )
+        survey_data_path.parent.mkdir(parents=True, exist_ok=True)
+
+        with open(survey_data_path, "w") as f:
+            json.dump(
+                json.loads(survey_data), f, indent=settings["survey"]["response_indent"]
+            )
+
+        logger.info(f"Survey data saved to {survey_data_path}")
+
+        super().done()

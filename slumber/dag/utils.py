@@ -45,9 +45,13 @@ class ComponentConfig(BaseModel):
     model_config = ConfigDict(strict=False, arbitrary_types_allowed=True)
 
     def configure(self) -> ez.Unit:
-        try:
+        if hasattr(self.unit.SETTINGS, "model_validate"):
             settings = self.unit.SETTINGS.model_validate(self.settings)
-        except AttributeError:
+        else:
+            logger.warning(
+                f"Settings for {self.unit.__name__} are not validated. "
+                "This may cause unexpected behavior."
+            )
             settings = self.unit.SETTINGS(**self.settings)
         logger.info(f"Configured {self.unit.__name__} with settings: {settings}")
         return self.unit(settings)
