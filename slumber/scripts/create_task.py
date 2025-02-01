@@ -6,7 +6,7 @@ from loguru import logger
 
 from slumber import settings
 
-TEMPLATES_DIR = Path(__file__).parent.parent / "gui" / "pages" / "tasks"
+TEMPLATES_DIR = Path(__file__).parent.parent / "gui" / "widgets" / "tasks"
 TASKS_DIR_NAME = "tasks"
 ASSETS = ["html/index.html", "css/styles.css", "js/script.js"]
 

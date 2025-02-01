@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>mainWidget</class>
- <widget class="QWidget" name="mainWidget">
+ <class>ProcedurePage</class>
+ <widget class="QWidget" name="ProcedurePage">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -44,7 +44,7 @@
       <enum>QLayout::SizeConstraint::SetMinimumSize</enum>
      </property>
      <item>
-      <widget class="QStackedWidget" name="procedureStack">
+      <widget class="QStackedWidget" name="stacked_widget">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
          <horstretch>0</horstretch>
@@ -60,7 +60,7 @@
       </widget>
      </item>
      <item>
-      <layout class="QVBoxLayout" name="verticalLayout">
+      <layout class="QVBoxLayout" name="vertical_layout">
        <property name="sizeConstraint">
         <enum>QLayout::SizeConstraint::SetMaximumSize</enum>
        </property>
@@ -71,7 +71,7 @@
         <number>8</number>
        </property>
        <item>
-        <widget class="QListWidget" name="procedureStepList">
+        <widget class="QListWidget" name="task_list">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
            <horstretch>0</horstretch>
@@ -194,7 +194,52 @@
         </widget>
        </item>
        <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_3">
+        <widget class="QPushButton" name="done_button">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>35</height>
+          </size>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">QPushButton {
+                                                    color: rgb(255, 255, 255);
+                                                    background-color: rgb(1, 92, 187);
+                                                    border: 1px;
+                                                    border-radius: 10px;
+                                                    }
+
+                                                    QPushButton:hover {
+                                                    color: rgb(220,221,229);
+                                                    background-color: rgb(37, 150, 190);
+                                                    }
+
+                                                    QPushButton:pressed {
+                                                    color: rgb(220,221,229);
+                                                    background-color: rgb(37, 150, 190);
+                                                    }
+
+                                                    QPushButton:disabled {
+                                                    color: rgb(190, 190, 190);
+                                                    background-color: rgb(100, 100, 100);
+                                                    }</string>
+         </property>
+         <property name="text">
+          <string>Done</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontal_layout">
          <property name="sizeConstraint">
           <enum>QLayout::SizeConstraint::SetMaximumSize</enum>
          </property>
@@ -202,7 +247,7 @@
           <number>0</number>
          </property>
          <item>
-          <widget class="QPushButton" name="prevButton">
+          <widget class="QPushButton" name="previous_button">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
              <horstretch>0</horstretch>
@@ -250,7 +295,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="nextButton">
+          <widget class="QPushButton" name="next_button">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
              <horstretch>0</horstretch>

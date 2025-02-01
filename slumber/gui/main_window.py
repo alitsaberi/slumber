@@ -1,3 +1,4 @@
+import typing
 from loguru import logger
 from PySide6.QtWidgets import (
     QMainWindow,
@@ -6,17 +7,22 @@ from PySide6.QtWidgets import (
 
 from slumber.gui.widgets.help.widget import HelpPage
 from slumber.gui.widgets.home.widget import HomePage
+from slumber.gui.widgets.procedure.widget import ProcedurePage
 
 from .main_window_ui import Ui_MainWindow
 
 
+if typing.TYPE_CHECKING:
+    from slumber.dag.units.gui import Procedure
+
+
 class MainWindow(QMainWindow, Ui_MainWindow):
-    def __init__(self):
+    def __init__(self, procedure: "Procedure"):
         super().__init__()
         self.setupUi(self)  # Setup the UI from the generated class
 
         # Home page
-        self.home_page = HomePage()
+        self.home_page = HomePage(self)
         self.home_page.setSizePolicy(
             QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding
         )
@@ -25,7 +31,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.home_page.start_signal.connect(self._start_procedure)
 
         # Help page
-        self.help_page = HelpPage()
+        self.help_page = HelpPage(self)
         self.help_page.setSizePolicy(
             QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding
         )
@@ -33,75 +39,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.help_button.clicked.connect(self._on_help_button_clicked)
         self.help_page.back_signal.connect(self._open_main_page)
 
-        # self.settings_page = SettingsPage(gui_config, self)
-        # self.procedure_page = ProcedurePage(tasks, self)
-
-        # self.settings_page.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        # self.procedure_page.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        # self.thank_you_page.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-
-        # self.stackedWidgetPages.addWidget(self.home_page)
-        # self.stackedWidgetPages.addWidget(self.settings_page)
-        # self.stackedWidgetPages.addWidget(self.procedure_page)
-        # self.stackedWidgetPages.addWidget(self.thank_you_page)
-
-        # self.stackedWidgetPages.setCurrentWidget(self.home_page)
-
-        # self.pushButton_settings.clicked.connect(self.on_settings_button_clicked)
-
-        # Connect the config_changed signal and config_back signal
-        # from the settings window
-        # self.settings_page.config_changed_signal.connect(self.on_config_changed)
-        # self.settings_page.config_back_signal.connect(self.go_back_pressed)
-
-        # Connect the start_procedure signal from the home page
-        # self.home_page.pushButton_start_procedure.clicked.connect(
-        #     self.on_start_procedure_clicked
-        # )
-
-        # Connect the procedure_completed signal from the procedure page
-        # self.procedure_page.procedure_completed_signal.connect(
-        #     self.on_procedure_completed
-        # )
-
-        # Connect the thank_you_back signal from the thank you page
-        # self.thank_you_page.thank_you_back_signal.connect(self.go_back_after_thank_you)
-
-        # Store the original default font sizes
-        # self.default_font_sizes = {}
-        # self.store_default_font_sizes()
-
-        # self.update_gui_config(gui_config)
-
-        # Check if procedure is already started
-        # self.procedure_started = False
-
-    # def store_default_font_sizes(self):
-    #     for widget in self.findChildren(QLabel):
-    #         self.default_font_sizes[widget] = widget.font().pointSize()
-
-    #     for widget in self.findChildren(QPushButton):
-    #         self.default_font_sizes[widget] = widget.font().pointSize()
-
-    #     for widget in self.findChildren(QTableView):
-    #         self.default_font_sizes[widget] = widget.font().pointSize()
-
-    #     for widget in self.findChildren(QComboBox):
-    #         self.default_font_sizes[widget] = widget.font().pointSize()
-
-    #     for widget in self.findChildren(QLCDNumber):
-    #         self.default_font_sizes[widget] = widget.font().pointSize()
-
-    #     for widget in self.findChildren(QWebEngineView):
-    #         self.default_font_sizes[widget] = 1.0
-
-    #     for widget in self.findChildren(QListWidget):
-    #         self.default_font_sizes[widget] = widget.font().pointSize()
-
-    # def on_start_procedure_clicked(self):
-    #     logger.info("Start Procedure button pressed")
-    #     self.procedure_started = True
-    #     self.stackedWidgetPages.setCurrentWidget(self.procedure_page)
+        # Procedure page
+        self.procedure_page = ProcedurePage(procedure, self)
+        self.procedure_page.setSizePolicy(
+            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding
+        )
+        self.body_stacked_widget.addWidget(self.procedure_page)
+        self.procedure_page.procedure_completed_signal.connect(
+            self._on_procedure_completed
+        )
 
     def _on_help_button_clicked(self):
         logger.info("Help button clicked")
@@ -119,13 +65,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.help_button.setEnabled(True)
         self.settings_button.setEnabled(True)
 
-    # def on_config_changed(self):
-    #     logger.info("Config updated")
-    #     # self.update_gui_config(get_gui_config())
-
     def _open_main_page(self):
         logger.info("Main page opened")
         self.stacked_widget.setCurrentWidget(self.main_page)
 
     def _start_procedure(self):
-        pass
+        logger.info("Procedure started")
+        self.body_stacked_widget.setCurrentWidget(self.procedure_page)
+
+    def _on_procedure_completed(self):
+        logger.info("Procedure completed")
