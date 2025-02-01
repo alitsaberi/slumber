@@ -1,4 +1,5 @@
 import typing
+
 from loguru import logger
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
@@ -24,21 +25,14 @@ def _set_item_enabled(item: QListWidgetItem, enabled: bool) -> None:
 class ProcedurePage(QWidget, Ui_ProcedurePage):
     INITIAL_INDEX = 0
 
-    procedure_completed_signal = Signal()
+    done_signal = Signal()
 
-    def __init__(self, procedure: "Procedure", parent: QWidget = None):
+    def __init__(self, parent: QWidget | None = None):
         super().__init__(parent)
         self.setupUi(self)  # Setup the UI from the generated class
 
-        if not procedure.tasks:
-            raise ValueError("Tasks list is empty")
-
-        self.procedure = procedure
-
-        self._load_tasks()
         self._connect_signals()
-        self._open_task(self.INITIAL_INDEX)
-        self.done_button.clicked.connect(self._on_done_button_clicked)
+        self.procedure = None
 
     @property
     def current_index(self) -> int:
@@ -47,6 +41,18 @@ class ProcedurePage(QWidget, Ui_ProcedurePage):
     @property
     def n_tasks(self) -> int:
         return self.procedure.n_tasks
+
+    def set_procedure(self, procedure: "Procedure") -> None:
+        if not procedure.tasks:
+            raise ValueError("Tasks list is empty")
+
+        self.procedure = procedure
+        self._load_tasks()
+        self._open_task(self.INITIAL_INDEX)
+        self.done_button.setEnabled(False)
+
+    def reset_procedure(self) -> None:
+        self.set_procedure(self.procedure)
 
     def is_on_first_task(self) -> bool:
         return self.current_index == self.INITIAL_INDEX
@@ -58,6 +64,7 @@ class ProcedurePage(QWidget, Ui_ProcedurePage):
         self.next_button.clicked.connect(self._open_next_task)
         self.previous_button.clicked.connect(self._open_previous_task)
         self.task_list.itemClicked.connect(self._handle_item_click)
+        self.done_button.clicked.connect(self._on_done_button_clicked)
 
     def _load_tasks(self) -> None:
         self.task_list.clear()
@@ -111,7 +118,7 @@ class ProcedurePage(QWidget, Ui_ProcedurePage):
 
     def _on_done_button_clicked(self):
         logger.info("Done button clicked")
-        self.procedure_completed_signal.emit()
+        self.done_signal.emit()
 
     def _handle_item_click(self, item: QListWidgetItem) -> None:
         if item.flags() & Qt.ItemIsEnabled:

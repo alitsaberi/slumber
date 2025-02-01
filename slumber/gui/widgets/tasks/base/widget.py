@@ -26,7 +26,7 @@ class TaskPage(QWidget, Ui_TaskPage):
         ui = Ui_HelpDialog()
         ui.setupUi(dialog)
         return dialog
-    
+
     def open_info_dialog(self) -> None:
         logger.info("Opening info dialog")
         self.info_dialog.exec()

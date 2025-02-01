@@ -1,11 +1,8 @@
-from importlib import import_module
 import inspect
-from types import ModuleType
-from typing import Annotated, Any
+from typing import Any
 
 import ezmsg.core as ez
-from loguru import logger
-from pydantic import BaseModel, BeforeValidator, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 from PySide6.QtWidgets import QApplication
 
 from slumber import settings
@@ -13,8 +10,6 @@ from slumber.dag.utils import PydanticSettings
 from slumber.gui.main_window import MainWindow
 from slumber.gui.widgets import tasks
 from slumber.gui.widgets.tasks.base.widget import TaskPage
-from slumber.scripts.create_task import TASKS_DIR_NAME
-from slumber.utils.helpers import create_class_by_name_resolver
 
 DEFAULTS = settings["gui"]
 
@@ -66,7 +61,8 @@ class GUI(ez.Unit):
 
     def initialize(self) -> None:
         self.STATE.app = QApplication()
-        self.STATE.window = MainWindow(procedure=self.SETTINGS.procedures[0])
+        self.STATE.window = MainWindow()
+        self.STATE.window.set_procedure(self.SETTINGS.procedures[0], self.STATE.window.procedure_page.reset_procedure)
         self.STATE.window.show()
 
     def shutdown(self):
