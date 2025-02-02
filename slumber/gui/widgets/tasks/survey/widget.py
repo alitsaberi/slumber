@@ -38,6 +38,14 @@ class ChannelObject(QObject):
             self.survey_complete.emit(survey_data)
         except json.JSONDecodeError as e:
             logger.error(f"Invalid survey data received: {e}")
+            
+    @Slot(str)
+    def handle_log(self, message: str) -> None:
+        """
+        Handle console log messages from JavaScript frontend.
+        """
+        
+        logger.error(f"JS console log: {message}")
 
     @Slot(str)
     def handle_error(self, error_message: str) -> None:
@@ -47,7 +55,7 @@ class ChannelObject(QObject):
         Args:
             error_message: Error message from JavaScript
         """
-        logger.error(f"JavaScript error: {error_message}")
+        logger.error(f"JS error: {error_message}")
 
 
 class SurveyPage(TaskPage, Ui_SurveyPage):
