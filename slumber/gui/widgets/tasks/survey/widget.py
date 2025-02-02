@@ -4,6 +4,9 @@ from pathlib import Path
 from loguru import logger
 from PySide6.QtCore import QObject, QUrl, Signal, Slot
 from PySide6.QtWebChannel import QWebChannel
+from PySide6.QtWebEngineCore import (
+    QWebEnginePage,
+)
 from PySide6.QtWidgets import QDialog, QWidget
 
 from slumber import settings
@@ -13,7 +16,7 @@ from slumber.utils.time import create_timestamped_name
 from .widget_ui import Ui_SurveyPage
 
 ENCODING = "utf-8"
-HTML_FILE_PATH = Path(__file__).parent / "assets" / "html" / "index.html"
+HTML_FILE_PATH = Path(__file__).parent / "assets" / "index.html"
 SURVEY_RESPONSE_EXTENSION = "json"
 
 
@@ -38,24 +41,38 @@ class ChannelObject(QObject):
             self.survey_complete.emit(survey_data)
         except json.JSONDecodeError as e:
             logger.error(f"Invalid survey data received: {e}")
-            
+
     @Slot(str)
     def handle_log(self, message: str) -> None:
         """
         Handle console log messages from JavaScript frontend.
         """
-        
-        logger.error(f"JS console log: {message}")
+        logger.debug(f"JS console log: {message}")
 
     @Slot(str)
     def handle_error(self, error_message: str) -> None:
         """
         Handle error messages from JavaScript frontend.
-
-        Args:
-            error_message: Error message from JavaScript
         """
         logger.error(f"JS error: {error_message}")
+
+
+class SurveyWebPage(QWebEnginePage):
+    def __init__(self, *args: tuple, **kwargs: dict) -> None:
+        super().__init__(*args, **kwargs)
+        self.featurePermissionRequested.connect(self._handle_permission_request)
+
+    def _handle_permission_request(
+        self, url: QUrl, feature: QWebEnginePage.Feature
+    ) -> None:
+        if feature in (QWebEnginePage.Feature.MediaAudioCapture,):
+            self.setFeaturePermission(
+                url, feature, QWebEnginePage.PermissionPolicy.PermissionGrantedByUser
+            )
+        else:
+            self.setFeaturePermission(
+                url, feature, QWebEnginePage.PermissionPolicy.PermissionDeniedByUser
+            )
 
 
 class SurveyPage(TaskPage, Ui_SurveyPage):
@@ -81,6 +98,8 @@ class SurveyPage(TaskPage, Ui_SurveyPage):
         self.output_directory = Path(output_directory)
         if not self.output_directory.exists():
             self.output_directory.mkdir(parents=True, exist_ok=True)
+
+        self.web_engine_view.setPage(SurveyWebPage(self.web_engine_view))
 
         self._init_web_channel()
         self._load_survey()

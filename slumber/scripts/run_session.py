@@ -9,7 +9,7 @@ from slumber import settings
 from slumber.dag.utils import CollectionConfig
 from slumber.utils.helpers import load_yaml
 from slumber.utils.logger import setup_logging
-from slumber.utils.time import create_timestamped_name, datetime_to_str, now
+from slumber.utils.time import create_timestamped_name
 
 SESSIONS_DIR = Path("./sessions")
 CONFIGS_DIR = Path("./configs")
@@ -42,6 +42,7 @@ CONDITION_CONFIG_FILE_EXTENSION = "yaml"
 
 #         populate_task_progress()
 
+
 def _get_condition_config_file(config_name: str) -> Path:
     config_file = CONDITIONS_DIR / f"{config_name}.{CONDITION_CONFIG_FILE_EXTENSION}"
     if not config_file.exists():
@@ -57,7 +58,6 @@ def _create_run_subdirectories(run_directory: Path) -> None:
 
 
 def _create_run_directory(config_name: str) -> Path:
-
     if not SESSIONS_DIR.exists():
         logger.info("Sessions directory does not exist. Creating {SESSIONS_DIR}...")
         SESSIONS_DIR.mkdir()
@@ -73,6 +73,7 @@ def _create_run_directory(config_name: str) -> Path:
     _create_run_subdirectories(directory)
 
     return directory
+
 
 def _setup_logging(run_directory: Path) -> None:
     logs_dir = run_directory / LOGS_DIR_NAME
