@@ -45,9 +45,13 @@ class ComponentConfig(BaseModel):
     model_config = ConfigDict(strict=False, arbitrary_types_allowed=True)
 
     def configure(self) -> ez.Unit:
-        try:
+        if hasattr(self.unit.SETTINGS, "model_validate"):
             settings = self.unit.SETTINGS.model_validate(self.settings)
-        except AttributeError:
+        else:
+            logger.warning(
+                f"Settings for {self.unit.__name__} are not validated. "
+                "This may cause unexpected behavior."
+            )
             settings = self.unit.SETTINGS(**self.settings)
         logger.info(f"Configured {self.unit.__name__} with settings: {settings}")
         return self.unit(settings)
@@ -56,7 +60,7 @@ class ComponentConfig(BaseModel):
 class CollectionConfig(BaseModel):
     components: dict[str, ez.Unit] = Field(min_length=1)
     connections: tuple[tuple[ez.OutputStream, ez.InputStream], ...] = Field(
-        min_length=1
+        default_factory=tuple
     )
     process_components: tuple[ez.Unit, ...] = Field(default_factory=tuple)
     name: str | None = Field(None, serialization_alias="root_name")

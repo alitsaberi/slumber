@@ -32,7 +32,7 @@ def get_class_by_name(
     module: ModuleType,
     base_class: type[T] | None = None,
     search_submodules: bool = True,
-) -> type:
+) -> type[T]:
     """
     Retrieve a class by its name in a module and its submodules,
     ensuring it is a subclass of a specified base class.
@@ -47,43 +47,36 @@ def get_class_by_name(
     Returns:
         type: the class object.
     """
-    # First try in the main module
-    # TODO: Code duplication with when searching the submodules
-    try:
-        cls = getattr(module, class_name)
-        if inspect.isclass(cls) and (base_class is None or issubclass(cls, base_class)):
-            return cls
-    except AttributeError:
-        logger.debug(
-            f"Class {class_name} not found in the main module {module.__name__}"
-        )
+
+    def find_class_in_module(mod: ModuleType) -> type[T] | None:
+        """Helper function to find the class within a module."""
+        try:
+            cls = getattr(mod, class_name)
+            if inspect.isclass(cls) and (
+                base_class is None or issubclass(cls, base_class)
+            ):
+                return cls
+        except AttributeError:
+            pass  # Class not found in this module
+        return None
+
+    # Check in the main module
+    if cls := find_class_in_module(module):
+        return cls
 
     if search_submodules and hasattr(module, "__path__"):
-        # Search through all submodules
-        for _, name, _ in pkgutil.iter_modules(module.__path__):
-            full_module_name = f"{module.__name__}.{name}"
+        # Recursively search submodules
+        for _, name, _ in pkgutil.walk_packages(module.__path__, module.__name__ + "."):
             try:
-                logger.debug(f"Trying to import submodule {full_module_name}")
-                submodule = import_module(full_module_name)
-                try:
-                    cls = getattr(submodule, class_name)
-                    if inspect.isclass(cls) and (
-                        base_class is None or issubclass(cls, base_class)
-                    ):
-                        return cls
-                except AttributeError:
-                    logger.debug(
-                        f"Class {class_name} not found"
-                        f" in submodule {full_module_name}"
-                    )
-                    continue
+                submodule = import_module(name)
+                if cls := find_class_in_module(submodule):
+                    return cls
             except ImportError as e:
-                logger.debug(f"Failed to import submodule {full_module_name}: {e}")
-                continue
+                logger.debug(f"Failed to import submodule {name}: {e}")
 
     raise ValueError(
         f"No class named '{class_name}' found in module"
-        f" '{module.__name__}' or its submodules."
+        f"'{module.__name__}' or its submodules."
     )
 
 

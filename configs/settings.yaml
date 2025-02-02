@@ -1,7 +1,7 @@
 time_zone: "Europe/Amsterdam"
 
-storage:
-  survey_data_dir: "data/survey_results" # TODO: we should have a dedicate survey section in the settings
+database:
+  name: slumber.db
 
 hdf5:
   compression: gzip
@@ -12,7 +12,7 @@ zmax:
   retry_attempts: 12
   retry_delay: 5
   socket_timeout: 10
-  
+
 sleep_scoring:
   labels:
     wake: W
@@ -58,3 +58,19 @@ arousal_detection:
   min_transition_increase: 0.2
   gap_threshold_factor: 0.8
   arousal_label: AROUSAL
+  
+gui:
+  font_size: 0
+  app_width: 1920
+  app_height: 1080
+  app_mode: window
+  language: English
+
+study:
+  duration: 14
+
+tasks:
+  default: base
+
+survey:
+  response_indent: 4
