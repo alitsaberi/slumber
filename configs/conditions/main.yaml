@@ -1,0 +1,222 @@
+name: home_lucid_dreaming
+
+components:
+  
+  ZMAX:
+    unit: ZMaxDataReceiver
+    settings:
+      zmax:
+        socket_timeout: 1
+      data_types:
+        - EEG_LEFT
+        - EEG_RIGHT
+      retry_attempts: 6
+      retry_delay: 10
+
+  ZMAX_STORAGE_QUEUE:
+    unit: CountQueue
+    settings:
+      max_size: 5120 
+      leaky: False
+      log_queue_size_interval: 5
+      publish_interval: 0.01
+      publish_count: 2560
+
+  ZMAX_SAMPLE_RATE_REGULATOR:
+    unit: TimeQueue
+    settings:
+      max_size: 5120
+      leaky: True
+      log_queue_size_interval: 5
+      publish_interval: 10
+      sample_rate: 256
+      gap_threshold: 1.0
+      channel_names: [EEG_LEFT, EEG_RIGHT]
+      timestamp_margin: 1.0
+
+  ZMAX_STORAGE:
+    unit: HDF5Storage
+    settings:
+      file_path: ./data/storage.h5
+      group_name: "zmax_raw"
+      flush_after: 90
+
+  PREPROCESS:
+    unit: Transform
+    settings:
+      transforms:
+        - class_name: ArraySelector
+          kwargs:
+            channels: [EEG_LEFT, EEG_RIGHT]
+        - class_name: Resample
+          kwargs:
+            new_sample_rate: 128
+
+  ZMAX_PREPROCESSED_STORAGE:
+    unit: HDF5Storage
+    settings:
+       file_path: ./data/storage.h5
+       group_name: "zmax_preprocessed"
+       flush_after: 90
+
+  SLEEP_SCORING_ROLLING_BUFFER:
+    unit: RollingBuffer
+    settings:
+      size: 105
+
+  SLEEP_SCORING_PREPROCESS:
+    unit: Transform
+    settings:
+      transforms:
+        - class_name: FIRFilter
+          kwargs:
+            low_cutoff: 0.3
+            high_cutoff: 30.0
+
+  SLEEP_SCORING:
+    unit: SleepScoring
+    settings:
+      model:
+        model_dir: C:\Users\Mahdad\Projects\slumber\tests\resources\sample_utime_model
+        n_periods: 105
+        n_samples_per_prediction: 1
+      channel_groups: [[EEG_LEFT], [EEG_RIGHT]]
+      arg_max: false
+
+  AROUSAL_DETECTION_SCORES_SELECTOR:
+    unit: Transform
+    settings:
+      transforms:
+        - class_name: ArraySelector
+          kwargs:
+            start_index: -3840 # 30 seconds
+      
+  MASTER_SCORES_SELECTOR:
+    unit: Transform
+    settings:
+      transforms:
+        - class_name: ArraySelector
+          kwargs:
+            start_index: -7680 # 60 seconds
+
+  EYE_MOVEMENT_DETECTION_ROLLING_BUFFER:
+    unit: RollingBuffer
+    settings:
+      size: 3
+
+  EYE_MOVEMENT_DETECTION:
+    unit: EyeMovementDetection
+    settings:
+      left_eeg_label: EEG_LEFT
+      right_eeg_label: EEG_RIGHT
+      difference_threshold: 280
+
+  AROUSAL_DETECTION:
+    unit: ArousalDetection
+    settings:
+      wake_n1_threshold: 0.4
+
+  MASTER:
+    unit: Master
+    settings:
+      wake_up_signal:
+        vibration: true
+        led_color: "OFF"
+        on_duration: 5
+        off_duration: 5
+        repetitions: 3
+      cueing_enabled: true
+      rem_confidence_threshold: 0.8
+      accepted_eye_signals: [LRL, RLR]
+      wake_up_signal_interval: 4
+      experiment_state: SLEEP
+
+  REM_CUEING:
+    unit: Cueing
+    settings:
+        visual_cueing:
+          led_color: RED
+          repetitions: 3
+          on_duration: 5
+          off_duration: 5
+          intensity:
+            value: 20
+            min: 1
+            max: 100
+            step: 5
+        tactile_cueing:
+          on_duration: 2
+          off_duration: 5
+          intensity:
+            value: 1
+            min: 1
+            max: 3
+            step: 1
+        auditory_cueing:
+          text: You are dreaming
+          rate: 175
+          intensity:
+            value: 10
+            min: 0
+            max: 100
+            step: 5
+        enabled: false
+        increase_intensity: false
+        enabled_check_interval: 5.0
+        cueing_interval: 20
+
+  SLEEP_SCORING_STORAGE:
+    unit: HDF5Storage
+    settings:
+      file_path: ./data/storage.h5
+      group_name: "sleep_scoring"
+      flush_after: 90
+
+  EVENT_LOGGER:
+    unit: EventLogger
+    settings:
+      output: ./data/events.jsonl
+
+  GUI:
+    unit : GUI
+    settings:
+      procedures:
+        - name: pre_sleep
+          tasks:
+          - title: Survey
+            widget: survey
+            kwargs:
+              survey_config_path: ../../configs/surveys/sample_survey.json
+              output_directory: ./data/survey_responses
+          - title: Test
+            widget: empty
+       
+
+connections:
+  - [ZMAX.OUTPUT_SAMPLE, ZMAX_STORAGE_QUEUE.INPUT]
+  - [ZMAX.OUTPUT_SAMPLE, ZMAX_SAMPLE_RATE_REGULATOR.INPUT]
+  - [ZMAX_STORAGE_QUEUE.OUTPUT, ZMAX_STORAGE.INPUT]
+  - [ZMAX_SAMPLE_RATE_REGULATOR.OUTPUT, PREPROCESS.INPUT]
+  - [PREPROCESS.OUTPUT, ZMAX_PREPROCESSED_STORAGE.INPUT]
+  - [PREPROCESS.OUTPUT, SLEEP_SCORING_ROLLING_BUFFER.INPUT]
+  - [SLEEP_SCORING_ROLLING_BUFFER.OUTPUT, SLEEP_SCORING_PREPROCESS.INPUT]
+  - [SLEEP_SCORING_PREPROCESS.OUTPUT, SLEEP_SCORING.INPUT]
+  - [PREPROCESS.OUTPUT, EYE_MOVEMENT_DETECTION_ROLLING_BUFFER.INPUT]
+  - [EYE_MOVEMENT_DETECTION_ROLLING_BUFFER.OUTPUT, EYE_MOVEMENT_DETECTION.INPUT]
+  - [SLEEP_SCORING.OUTPUT, AROUSAL_DETECTION_SCORES_SELECTOR.INPUT]
+  - [AROUSAL_DETECTION_SCORES_SELECTOR.OUTPUT, AROUSAL_DETECTION.INPUT]
+  - [SLEEP_SCORING.OUTPUT, MASTER_SCORES_SELECTOR.INPUT]
+  - [MASTER_SCORES_SELECTOR.OUTPUT, MASTER.INPUT_SLEEP_SCORES]
+  - [EYE_MOVEMENT_DETECTION.OUTPUT, MASTER.INPUT_EYE_MOVEMENT_EVENTS]
+  - [AROUSAL_DETECTION.OUTPUT, MASTER.INPUT_AROUSAL_EVENTS]
+  - [MASTER.OUTPUT_CUEING_ENABLE_SIGNAL, REM_CUEING.INPUT_ENABLE_SIGNAL]
+  - [MASTER.OUTPUT_CUEING_ENABLE_INCREASE_INTENSITY_SIGNAL, REM_CUEING.INPUT_ENABLE_INCREASE_INTENSITY_SIGNAL]
+  - [MASTER.OUTPUT_CUEING_DECREASE_INTENSITY_SIGNAL, REM_CUEING.INPUT_ADJUST_INTENSITY_SIGNAL]
+  - [REM_CUEING.OUTPUT_ZMAX_STIMULATION_SIGNAL, ZMAX.INPUT_STIMULATION_SIGNAL]
+  - [MASTER_SCORES_SELECTOR.OUTPUT, SLEEP_SCORING_STORAGE.INPUT]
+  - [MASTER.OUTPUT_WAKE_UP_SIGNAL, ZMAX.INPUT_STIMULATION_SIGNAL]
+  - [MASTER.OUTPUT_LOG_EVENT, EVENT_LOGGER.INPUT_MESSAGE]
+  - [REM_CUEING.OUTPUT_LOG_EVENT, EVENT_LOGGER.INPUT_MESSAGE]
+
+
+process_components: [GUI]
