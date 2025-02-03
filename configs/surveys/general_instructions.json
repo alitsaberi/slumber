@@ -17,13 +17,13 @@
       ]
     },
     {
-      "name": "zmax_setup",
-      "title": "EEG Headband Setup",
+      "name": "put_on_zmax",
+      "title": "Put on the EEG Headband ",
       "elements": [
         {
           "type": "html",
           "name": "written_instruction",
-          "html": "<ol style=\"line-height: 1.6;\">\n    <li style=\"margin-bottom: 10px;\">Position the ZMax headband on a flat portion of your forehead, just above your eyebrows.</li>\n    <li style=\"margin-bottom: 10px;\">The lower central electrode should not protrude. If it does, you may trim a small portion to ensure a proper fit.</li>\n    <li style=\"margin-bottom: 10px;\">Ensure the headband fully covers the lateral sensing areas.</li>\n    <li style=\"margin-bottom: 10px;\">The headband should not be too loose to prevent shifting during sleep.</li>\n    <li style=\"margin-bottom: 10px;\">Tighten the headband at the back of your head, just below the inion bone, at a slight downward angle (not completely parallel to the ground).</li>\n    <li style=\"margin-bottom: 10px;\">No hair should be underneath the lateral sensing areas. If necessary, use smaller electrodes (female/children size) or trim a portion of the lateral sensing areas.</li>\n    <li style=\"margin-bottom: 10px;\">Ensure the metallic snaps are fully inserted. You should hear four distinct clicks when securing them and no clicks when wearing the device.</li>\n    <li style=\"margin-bottom: 10px;\">After wearing the headband, press gently on the device, sensing surfaces, and headband to confirm a snug fit that can withstand nighttime movements.</li>\n</ol>"
+          "html": "<ol style=\"line-height: 1.6;\">\n    <li style=\"margin-bottom: 10px;\">Position the ZMax headband on a flat portion of your forehead, just above your eyebrows.</li>\n    <li style=\"margin-bottom: 10px;\">The lower central electrode should not protrude. If it does, you may trim a small portion to ensure a proper fit.</li>\n    <li style=\"margin-bottom: 10px;\">Ensure the headband fully covers the lateral sensing areas.</li>\n    <li style=\"margin-bottom: 10px;\">The headband should not be too loose to prevent shifting during sleep.</li>\n    <li style=\"margin-bottom: 10px;\">Tighten the headband at the back of your head, just below the inion bone, at a slight downward angle (not completely parallel to the ground).</li>\n    <li style=\"margin-bottom: 10px;\">No hair should be underneath the lateral sensing areas.</li>\n    <li style=\"margin-bottom: 10px;\">Ensure the metallic snaps are fully inserted. You should hear four distinct clicks when securing them and no clicks when wearing the device.</li>\n    <li style=\"margin-bottom: 10px;\">After wearing the headband, press gently on the device, sensing surfaces, and headband to confirm a snug fit that can withstand nighttime movements.</li>\n</ol>"
         },
         {
           "type": "image",
@@ -32,6 +32,28 @@
           "imageFit": "cover",
           "imageHeight": "auto",
           "imageWidth": "100%"
+        }
+      ]
+    },
+    {
+      "name": "connect_zmax_dongle",
+      "title": "Connect the Headband Receiver",
+      "elements": [
+        {
+          "type": "html",
+          "name": "question1",
+          "html": "Make sure the white receiver is connected to the laptop"
+        }
+      ]
+    },
+    {
+      "name": "turn_on_zmax",
+      "title": "Turn on the Headband",
+      "elements": [
+        {
+          "type": "html",
+          "name": "question2",
+          "html": "Slide the power button to turn on the ZMax. The light indicator on the headband will turn into solid blue."
         }
       ]
     }
