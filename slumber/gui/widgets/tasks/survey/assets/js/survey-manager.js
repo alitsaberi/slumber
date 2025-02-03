@@ -2,6 +2,7 @@ function initializeSurvey(surveyJson) {
     Logger.info('Survey', 'Initialization started', { config: surveyJson.title });
     
     const survey = new Survey.Model(surveyJson);
+    survey.applyTheme(SurveyTheme.SharpDark);
     
     survey.pages.forEach((page, pageIndex) => {
         Logger.info('Survey', `Processing page ${pageIndex + 1}/${survey.pages.length}`, {

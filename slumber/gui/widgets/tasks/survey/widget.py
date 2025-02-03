@@ -81,7 +81,7 @@ class SurveyPage(TaskPage, Ui_SurveyPage):
         index: int,
         title: str,
         survey_config_path: Path | str,
-        output_directory: Path | str,
+        output_directory: Path | str | None = None,
         parent: QWidget | None = None,
     ):
         super().__init__(parent)
@@ -95,10 +95,10 @@ class SurveyPage(TaskPage, Ui_SurveyPage):
         if not self.survey_config_path.exists():
             raise FileNotFoundError(f"Survey file not found: {self.survey_config_path}")
 
-        self.output_directory = Path(output_directory)
-        if not self.output_directory.exists():
-            self.output_directory.mkdir(parents=True, exist_ok=True)
-
+        self.output_directory = output_directory
+        if output_directory is not None:
+            self.output_directory = Path(output_directory)
+        
         self.web_engine_view.setPage(SurveyWebPage(self.web_engine_view))
 
         self._init_web_channel()
@@ -141,16 +141,19 @@ class SurveyPage(TaskPage, Ui_SurveyPage):
         self.info_dialog.exec()
 
     def done(self, survey_data: str) -> None:
+    
+        if self.output_directory is not None:
+            self._save_survey_data(survey_data)
+
+        super().done()
+        
+    def _save_survey_data(self, survey_data: str) -> None:        
+        self.output_directory.mkdir(parents=True, exist_ok=True)
         survey_data_path = self.output_directory / create_timestamped_name(
             self.survey_config_path.stem, "json"
         )
-        survey_data_path.parent.mkdir(parents=True, exist_ok=True)
-
         with open(survey_data_path, "w") as f:
             json.dump(
                 json.loads(survey_data), f, indent=settings["survey"]["response_indent"]
             )
-
         logger.info(f"Survey data saved to {survey_data_path}")
-
-        super().done()

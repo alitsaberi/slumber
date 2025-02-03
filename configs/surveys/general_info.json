@@ -1,0 +1,21 @@
+{
+    "logoPosition": "right",
+    "completedHtml": "<h3>Click Next to go to the next step</h3>",
+    "completedBeforeHtml": "<h3>You have already completed this.</h3>",
+    "loadingHtml": "<h3>Loading the content...</h3>",
+    "pages": [
+      {
+        "name": "general_info",
+        "elements": [
+          {
+            "type": "html",
+            "name": "panel1",
+            "readOnly": true,
+            "html": "During the session, you:\n<li> Will be wearing an EEG headband </li>\n<li> May be awakened </li>\n<li> May have a wake period </li>\n<li> May perform a cognitive training </li>\n<li> May receive sensory cues </li>\n<li> Will fill out several questionnaires </li>"
+          }
+        ]
+      }
+    ],
+    "showTitle": false,
+    "showPageTitles": false
+}
