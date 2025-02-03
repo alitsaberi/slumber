@@ -28,5 +28,14 @@ function initializeSurvey(surveyJson) {
         window.channelObject?.handle_survey_submission(JSON.stringify(sender.data));
     });
 
+    const converter = markdownit({
+        html: true // Support HTML tags in the source (unsafe, see documentation)
+    });
+    survey.onTextMarkdown.add((_, options) => {
+        // Convert Markdown to HTML
+        let str = converter.renderInline(options.text);
+        options.html = str;
+    });
+
     return survey;
 }

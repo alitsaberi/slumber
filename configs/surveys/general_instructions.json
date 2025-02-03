@@ -1,0 +1,41 @@
+{
+  "logoPosition": "right",
+  "completedHtml": "<h3>Click Next to go to the next step</h3>",
+  "completedBeforeHtml": "<h3>You have already completed this.</h3>",
+  "loadingHtml": "<h3>Loading the content...</h3>",
+  "pages": [
+    {
+      "name": "general_info",
+      "title": "Study Information",
+      "elements": [
+        {
+          "type": "html",
+          "name": "study_information",
+          "readOnly": true,
+          "html": "During the session, you:\n<li> Will be wearing an EEG headband </li>\n<li> May be awakened </li>\n<li> May have a wake period </li>\n<li> May perform a cognitive training </li>\n<li> May receive sensory cues </li>\n<li> Will fill out several questionnaires </li>"
+        }
+      ]
+    },
+    {
+      "name": "zmax_setup",
+      "title": "EEG Headband Setup",
+      "elements": [
+        {
+          "type": "html",
+          "name": "written_instruction",
+          "html": "<ol style=\"line-height: 1.6;\">\n    <li style=\"margin-bottom: 10px;\">Position the ZMax headband on a flat portion of your forehead, just above your eyebrows.</li>\n    <li style=\"margin-bottom: 10px;\">The lower central electrode should not protrude. If it does, you may trim a small portion to ensure a proper fit.</li>\n    <li style=\"margin-bottom: 10px;\">Ensure the headband fully covers the lateral sensing areas.</li>\n    <li style=\"margin-bottom: 10px;\">The headband should not be too loose to prevent shifting during sleep.</li>\n    <li style=\"margin-bottom: 10px;\">Tighten the headband at the back of your head, just below the inion bone, at a slight downward angle (not completely parallel to the ground).</li>\n    <li style=\"margin-bottom: 10px;\">No hair should be underneath the lateral sensing areas. If necessary, use smaller electrodes (female/children size) or trim a portion of the lateral sensing areas.</li>\n    <li style=\"margin-bottom: 10px;\">Ensure the metallic snaps are fully inserted. You should hear four distinct clicks when securing them and no clicks when wearing the device.</li>\n    <li style=\"margin-bottom: 10px;\">After wearing the headband, press gently on the device, sensing surfaces, and headband to confirm a snug fit that can withstand nighttime movements.</li>\n</ol>"
+        },
+        {
+          "type": "image",
+          "name": "video_instruction",
+          "imageLink": "file:///C:/Users/Mahdad/Projects/slumber/slumber/gui/resources/videos/how_to_wear_zmax.mp4",
+          "imageFit": "cover",
+          "imageHeight": "auto",
+          "imageWidth": "100%"
+        }
+      ]
+    }
+  ],
+  "showTitle": false,
+  "showPageTitles": false
+}
