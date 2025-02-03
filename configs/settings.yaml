@@ -9,9 +9,10 @@ hdf5:
 zmax:
   ip: 127.0.0.1
   port: 8000
-  retry_attempts: 12
+  retry_attempts: 3
   retry_delay: 5
   socket_timeout: 10
+  hypnodyne_suite_directory: "C:/Users/Mahdad/Desktop/ZMax"
 
 sleep_scoring:
   labels:

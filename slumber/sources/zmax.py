@@ -2,6 +2,8 @@ import socket
 from collections.abc import Callable
 from dataclasses import dataclass
 from enum import Enum
+from pathlib import Path
+from subprocess import Popen
 from time import sleep
 
 import numpy as np
@@ -27,6 +29,7 @@ SAMPLE_RATE = 256
 
 
 DEFAULTS = settings["zmax"]
+HDSERVER_APP_NAME = "HDServer.exe"
 
 
 class ConnectionClosedError(Exception):
@@ -85,6 +88,15 @@ def _scale_body_temperature(value: int) -> float:
 def _dec2hex(decimal: int, pad: int = 2) -> str:
     """Convert decimal to hexadecimal string with padding."""
     return format(decimal, f"0{pad}x").upper()
+
+
+def open_server(log_file_path: Path | None = None) -> None:
+    hypnodyne_suite_directory = Path(DEFAULTS["hypnodyne_suite_directory"])
+    hdserver_path = hypnodyne_suite_directory / HDSERVER_APP_NAME
+    Popen([hdserver_path], cwd=hypnodyne_suite_directory, stdout=open(log_file_path, "w"))
+    logger.info(
+        "Hypnodyne HDServer started", path=hdserver_path
+    )
 
 
 @dataclass

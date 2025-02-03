@@ -98,7 +98,7 @@ class SurveyPage(TaskPage, Ui_SurveyPage):
         self.output_directory = output_directory
         if output_directory is not None:
             self.output_directory = Path(output_directory)
-        
+
         self.web_engine_view.setPage(SurveyWebPage(self.web_engine_view))
 
         self._init_web_channel()
@@ -141,13 +141,12 @@ class SurveyPage(TaskPage, Ui_SurveyPage):
         self.info_dialog.exec()
 
     def done(self, survey_data: str) -> None:
-    
         if self.output_directory is not None:
             self._save_survey_data(survey_data)
 
         super().done()
-        
-    def _save_survey_data(self, survey_data: str) -> None:        
+
+    def _save_survey_data(self, survey_data: str) -> None:
         self.output_directory.mkdir(parents=True, exist_ok=True)
         survey_data_path = self.output_directory / create_timestamped_name(
             self.survey_config_path.stem, "json"

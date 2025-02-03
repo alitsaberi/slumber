@@ -189,6 +189,8 @@ components:
               survey_config_path: ../../configs/surveys/general_instructions.json
           - title: Empty
             widget: empty_with_web_view
+          - title: EEG Headband Connection
+            widget: zmax_connection
             
        
 
