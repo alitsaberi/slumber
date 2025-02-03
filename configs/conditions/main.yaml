@@ -190,6 +190,8 @@ components:
               output_directory: ./data/survey_responses
           - title: Test
             widget: empty
+          - title: Test
+            widget: empty_with_web_view
        
 
 connections:
