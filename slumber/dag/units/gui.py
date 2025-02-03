@@ -31,7 +31,7 @@ class Task(BaseModel):
                 raise ValueError(f"{e}") from e
 
             for _, obj in inspect.getmembers(widget_module, inspect.isclass):
-                if issubclass(obj, TaskPage):
+                if issubclass(obj, TaskPage) and obj != TaskPage:
                     return obj
 
             raise ValueError(f"Could not find a {TaskPage.__name__} widget in {v}")

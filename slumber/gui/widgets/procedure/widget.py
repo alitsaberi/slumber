@@ -89,6 +89,7 @@ class ProcedurePage(QWidget, Ui_ProcedurePage):
         self.task_list.addItem(item)
 
     def _add_task_page(self, task: "Task", idx: int, title: str, **kwargs) -> None:
+        logger.info(f"Adding task {idx + 1} - {task} to the list")
         task_page = task.widget(idx, title, **kwargs, parent=self)
         task_page.done_signal.connect(self._on_task_done)
         self.stacked_widget.addWidget(task_page)
