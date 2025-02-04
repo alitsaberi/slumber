@@ -1,124 +1,156 @@
+from enum import Enum
 from pathlib import Path
 
 from loguru import logger
 from PySide6.QtCore import QThread, Signal
 from PySide6.QtWidgets import QDialog, QWidget
 
+from slumber import settings
 from slumber.gui.widgets.tasks.base import TaskPage
 from slumber.scripts.run_session import LOGS_DIR_NAME
-from slumber.sources.zmax import ConnectionClosedError, HDServerAlreadyRunningError, ZMax, open_server
+from slumber.sources.zmax import (
+    DataType,
+    HDServerAlreadyRunningError,
+    ZMax,
+    open_server,
+    voltage_to_percentage,
+)
 
 from .widget_ui import Ui_ZMaxConnectionPage
 
-ATTEMPTING_CONNECTION = "Attempting to connect..."
-CONNECTED_SUCCESS = "✅ Connected to EEG headband successfully!"
-CONNECTED_FAILURE = "❌ Failed to connect to EEG headband."
 
-COLOR_ATTEMPTING = "color: #FFC107; font-weight: bold; padding: 10px;"
-COLOR_SUCCESS = "color: #4CAF50; font-weight: bold; padding: 10px;"
-COLOR_FAILURE = "color: #F44336; font-weight: bold; padding: 10px;"
+class Status(Enum):
+    ATTEMPTING = (
+        "Attempting to connect...",
+        "color: #FFC107; font-weight: bold; padding: 10px;",
+    )
+    SUCCESS = (
+        "✅ Connected | ✅ Battery level is sufficient.",
+        "color: #4CAF50; font-weight: bold; padding: 10px;",
+    )
+    FAILURE = (
+        "❌ Failed to connect to EEG headband.",
+        "color: #F44336; font-weight: bold; padding: 10px;",
+    )
+    BATTERY_LOW = (
+        "✅ Connected | ⚠ Battery low! Please charge and try again.",
+        "color: #FF9800; font-weight: bold; padding: 10px;",
+    )
 
-BUTTON_DISABLED_STYLE = """
-    background-color: #B0BEC5;
-    color: white;
-    font-weight: bold;
-    padding: 10px;
-    border-radius: 5px;
-"""
-BUTTON_ENABLED_STYLE = """
-    background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #4CAF50, stop:1 #2E7D32);
-    color: white;
-    font-weight: bold;
-    padding: 10px;
-    border-radius: 5px;
-"""
 
-HDSERVER_LOG_FILE_NAME = "hdserver.log"
+class ButtonStyle(Enum):
+    DISABLED = """
+        background-color: #B0BEC5;
+        color: white;
+        font-weight: bold;
+        padding: 10px;
+        border-radius: 5px;
+    """
+    ENABLED = """
+        background: qlineargradient(x1:0, y1:0, x2:1, 
+            y2:1, stop:0 #4CAF50, stop:1 #2E7D32);
+        color: white;
+        font-weight: bold;
+        padding: 10px;
+        border-radius: 5px;
+    """
+
+
+HDSERVER_LOG_FILE = Path(LOGS_DIR_NAME) / "hdserver.log"
 
 
 class ConnectThread(QThread):
-    """Thread for handling EEG server connection attempts."""
-
     connected = Signal(bool)
     process_created = Signal(object)
 
     def run(self) -> None:
         try:
-            hdserver = open_server(Path.cwd() / LOGS_DIR_NAME / HDSERVER_LOG_FILE_NAME)
+            hdserver = open_server(HDSERVER_LOG_FILE)
             self.process_created.emit(hdserver)
+        except HDServerAlreadyRunningError:
+            logger.debug("HDServer already running.")
         except (FileNotFoundError, PermissionError, OSError) as e:
             logger.error(f"Failed to open HDServer: {e}")
             self.connected.emit(False)
             return
-        except HDServerAlreadyRunningError as e:
-            logger.debug(e)
-        
+
+        self.connect_to_zmax()
+
+    def connect_to_zmax(self) -> None:
         try:
             with ZMax() as zmax:
-                zmax.read()
+                zmax.read()  # Ensure connection is established
                 self.connected.emit(True)
-                return
-        except TimeoutError as e:
-            logger.debug(e)
+        except Exception as e:
+            logger.error(f"ZMax connection error: {e}")
             self.connected.emit(False)
-            return
-        except (ConnectionError, ConnectionClosedError) as e:
-            logger.error(e)
-            self.connected.emit(False)
-            return
 
 
 class ZMaxConnectionPage(TaskPage, Ui_ZMaxConnectionPage):
     def __init__(self, index: int, title: str, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self.setupUi(self)
-
         self.index = index
         self.title.setText(title)
+
         self.info_dialog = self._init_info_dialog()
         self.connect_thread = ConnectThread()
 
         self._connect_signals()
 
     def _connect_signals(self) -> None:
-        self.connect_button.clicked.connect(self.on_connect)
-        self.info_button.clicked.connect(self.open_info_dialog)
-        self.connect_thread.connected.connect(self.on_connected)
+        self.connect_button.clicked.connect(self._on_connect)
+        self.info_button.clicked.connect(self.info_dialog.exec)
+        self.connect_thread.connected.connect(self._on_connected)
         self.connect_thread.process_created.connect(
             self.window().store_hdserver_process
         )
 
-    def on_connect(self) -> None:
-        logger.info("Connect button clicked")
-        self.status_label.setText(ATTEMPTING_CONNECTION)
-        self.status_label.setStyleSheet(COLOR_ATTEMPTING)
-
-        self.connect_button.setEnabled(False)
-        self.connect_button.setStyleSheet(BUTTON_DISABLED_STYLE)
-
+    def _on_connect(self) -> None:
+        self._update_status(Status.ATTEMPTING)
+        self._toggle_button(False)
         self.connect_thread.start()
 
-    def on_connected(self, success: bool) -> None:
+    def _on_connected(self, success: bool) -> None:
         if success:
-            self.status_label.setText(CONNECTED_SUCCESS)
-            self.status_label.setStyleSheet(COLOR_SUCCESS)
+            self._handle_successful_connection()
+        else:
+            self._update_status(Status.FAILURE)
+            self._toggle_button(True)
+
+    def _handle_successful_connection(self) -> None:
+        try:
+            with ZMax() as zmax:
+                battery_voltage = zmax.read(data_types=[DataType.BATTERY])[0]
+                battery_percentage = voltage_to_percentage(battery_voltage)
+                self._check_battery_level(battery_percentage)
+        except Exception as e:
+            logger.error(f"Battery check error: {e}")
+            self._update_status(Status.FAILURE)
+            self._toggle_button(True)
+
+    def _check_battery_level(self, battery_level: int) -> None:
+        self.battery_led.display(battery_level)
+        if battery_level >= settings["zmax"]["battery_threshold"]:
+            self._update_status(Status.SUCCESS)
+            self._toggle_button(False)
             self.done()
         else:
-            self.status_label.setText(CONNECTED_FAILURE)
-            self.status_label.setStyleSheet(COLOR_FAILURE)
+            self._update_status(Status.BATTERY_LOW)
+            self._toggle_button(True)
 
-            # Re-enable button and restore style
-            self.connect_button.setEnabled(True)
-            self.connect_button.setStyleSheet(BUTTON_ENABLED_STYLE)
+    def _update_status(self, status: Enum) -> None:
+        self.status_label.setText(status.value[0])
+        self.status_label.setStyleSheet(status.value[1])
+
+    def _toggle_button(self, enabled: bool) -> None:
+        self.connect_button.setEnabled(enabled)
+        style = ButtonStyle.ENABLED if enabled else ButtonStyle.DISABLED
+        self.connect_button.setStyleSheet(style.value)
 
     def _init_info_dialog(self) -> QDialog:
         from .info_ui import Ui_InfoDialog
 
         dialog = QDialog(self)
-        ui = Ui_InfoDialog()
-        ui.setupUi(dialog)
+        Ui_InfoDialog().setupUi(dialog)
         return dialog
-
-    def open_info_dialog(self) -> None:
-        logger.info("Opening info dialog")
-        self.info_dialog.exec()

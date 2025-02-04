@@ -27,6 +27,8 @@ STIMULATION_MAX_DURATION = 255
 LED_MIN_INTENSITY = 1
 LED_MAX_INTENSITY = 100
 SAMPLE_RATE = 256
+MIN_VOLTAGE = 3.2
+MAX_VOLTAGE = 4.2
 
 
 DEFAULTS = settings["zmax"]
@@ -124,7 +126,7 @@ def open_server(log_file_path: Path | None = None) -> Popen:
                 f"HDServer is already running as PID {proc.pid}"
             )
 
-    stdout = open(log_file_path, "w") if log_file_path else None # noqa: SIM115
+    stdout = open(log_file_path, "w") if log_file_path else None  # noqa: SIM115
 
     try:
         process = Popen(
@@ -136,6 +138,12 @@ def open_server(log_file_path: Path | None = None) -> Popen:
         if stdout:
             stdout.close()
         raise RuntimeError(f"Failed to start HDServer: {e}") from e
+
+
+def voltage_to_percentage(voltage: float) -> int:
+    voltage = max(MIN_VOLTAGE, min(voltage, MAX_VOLTAGE))
+    percentage = ((voltage - MIN_VOLTAGE) / (MAX_VOLTAGE - MIN_VOLTAGE)) * 100
+    return round(percentage)
 
 
 @dataclass
