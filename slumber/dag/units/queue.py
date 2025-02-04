@@ -40,6 +40,8 @@ class CountQueueSettings(QueueSettings):
 
 
 class TimeQueueSettings(QueueSettings):
+    publish_enabled: bool = False
+    publish_enabled_check_interval: float = Field(gt=0.0)
     publish_interval: float = Field(gt=0)
     sample_rate: int = Field(ge=1)
     gap_threshold: float = Field(ge=0)
@@ -61,6 +63,7 @@ class QueueState(ez.State):
 
 class TimeQueueState(QueueState):
     publish_rate: Rate
+    publish_enabled: bool
 
 
 class Queue(ez.Unit, Generic[T]):
@@ -126,15 +129,34 @@ class TimeQueue(Queue[Sample]):
     SETTINGS = TimeQueueSettings
     STATE = TimeQueueState
 
+    INPUT_PUBLISH_ENABLED = ez.InputStream(bool)
+
     OUTPUT = ez.OutputStream(Data)
 
     async def initialize(self):
         await super().initialize()
         self.STATE.publish_rate = Rate(1 / self.SETTINGS.publish_interval)
+        self.STATE.publish_enabled = self.SETTINGS.publish_enabled
+        
+    @ez.subscriber(INPUT_PUBLISH_ENABLED)
+    async def enable_publish(self, enabled: bool) -> None:
+        if enabled != self.STATE.publish_enabled:
+            logger.info(f"Publishing is {'enabled' if enabled else 'disabled'}.")
+            
+        self.STATE.publish_enabled = enabled
 
     @ez.publisher(OUTPUT)
     async def publish(self) -> AsyncGenerator:
         while True:
+            
+            if not self.STATE.publish_enabled:
+                logger.info(
+                    "Publishing is disabled. Trying again in"
+                    f" {self.SETTINGS.publish_enabled_check_interval} second."
+                )
+                await asyncio.sleep(self.SETTINGS.publish_enabled_check_interval)
+                continue
+            
             current_time = time.time()
             expected_publish_time = (
                 self.STATE.publish_rate.last_time + self.SETTINGS.publish_interval

@@ -31,6 +31,8 @@ components:
       leaky: True
       log_queue_size_interval: 5
       publish_interval: 10
+      publish_enabled: false
+      publish_enabled_check_interval: 5.0
       sample_rate: 256
       gap_threshold: 1.0
       channel_names: [EEG_LEFT, EEG_RIGHT]

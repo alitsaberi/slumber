@@ -115,7 +115,7 @@ class ZMaxDataReceiver(ez.Unit):
             logger.info("Disconnection signal received. Disconnecting from ZMax...")
             self.STATE.zmax.disconnect()
     
-    @ez.subscribe(INPUT_DATA_COLLECTION_ENABLED)
+    @ez.subscriber(INPUT_DATA_COLLECTION_ENABLED)
     async def enable(self, enabled: bool) -> None:
         if enabled != self.STATE.data_collection_enabled:
             logger.info(f"Data collection is {'enabled' if enabled else 'disabled'}.")
