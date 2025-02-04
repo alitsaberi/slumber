@@ -197,6 +197,10 @@ components:
               instruction_path: ../../configs/instructions/zmax_setup.md
           - title: EEG Headband Connection
             widget: zmax_connection
+          - title: Lucid Dream Task
+            widget: instruction
+            kwargs:
+              instruction_path: ../../configs/instructions/lucidity_task.md
             
        
 
