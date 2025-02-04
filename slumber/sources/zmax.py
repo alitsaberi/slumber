@@ -7,6 +7,7 @@ from subprocess import Popen
 from time import sleep
 
 import numpy as np
+import psutil
 from loguru import logger
 
 from slumber import settings
@@ -33,6 +34,10 @@ HDSERVER_APP_NAME = "HDServer.exe"
 
 
 class ConnectionClosedError(Exception):
+    pass
+
+
+class HDServerAlreadyRunningError(Exception):
     pass
 
 
@@ -90,13 +95,47 @@ def _dec2hex(decimal: int, pad: int = 2) -> str:
     return format(decimal, f"0{pad}x").upper()
 
 
-def open_server(log_file_path: Path | None = None) -> None:
+def open_server(log_file_path: Path | None = None) -> Popen:
+    """
+    Opens the Hypnodyne HDServer application.
+
+    Args:
+        log_file_path: Optional path to write server logs to
+
+    Returns:
+        Popen: Process handle for the server
+
+    Raises:
+        FileNotFoundError: If HDServer executable not found
+        HDServerAlreadyRunningError: If server is already running
+        RuntimeError: If server fails to start
+    """
     hypnodyne_suite_directory = Path(DEFAULTS["hypnodyne_suite_directory"])
     hdserver_path = hypnodyne_suite_directory / HDSERVER_APP_NAME
-    Popen([hdserver_path], cwd=hypnodyne_suite_directory, stdout=open(log_file_path, "w"))
-    logger.info(
-        "Hypnodyne HDServer started", path=hdserver_path
-    )
+
+    # Validate server executable exists
+    if not hdserver_path.exists():
+        raise FileNotFoundError(f"HDServer executable not found at {hdserver_path}")
+
+    # Check if server already running
+    for proc in psutil.process_iter(["name"]):
+        if proc.info["name"] == HDSERVER_APP_NAME:
+            raise HDServerAlreadyRunningError(
+                f"HDServer is already running as PID {proc.pid}"
+            )
+
+    stdout = open(log_file_path, "w") if log_file_path else None # noqa: SIM115
+
+    try:
+        process = Popen(
+            [str(hdserver_path)], cwd=hypnodyne_suite_directory, stdout=stdout
+        )
+        logger.info("Hypnodyne HDServer started", path=hdserver_path, pid=process.pid)
+        return process
+    except Exception as e:
+        if stdout:
+            stdout.close()
+        raise RuntimeError(f"Failed to start HDServer: {e}") from e
 
 
 @dataclass
@@ -244,7 +283,10 @@ class ZMax:
         while True:
             char = self._socket.recv(1)
             if not char:
-                raise ConnectionClosedError("The connection was closed by the server.")
+                raise ConnectionClosedError(
+                    "The connection was closed by the server."
+                    " Make sure the server is running."
+                )
 
             if char == b"\r":
                 continue

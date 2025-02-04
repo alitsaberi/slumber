@@ -1,4 +1,5 @@
 import typing
+from subprocess import Popen
 
 from loguru import logger
 from PySide6.QtWidgets import (
@@ -27,6 +28,17 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         super().__init__()
         self.setupUi(self)  # Setup the UI from the generated class
         self._initialize_widgets()
+        self._hdserver_process = None
+
+    def store_hdserver_process(self, process: Popen):
+        self._hdserver_process = process
+
+    def closeEvent(self, event):
+        if self._hdserver_process:
+            logger.info("Terminating HDServer process")
+            self._hdserver_process.terminate()
+            self._hdserver_process.wait()
+        super().closeEvent(event)
 
     def _initialize_widgets(self) -> None:
         self._setup_home_page()
