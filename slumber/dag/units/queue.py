@@ -137,18 +137,17 @@ class TimeQueue(Queue[Sample]):
         await super().initialize()
         self.STATE.publish_rate = Rate(1 / self.SETTINGS.publish_interval)
         self.STATE.publish_enabled = self.SETTINGS.publish_enabled
-        
+
     @ez.subscriber(INPUT_PUBLISH_ENABLED)
     async def enable_publish(self, enabled: bool) -> None:
         if enabled != self.STATE.publish_enabled:
             logger.info(f"Publishing is {'enabled' if enabled else 'disabled'}.")
-            
+
         self.STATE.publish_enabled = enabled
 
     @ez.publisher(OUTPUT)
     async def publish(self) -> AsyncGenerator:
         while True:
-            
             if not self.STATE.publish_enabled:
                 logger.info(
                     "Publishing is disabled. Trying again in"
@@ -156,7 +155,7 @@ class TimeQueue(Queue[Sample]):
                 )
                 await asyncio.sleep(self.SETTINGS.publish_enabled_check_interval)
                 continue
-            
+
             current_time = time.time()
             expected_publish_time = (
                 self.STATE.publish_rate.last_time + self.SETTINGS.publish_interval

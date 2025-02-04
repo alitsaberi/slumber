@@ -102,7 +102,7 @@ class ZMaxDataReceiver(ez.Unit):
 
     async def shutdown(self) -> None:
         self.STATE.zmax.disconnect()
-        
+
     @ez.subscriber(INPUT_CONNECT_SIGNAL)
     async def connect(self, connect: bool) -> None:
         if connect:
@@ -114,14 +114,14 @@ class ZMaxDataReceiver(ez.Unit):
         else:
             logger.info("Disconnection signal received. Disconnecting from ZMax...")
             self.STATE.zmax.disconnect()
-    
+
     @ez.subscriber(INPUT_DATA_COLLECTION_ENABLED)
     async def enable(self, enabled: bool) -> None:
         if enabled != self.STATE.data_collection_enabled:
             logger.info(f"Data collection is {'enabled' if enabled else 'disabled'}.")
-            
+
         self.STATE.data_collection_enabled = enabled
-        
+
     @ez.main
     @ez.publisher(OUTPUT_SAMPLE)
     async def publish_sample(self) -> AsyncGenerator:
@@ -131,9 +131,11 @@ class ZMaxDataReceiver(ez.Unit):
                     "Data collection is disabled. Trying again in"
                     f" {self.SETTINGS.data_collection_enabled_check_interval} second."
                 )
-                await asyncio.sleep(self.SETTINGS.data_collection_enabled_check_interval)
+                await asyncio.sleep(
+                    self.SETTINGS.data_collection_enabled_check_interval
+                )
                 continue
-                
+
             try:
                 array = self.STATE.zmax.read(self.SETTINGS.data_types)
                 yield (
@@ -144,13 +146,13 @@ class ZMaxDataReceiver(ez.Unit):
                         channel_names=self.SETTINGS.channel_names,
                     ),
                 )
-            except TimeoutError as e:                
+            except TimeoutError:
                 logger.warning(
                     "Timeout while reading from ZMax: {e}."
                     " Possible causes: Connection between ZMax and PC is lost"
                     " (e.g., ZMax is off or dongle is disconnected)"
                     " or HDRecorder has never been connected."
-                    f" Reconnecting in {self.SETTINGS.retry_delay}", 
+                    f" Reconnecting in {self.SETTINGS.retry_delay}",
                     connected=self.STATE.zmax.is_connected(),
                 )
                 # TODO: Inform user about the problem
@@ -170,14 +172,13 @@ class ZMaxDataReceiver(ez.Unit):
                     retry_attempts=self.SETTINGS.retry_attempts,
                     retry_delay=self.SETTINGS.retry_delay,
                 )
-                
 
     @ez.subscriber(INPUT_STIMULATION_SIGNAL)
     async def stimulate(self, signal: ZMaxStimulationSignal) -> None:
         logger.debug(f"Stimulating {signal}")
-        
+
         if not self.STATE.zmax.is_connected():
             logger.warning("ZMax is not enabled. Stimulation signal is ignored.")
             return
-        
+
         self.STATE.zmax.stimulate(**signal.model_dump())
