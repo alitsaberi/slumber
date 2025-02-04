@@ -187,12 +187,10 @@ components:
       procedures:
         - name: pre_sleep
           tasks:
-          - title: General Information
-            widget: survey
+          - title: Study Information
+            widget: instruction
             kwargs:
-              survey_config_path: ../../configs/surveys/general_instructions.json
-          - title: Empty
-            widget: empty_with_web_view
+              instruction_path: ../../configs/instructions/study_information.md
           - title: EEG Headband Connection
             widget: zmax_connection
             

@@ -17,6 +17,7 @@ loguru = "^0.7.2"
 pyttsx3 = "^2.98"
 pyside6 = "^6.8.1.1"
 jinja2 = "^3.1.5"
+markdown = "^3.7"
 
 [tool.poetry.group.sleep_scoring.dependencies]
 tensorflow-io-gcs-filesystem = "~0.31"
