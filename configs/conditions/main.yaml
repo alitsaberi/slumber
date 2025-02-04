@@ -191,6 +191,10 @@ components:
             widget: instruction
             kwargs:
               instruction_path: ../../configs/instructions/study_information.md
+          - title: EEG Headband Setup
+            widget: instruction
+            kwargs:
+              instruction_path: ../../configs/instructions/zmax_setup.md
           - title: EEG Headband Connection
             widget: zmax_connection
             

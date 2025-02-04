@@ -5,76 +5,136 @@
   padding: 0;
 }
 
-/* Style for the main FAQ container */
-.faq-container {
-  max-width: 800px; /* Limit the width for better readability */
-  margin: 50px auto; /* Center the container and add vertical spacing */
+/* Global styling */
+body {
+  background-color: #1a1a1a; /* Dark background for contrast */
+  font-family: Arial, sans-serif;
+  color: #ddd; /* Light text for readability */
+  line-height: 1.6; /* Improved spacing for readability */
   padding: 20px;
-  font-family: "Arial, sans-serif";
-  color: #333; /* Base text color */
 }
 
-/* Style for the main title */
+/* Main FAQ container */
+.faq-container {
+  max-width: 800px; /* Limit width for readability */
+  margin: 40px auto; /* Center and add vertical spacing */
+  padding: 25px;
+  background-color: #2c3e50; /* Dark blue background */
+  border-radius: 10px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* Main title */
 .faq-container h1 {
   text-align: center;
-  margin-bottom: 40px;
-  color: #2c3e50; /* Dark blue color for the title */
+  margin-bottom: 25px;
+  color: #ecf0f1; /* Light blue-gray color */
+  font-size: 26px;
 }
 
-/* Style for each FAQ item */
+/* Setup instructions */
+.setup-instructions h2 {
+  margin-top: 25px;
+  margin-bottom: 10px;
+  color: #f1c40f; /* Yellow for section titles */
+  font-size: 22px;
+}
+
+.setup-instructions ul {
+  list-style-type: square;
+  margin-left: 25px;
+  padding-left: 10px;
+}
+
+.setup-instructions ul li {
+  margin-bottom: 8px; /* Space between list items */
+}
+
+/* FAQ Section */
+.faq-container h2 {
+  margin-top: 30px;
+  font-size: 22px;
+  color: #f1c40f;
+}
+
+/* FAQ Item */
 .faq-item {
-  border-bottom: 1px solid #ddd; /* Light gray border between items */
-  overflow: hidden; /* Hide overflowing content */
+  border-bottom: 1px solid #34495e; /* Darker blue-gray border */
+  margin-top: 15px;
+  padding-bottom: 10px;
 }
 
-/* Style for the question buttons */
+/* FAQ Question Button */
 .faq-question {
-  background-color: #ecf0f1; /* Light gray background */
+  background-color: #2980b9; /* Bright blue background */
   width: 100%;
-  padding: 20px;
+  padding: 18px;
   text-align: left;
   font-size: 18px;
+  color: white;
   border: none;
   outline: none;
   cursor: pointer;
   position: relative;
-  transition: background-color 0.3s ease; /* Smooth background transition on hover */
+  transition: background-color 0.3s ease; /* Smooth background transition */
+  border-radius: 5px;
+  font-weight: bold;
+  margin-top: 8px;
 }
 
 /* Hover effect for question buttons */
 .faq-question:hover {
-  background-color: #d0d7de; /* Slightly darker gray on hover */
+  background-color: #3498db; /* Slightly lighter blue on hover */
 }
 
-/* Style for the arrow icon */
+/* Arrow styling */
 .faq-question .arrow {
   position: absolute;
   right: 20px;
   transition: transform 0.3s ease; /* Smooth rotation transition */
 }
 
-/* Rotate the arrow when the question is active (expanded) */
+/* Rotate arrow when expanded */
 .faq-question.active .arrow {
-  transform: rotate(180deg); /* Rotate arrow 180 degrees */
+  transform: rotate(180deg);
 }
 
-/* Style for the answer sections */
+/* FAQ Answer */
 .faq-answer {
-  max-height: 0; /* Initially hide the answer */
+  max-height: 0; /* Initially hidden */
   overflow: hidden;
-  transition: max-height 0.3s ease; /* Smooth transition for expanding */
-  background-color: #fff; /* White background for answers */
+  transition: max-height 0.3s ease;
+  background-color: #34495e;
+  padding: 0 18px;
+  border-radius: 5px;
+  margin-top: 5px;
 }
 
-/* Style for the answer text */
+/* Answer Content */
+.faq-answer ul,
+.faq-answer ol {
+  padding: 15px;
+  list-style-position: inside;
+}
+
 .faq-answer p {
-  padding: 20px;
-  font-size: 16px;
-  line-height: 1.5; /* Increase line height for better readability */
-  color: #555; /* Slightly lighter text color for answers */
+  padding: 15px;
+  color: #ecf0f1;
 }
 
-/* Harmonious color palette for the body background */
-body {
-  background-color: #f5f7fa; /* Very light blue-gray background */
+/* Responsive Design */
+@media (max-width: 600px) {
+  .faq-container {
+    padding: 18px;
+  }
+
+  .faq-question {
+    font-size: 16px;
+    padding: 14px;
+  }
+
+  .setup-instructions h2,
+  .faq-container h2 {
+    font-size: 20px;
+  }
 }
