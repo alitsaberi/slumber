@@ -1,4 +1,5 @@
 from pathlib import Path
+
 from loguru import logger
 from PySide6.QtCore import QThread, Signal
 from PySide6.QtWidgets import QDialog, QWidget
@@ -34,14 +35,17 @@ BUTTON_ENABLED_STYLE = """
 
 HDSERVER_LOG_FILE_NAME = "hdserver.log"
 
+
 class ConnectThread(QThread):
     """Thread for handling EEG server connection attempts."""
 
     connected = Signal(bool)
+    process_created = Signal(object)
 
     def run(self) -> None:
         try:
-            open_server(Path.cwd() / LOGS_DIR_NAME / HDSERVER_LOG_FILE_NAME)
+            hdserver = open_server(Path.cwd() / LOGS_DIR_NAME / HDSERVER_LOG_FILE_NAME)
+            self.process_created.emit(hdserver)
         except (FileNotFoundError, PermissionError, OSError) as e:
             logger.error(f"Failed to open HDServer: {e}")
             self.connected.emit(False)
@@ -66,11 +70,17 @@ class ZMaxConnectionPage(TaskPage, Ui_ZMaxConnectionPage):
         self.index = index
         self.title.setText(title)
         self.info_dialog = self._init_info_dialog()
+        self.connect_thread = ConnectThread()
+
         self._connect_signals()
 
     def _connect_signals(self) -> None:
         self.connect_button.clicked.connect(self.on_connect)
         self.info_button.clicked.connect(self.open_info_dialog)
+        self.connect_thread.connected.connect(self.on_connected)
+        self.connect_thread.process_created.connect(
+            self.window().store_hdserver_process
+        )
 
     def on_connect(self) -> None:
         logger.info("Connect button clicked")
@@ -80,8 +90,6 @@ class ZMaxConnectionPage(TaskPage, Ui_ZMaxConnectionPage):
         self.connect_button.setEnabled(False)
         self.connect_button.setStyleSheet(BUTTON_DISABLED_STYLE)
 
-        self.connect_thread = ConnectThread()
-        self.connect_thread.connected.connect(self.on_connected)
         self.connect_thread.start()
 
     def on_connected(self, success: bool) -> None:
