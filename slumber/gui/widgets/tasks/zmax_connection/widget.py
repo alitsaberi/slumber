@@ -6,13 +6,13 @@ from PySide6.QtWidgets import QDialog, QWidget
 
 from slumber.gui.widgets.tasks.base import TaskPage
 from slumber.scripts.run_session import LOGS_DIR_NAME
-from slumber.sources.zmax import ZMax, open_server
+from slumber.sources.zmax import ConnectionClosedError, HDServerAlreadyRunningError, ZMax, open_server
 
 from .widget_ui import Ui_ZMaxConnectionPage
 
 ATTEMPTING_CONNECTION = "Attempting to connect..."
-CONNECTED_SUCCESS = "✅ Connected to EEG server successfully!"
-CONNECTED_FAILURE = "❌ Failed to connect to EEG server."
+CONNECTED_SUCCESS = "✅ Connected to EEG headband successfully!"
+CONNECTED_FAILURE = "❌ Failed to connect to EEG headband."
 
 COLOR_ATTEMPTING = "color: #FFC107; font-weight: bold; padding: 10px;"
 COLOR_SUCCESS = "color: #4CAF50; font-weight: bold; padding: 10px;"
@@ -50,13 +50,19 @@ class ConnectThread(QThread):
             logger.error(f"Failed to open HDServer: {e}")
             self.connected.emit(False)
             return
-
-        zmax = ZMax()
+        except HDServerAlreadyRunningError as e:
+            logger.debug(e)
+        
         try:
-            zmax.connect()
-            self.connected.emit(True)
+            with ZMax() as zmax:
+                zmax.read()
+                self.connected.emit(True)
+                return
+        except TimeoutError as e:
+            logger.debug(e)
+            self.connected.emit(False)
             return
-        except ConnectionError as e:
+        except (ConnectionError, ConnectionClosedError) as e:
             logger.error(e)
             self.connected.emit(False)
             return
