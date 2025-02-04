@@ -7,6 +7,8 @@ components:
     settings:
       zmax:
         socket_timeout: 1
+      data_collection_enabled: false
+      data_collection_enabled_check_interval: 5.0
       data_types:
         - EEG_LEFT
         - EEG_RIGHT
