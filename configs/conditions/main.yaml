@@ -207,6 +207,11 @@ components:
               accepted_eye_signals: [LRLR]
               difference_threshold: 280
               max_test_duration: 30
+          - title: Light Cueing
+            widget: instruction
+            kwargs:
+              instruction_path: ../../configs/instructions/light_cueing.md
+          
 
 connections:
   - [ZMAX.OUTPUT_SAMPLE, ZMAX_STORAGE_QUEUE.INPUT]
