@@ -201,8 +201,12 @@ components:
             widget: instruction
             kwargs:
               instruction_path: ../../configs/instructions/lucidity_task.md
-            
-       
+          - title: Eye Movement Detection Test
+            widget: eye_test
+            kwargs:
+              accepted_eye_signals: [LRLR]
+              difference_threshold: 280
+              max_test_duration: 30
 
 connections:
   - [ZMAX.OUTPUT_SAMPLE, ZMAX_STORAGE_QUEUE.INPUT]
