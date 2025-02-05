@@ -2,7 +2,7 @@ from enum import Enum
 from pathlib import Path
 
 from loguru import logger
-from PySide6.QtCore import QThread, Signal
+from PySide6.QtCore import QThread, Signal, QTimer
 from PySide6.QtWidgets import QDialog, QWidget
 
 from slumber import settings
@@ -115,8 +115,7 @@ class ZMaxConnectionPage(TaskPage, Ui_ZMaxConnectionPage):
         if success:
             self._handle_successful_connection()
         else:
-            self._update_status(Status.FAILURE)
-            self._toggle_button(True)
+            self._handle_failed_connection()
 
     def _handle_successful_connection(self) -> None:
         try:
@@ -126,8 +125,11 @@ class ZMaxConnectionPage(TaskPage, Ui_ZMaxConnectionPage):
                 self._check_battery_level(battery_percentage)
         except Exception as e:
             logger.error(f"Battery check error: {e}")
-            self._update_status(Status.FAILURE)
-            self._toggle_button(True)
+            self._handle_failed_connection()
+
+    def _handle_failed_connection(self) -> None:
+        self._update_status(Status.FAILURE)
+        self._toggle_button(True)
 
     def _check_battery_level(self, battery_level: int) -> None:
         self.battery_led.display(battery_level)
