@@ -2,7 +2,7 @@ from enum import Enum
 from pathlib import Path
 
 from loguru import logger
-from PySide6.QtCore import QThread, Signal, QTimer
+from PySide6.QtCore import QThread, Signal
 from PySide6.QtWidgets import QDialog, QWidget
 
 from slumber import settings

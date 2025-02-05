@@ -211,7 +211,19 @@ components:
             widget: instruction
             kwargs:
               instruction_path: ../../configs/instructions/light_cueing.md
-          
+          - title: Light Cue Calibration
+            widget: light_cue_calibration
+            kwargs:
+              min: 5
+              max: 100
+              step: 5
+              led_color: RED
+              repetitions: 3
+              on_duration: 5
+              off_duration: 5
+              alternate_eyes: false
+              countdown_seconds: 5
+
 
 connections:
   - [ZMAX.OUTPUT_SAMPLE, ZMAX_STORAGE_QUEUE.INPUT]
