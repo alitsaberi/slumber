@@ -10,9 +10,7 @@ from slumber.gui.widgets.tasks.base import TaskPage
 from slumber.scripts.run_session import LOGS_DIR_NAME
 from slumber.sources.zmax import (
     DataType,
-    HDServerAlreadyRunningError,
     ZMax,
-    open_server,
     voltage_to_percentage,
 )
 
@@ -56,27 +54,10 @@ class ButtonStyle(Enum):
     """
 
 
-HDSERVER_LOG_FILE = Path(LOGS_DIR_NAME) / "hdserver.log"
-
-
 class ConnectThread(QThread):
     connected = Signal(bool)
-    process_created = Signal(object)
 
     def run(self) -> None:
-        try:
-            hdserver = open_server(HDSERVER_LOG_FILE)
-            self.process_created.emit(hdserver)
-        except HDServerAlreadyRunningError:
-            logger.debug("HDServer already running.")
-        except (FileNotFoundError, PermissionError, OSError) as e:
-            logger.error(f"Failed to open HDServer: {e}")
-            self.connected.emit(False)
-            return
-
-        self.connect_to_zmax()
-
-    def connect_to_zmax(self) -> None:
         try:
             with ZMax() as zmax:
                 zmax.read()  # Ensure connection is established
@@ -84,6 +65,7 @@ class ConnectThread(QThread):
         except Exception as e:
             logger.error(f"ZMax connection error: {e}")
             self.connected.emit(False)
+        
 
 
 class ZMaxConnectionPage(TaskPage, Ui_ZMaxConnectionPage):
