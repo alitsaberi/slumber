@@ -46,7 +46,7 @@ class SleepPage(QWidget, Ui_SleepPage):
         reply = QMessageBox.question(
             self,
             "Confirm Wake-Up",
-            "Are you sure you are awake?",
+            "Are you sure?",
             QMessageBox.Yes | QMessageBox.No,
             QMessageBox.No,
         )

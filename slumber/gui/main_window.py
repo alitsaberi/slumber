@@ -1,6 +1,5 @@
-from pathlib import Path
 import typing
-from subprocess import Popen
+from pathlib import Path
 
 from loguru import logger
 from PySide6.QtWidgets import (

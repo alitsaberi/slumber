@@ -101,6 +101,7 @@ class ZMaxDataReceiver(ez.Unit):
         self.STATE.data_collection_enabled = self.SETTINGS.data_collection_enabled
 
     async def shutdown(self) -> None:
+        self.STATE.data_collection_enabled = False
         self.STATE.zmax.disconnect()
 
     @ez.subscriber(INPUT_CONNECT_SIGNAL)

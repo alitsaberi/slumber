@@ -87,13 +87,14 @@ def parse_args() -> argparse.Namespace:
     )
     return parser.parse_args()
 
+
 def main():
     args = parse_args()
     config_file = _get_condition_config_file(args.condition_config_name)
     run_directory = _create_run_directory(args.condition_config_name)
     _setup_logging(run_directory)
     os.chdir(run_directory)
-    
+
     session_config = CollectionConfig.model_validate(load_yaml(config_file))
     logger.info(
         f"Running collection {session_config.name if session_config.name else ''}"
