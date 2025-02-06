@@ -357,7 +357,6 @@ description = "Pure Python COM package"
 optional = false
 python-versions = ">=3.8"
 groups = ["main"]
-markers = "platform_system == \"Windows\""
 files = [
     {file = "comtypes-1.4.9-py3-none-any.whl", hash = "sha256:ee03793e293b2be3db3a30591af2c5b217c977b0115ab43d9dd68114335f371d"},
     {file = "comtypes-1.4.9.zip", hash = "sha256:b93df9371193734b4a2b0ebe1bbd2e548f3cf79cf508dcfbd59cb6b9affd372f"},
@@ -1880,7 +1879,7 @@ version = "6.1.1"
 description = "Cross-platform lib for process and system monitoring in Python."
 optional = false
 python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,!=3.5.*,>=2.7"
-groups = ["sleep_scoring"]
+groups = ["main", "sleep_scoring"]
 files = [
     {file = "psutil-6.1.1-cp27-cp27m-macosx_10_9_x86_64.whl", hash = "sha256:9ccc4316f24409159897799b83004cb1e24f9819b0dcf9c0b68bdcb6cefee6a8"},
     {file = "psutil-6.1.1-cp27-cp27m-manylinux2010_i686.whl", hash = "sha256:ca9609c77ea3b8481ab005da74ed894035936223422dc591d6772b147421f777"},
@@ -1943,6 +1942,22 @@ files = [
 
 [package.dependencies]
 pyasn1 = ">=0.4.6,<0.7.0"
+
+[[package]]
+name = "pycaw"
+version = "20240210"
+description = "Python Core Audio Windows Library"
+optional = false
+python-versions = "*"
+groups = ["main"]
+files = [
+    {file = "pycaw-20240210-py3-none-any.whl", hash = "sha256:fbbe0ee67a7d32714240e26913266a386ae4375778c417a7e8ad6076eca62f1e"},
+    {file = "pycaw-20240210.tar.gz", hash = "sha256:55e49359e9f227053f4fa15817a02d4a7bc52fc3db32e123894719a123c41d06"},
+]
+
+[package.dependencies]
+comtypes = "*"
+psutil = "*"
 
 [[package]]
 name = "pycparser"
@@ -6845,4 +6860,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.10,<3.11"
-content-hash = "debd70a46fb87ebb10479c3fe9f290d53d127e8e249472f464c502fbf33c7e0b"
+content-hash = "af2ddf009637082ca749cc4d1223bb59fd5d770b6c52cc35c809f0843d3cbca4"

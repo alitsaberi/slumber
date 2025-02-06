@@ -223,6 +223,19 @@ components:
               off_duration: 5
               alternate_eyes: false
               countdown_seconds: 5
+          - title: Audio Cueing
+            widget: instruction
+            kwargs:
+              instruction_path: ../../configs/instructions/audio_cueing.md
+          - title: Audio Cue Calibration
+            widget: audio_cue_calibration
+            kwargs:
+              min: 5
+              max: 100
+              step: 5
+              countdown_seconds: 5
+              rate: 175
+              text: You are dreaming
 
 
 connections:
