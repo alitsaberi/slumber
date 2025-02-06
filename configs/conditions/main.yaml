@@ -7,7 +7,7 @@ components:
     settings:
       zmax:
         socket_timeout: 1
-      data_collection_enabled: false
+      data_collection_enabled: true
       data_collection_enabled_check_interval: 5.0
       data_types:
         - EEG_LEFT
@@ -31,7 +31,7 @@ components:
       leaky: True
       log_queue_size_interval: 5
       publish_interval: 10
-      publish_enabled: false
+      publish_enabled: true
       publish_enabled_check_interval: 5.0
       sample_rate: 256
       gap_threshold: 1.0
@@ -204,7 +204,7 @@ components:
           - title: Eye Movement Detection Test
             widget: eye_test
             kwargs:
-              accepted_eye_signals: [LRLR]
+              accepted_eye_signals: [LRL, RLR]
               difference_threshold: 280
               max_test_duration: 30
           - title: Light Cueing
@@ -236,6 +236,12 @@ components:
               countdown_seconds: 5
               rate: 175
               text: You are dreaming
+        - name: subjectve_assessment
+          tasks:
+          - title: Subjectve Assessment
+            widget: survey
+            kwargs:
+              survey_config_path: ../../configs/surveys/experience_questionnaire.json
 
 
 connections:
@@ -263,6 +269,5 @@ connections:
   - [MASTER.OUTPUT_WAKE_UP_SIGNAL, ZMAX.INPUT_STIMULATION_SIGNAL]
   - [MASTER.OUTPUT_LOG_EVENT, EVENT_LOGGER.INPUT_MESSAGE]
   - [REM_CUEING.OUTPUT_LOG_EVENT, EVENT_LOGGER.INPUT_MESSAGE]
-
 
 process_components: [GUI]

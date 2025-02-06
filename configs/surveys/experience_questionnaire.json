@@ -1,0 +1,261 @@
+{
+  "description": "Think back to the last few minutes and answer the following questions:",
+  "completedHtml": "<h3>Click Done to continue</h3>",
+  "pages": [
+    {
+      "name": "page1",
+      "elements": [
+        {
+          "type": "radiogroup",
+          "name": "question1",
+          "title": "Did you have any experiences?",
+          "isRequired": true,
+          "choices": [
+            {
+              "value": "Item 1",
+              "text": "Yes, I had an experience."
+            },
+            {
+              "value": "Item 2",
+              "text": "Yes, I remember having an experience but I cannot recall."
+            },
+            {
+              "value": "Item 3",
+              "text": "No, I don't remember any experiences from the last few minutes."
+            }
+          ]
+        },
+        {
+          "type": "comment",
+          "name": "question2",
+          "visibleIf": "{question1} = 'Item 1'",
+          "title": "If you have, please describe your experience in as much detail as possible:\na) How did you experience it?\nb) What were your feelings, sensations, emotions, or thoughts during the experience?\nc) Could you estimate how long this experience seemed to last (e.g., seconds, minutes)? Please provide further clarification on the timing of different events or phases within this experience.\n",
+          "description": "(Please indicate whether it was a dream and provide details about the setting, including locations, objects, and colors, as well as any characters present. Reflect on whether you were aware that you were dreaming (lucid), and if so, describe how and when this awareness began and ended, and the realization process. Additionally, mention any sensory experiences you had. If you signaled with your eyes, please describe how (e.g., complete or not) and at what specific moment you did so.)\n",
+          "isRequired": true
+        },
+        {
+          "type": "radiogroup",
+          "name": "question3",
+          "visibleIf": "{question1} anyof ['Item 1', 'Item 2']",
+          "title": "Were you asleep during this experience?",
+          "isRequired": true,
+          "choices": [
+            {
+              "value": "Item 1",
+              "text": "Yes"
+            },
+            {
+              "value": "Item 2",
+              "text": "No"
+            },
+            {
+              "value": "Item 3",
+              "text": "Not sure"
+            }
+          ]
+        },
+        {
+          "type": "radiogroup",
+          "name": "question4",
+          "visibleIf": "{question1} anyof ['Item 1', 'Item 2'] and {question3} anyof ['Item 1', 'Item 3']",
+          "title": "Were you dreaming?",
+          "isRequired": true,
+          "choices": [
+            {
+              "value": "Item 1",
+              "text": "Yes"
+            },
+            {
+              "value": "Item 2",
+              "text": "No"
+            },
+            {
+              "value": "Item 3",
+              "text": "Not sure"
+            }
+          ]
+        },
+        {
+          "type": "radiogroup",
+          "name": "question5",
+          "visibleIf": "{question1} anyof ['Item 1', 'Item 2'] and {question3} anyof ['Item 1', 'Item 3']",
+          "title": "Did you have any awareness that you were dreaming?",
+          "isRequired": true,
+          "choices": [
+            {
+              "value": "Item 1",
+              "text": "Yes"
+            },
+            {
+              "value": "Item 2",
+              "text": "No"
+            },
+            {
+              "value": "Item 3",
+              "text": "Not sure"
+            }
+          ]
+        },
+        {
+          "type": "radiogroup",
+          "name": "question6",
+          "visibleIf": "{question1} anyof ['Item 1', 'Item 2'] and {question3} anyof ['Item 1', 'Item 3'] and {question5} = 'Item 1'",
+          "title": "If so, based on seconds, could you estimate how long your awareness seemed to last?",
+          "isRequired": true,
+          "choices": [
+            {
+              "value": "Item 1",
+              "text": "1-10 seconds"
+            },
+            {
+              "value": "Item 2",
+              "text": "11-60 seconds"
+            },
+            {
+              "value": "Item 3",
+              "text": "2-5 minutes."
+            },
+            {
+              "value": "Item 4",
+              "text": ">6 minutes"
+            }
+          ]
+        },
+        {
+          "type": "radiogroup",
+          "name": "question7",
+          "visibleIf": "{question1} anyof ['Item 1', 'Item 2'] and {question3} anyof ['Item 1', 'Item 3'] and {question5} anyof ['Item 1', 'Item 2', 'Item 3']",
+          "title": "Did you feel any sense of control over this experience?",
+          "isRequired": true,
+          "choices": [
+            {
+              "value": "Item 1",
+              "text": "Yes"
+            },
+            {
+              "value": "Item 2",
+              "text": "No"
+            },
+            {
+              "value": "Item 3",
+              "text": "Not sure"
+            }
+          ]
+        },
+        {
+          "type": "radiogroup",
+          "name": "question8",
+          "visibleIf": "{question1} anyof ['Item 1', 'Item 2'] and {question3} anyof ['Item 1', 'Item 3'] and {question7} = 'Item 1'",
+          "title": "If so, based on seconds, could you estimate how long your sense of control seemed to last?",
+          "isRequired": true,
+          "choices": [
+            {
+              "value": "Item 1",
+              "text": "1-10 seconds"
+            },
+            {
+              "value": "Item 2",
+              "text": "11-60 seconds"
+            },
+            {
+              "value": "Item 3",
+              "text": "2-5 minutes"
+            },
+            {
+              "value": "Item 4",
+              "text": ">6 minutes"
+            }
+          ]
+        },
+        {
+          "type": "radiogroup",
+          "name": "question9",
+          "visibleIf": "{question1} anyof ['Item 1', 'Item 2'] and {question3} anyof ['Item 1', 'Item 3'] and {question7} = 'Item 1'",
+          "title": "Did you remember making an eye signal while you were having this experience?",
+          "isRequired": true,
+          "choices": [
+            {
+              "value": "Item 1",
+              "text": "Yes"
+            },
+            {
+              "value": "Item 2",
+              "text": "No"
+            },
+            {
+              "value": "Item 3",
+              "text": "Not sure"
+            }
+          ]
+        },
+        {
+          "type": "radiogroup",
+          "name": "question10",
+          "visibleIf": "{question1} anyof ['Item 1', 'Item 2'] and {question3} anyof ['Item 2', 'Item 1', 'Item 3']",
+          "title": "Did you notice any cues while you were having this experience? ",
+          "isRequired": true,
+          "choices": [
+            {
+              "value": "Item 1",
+              "text": "Yes"
+            },
+            {
+              "value": "Item 2",
+              "text": "No"
+            },
+            {
+              "value": "Item 3",
+              "text": "Not sure"
+            }
+          ]
+        },
+        {
+          "type": "checkbox",
+          "name": "question11",
+          "visibleIf": "{question1} anyof ['Item 1', 'Item 2'] and {question10} = 'Item 1'",
+          "title": "If yes, select which kind(s) of cues you noticed?",
+          "isRequired": true,
+          "choices": [
+            {
+              "value": "Item 1",
+              "text": "Visual"
+            },
+            {
+              "value": "Item 2",
+              "text": "Tactile"
+            },
+            {
+              "value": "Item 3",
+              "text": "Acoustic"
+            },
+            {
+              "value": "Item 4",
+              "text": "Others"
+            }
+          ]
+        },
+        {
+          "type": "comment",
+          "name": "question12",
+          "visibleIf": "{question1} anyof ['Item 1', 'Item 2'] and {question10} = 'Item 1'",
+          "title": "Describe the cues, how many times you noticed them, and how you experienced them.",
+          "isRequired": true
+        },
+        {
+          "type": "comment",
+          "name": "question13",
+          "visibleIf": "{question1} anyof ['Item 1', 'Item 2'] and {question10} anyof ['Item 2', 'Item 1', 'Item 3']",
+          "title": "Is there anything else you'd like to add about this experience?"
+        },
+        {
+          "type": "comment",
+          "name": "question14",
+          "visibleIf": "{question1} = 'Item 3'",
+          "title": "Is there anything else you'd like to add?"
+        }
+      ]
+    }
+  ],
+  "showProgressBar": "auto",
+  "progressBarType": "questions"
+}

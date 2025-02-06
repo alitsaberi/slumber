@@ -146,9 +146,9 @@ class ZMaxDataReceiver(ez.Unit):
                         channel_names=self.SETTINGS.channel_names,
                     ),
                 )
-            except TimeoutError:
+            except TimeoutError as e:
                 logger.warning(
-                    "Timeout while reading from ZMax: {e}."
+                    f"Timeout while reading from ZMax: {e}."
                     " Possible causes: Connection between ZMax and PC is lost"
                     " (e.g., ZMax is off or dongle is disconnected)"
                     " or HDRecorder has never been connected."

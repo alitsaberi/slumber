@@ -63,11 +63,7 @@ class GUI(ez.Unit):
 
     def initialize(self) -> None:
         self.STATE.app = QApplication()
-        self.STATE.window = MainWindow()
-        self.STATE.window.set_procedure(
-            self.SETTINGS.procedures[0],
-            self.STATE.window.open_sleep_page,
-        )
+        self.STATE.window = MainWindow(procedures=self.SETTINGS.procedures)
         self.STATE.window.show()
 
     def shutdown(self):

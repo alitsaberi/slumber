@@ -1,3 +1,4 @@
+from pathlib import Path
 import typing
 from subprocess import Popen
 
@@ -11,6 +12,8 @@ from slumber.gui.widgets.help.widget import HelpPage
 from slumber.gui.widgets.home.widget import HomePage
 from slumber.gui.widgets.procedure.widget import ProcedurePage
 from slumber.gui.widgets.sleep.widget import SleepPage, State
+from slumber.scripts.run_session import LOGS_DIR_NAME
+from slumber.sources.zmax import open_server
 
 from .main_window_ui import Ui_MainWindow
 
@@ -20,19 +23,23 @@ if typing.TYPE_CHECKING:
 
 EXPANDING_POLICY = QSizePolicy.Policy.Expanding
 DEFAULT_WIDGET_POLICY = (EXPANDING_POLICY, EXPANDING_POLICY)
+HDSERVER_LOG_FILE = Path(LOGS_DIR_NAME) / "hdserver.log"
 
 
 class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(
         self,
+        procedures: list["Procedure"],
     ):
         super().__init__()
         self.setupUi(self)  # Setup the UI from the generated class
         self._initialize_widgets()
-        self._hdserver_process = None
-
-    def store_hdserver_process(self, process: Popen):
-        self._hdserver_process = process
+        self.procedures = procedures
+        self.set_procedure(
+            procedures[0],
+            self.open_sleep_page,
+        )
+        self._hdserver_process = open_server(HDSERVER_LOG_FILE)
 
     def closeEvent(self, event):
         if self._hdserver_process:
@@ -86,8 +93,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def _on_sleep_state_changed(self, state: State) -> None:
         logger.info(f"Sleep state changed to {state}")
 
-        if not self.data_collection_enabled and state == State.Asleep:
-            self.data_collection_enabled = True
+        if state == State.Awake:
+            self.start_procedure()
 
     def start_procedure(self) -> None:
         logger.info("Procedure started")
@@ -95,6 +102,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def open_sleep_page(self) -> None:
         self.body_stacked_widget.setCurrentWidget(self.sleep_page)
+        self.set_procedure(
+            self.procedures[1],
+            self.open_sleep_page,
+        )
 
     def set_procedure(
         self, procedure: "Procedure", callback: typing.Callable = None
