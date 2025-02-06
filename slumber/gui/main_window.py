@@ -10,6 +10,7 @@ from PySide6.QtWidgets import (
 from slumber.gui.widgets.help.widget import HelpPage
 from slumber.gui.widgets.home.widget import HomePage
 from slumber.gui.widgets.procedure.widget import ProcedurePage
+from slumber.gui.widgets.sleep.widget import SleepPage, State
 
 from .main_window_ui import Ui_MainWindow
 
@@ -44,13 +45,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self._setup_home_page()
         self._setup_help_page()
         self._setup_procedure_page()
+        self._setup_sleep_page()
 
     def _setup_home_page(self) -> None:
         self.home_page = HomePage(self)
         self.home_page.setSizePolicy(*DEFAULT_WIDGET_POLICY)
         self.body_stacked_widget.addWidget(self.home_page)
         self.stacked_widget.setCurrentWidget(self.home_page)
-        self.home_page.start_signal.connect(self._start_procedure)
+        self.home_page.start_signal.connect(self.start_procedure)
 
     def _setup_help_page(self) -> None:
         self.help_page = HelpPage(self)
@@ -64,6 +66,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.procedure_page.setSizePolicy(*DEFAULT_WIDGET_POLICY)
         self.body_stacked_widget.addWidget(self.procedure_page)
 
+    def _setup_sleep_page(self) -> None:
+        self.sleep_page = SleepPage(self)
+        self.sleep_page.setSizePolicy(*DEFAULT_WIDGET_POLICY)
+        self.body_stacked_widget.addWidget(self.sleep_page)
+        self.sleep_page.state_changed.connect(self._on_sleep_state_changed)
+
     def _on_help_button_clicked(self) -> None:
         logger.info("Help button clicked")
         self.stacked_widget.setCurrentWidget(self.help_page)
@@ -75,9 +83,18 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         logger.info("Main page opened")
         self.stacked_widget.setCurrentWidget(self.main_page)
 
-    def _start_procedure(self) -> None:
+    def _on_sleep_state_changed(self, state: State) -> None:
+        logger.info(f"Sleep state changed to {state}")
+
+        if not self.data_collection_enabled and state == State.Asleep:
+            self.data_collection_enabled = True
+
+    def start_procedure(self) -> None:
         logger.info("Procedure started")
         self.body_stacked_widget.setCurrentWidget(self.procedure_page)
+
+    def open_sleep_page(self) -> None:
+        self.body_stacked_widget.setCurrentWidget(self.sleep_page)
 
     def set_procedure(
         self, procedure: "Procedure", callback: typing.Callable = None
