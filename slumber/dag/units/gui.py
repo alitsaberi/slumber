@@ -66,7 +66,7 @@ class GUI(ez.Unit):
         self.STATE.window = MainWindow()
         self.STATE.window.set_procedure(
             self.SETTINGS.procedures[0],
-            self.STATE.window.procedure_page.reset_procedure,
+            self.STATE.window.open_sleep_page,
         )
         self.STATE.window.show()
 
@@ -75,6 +75,6 @@ class GUI(ez.Unit):
         self.STATE.app.quit()
 
     @ez.task
-    async def run(self) -> None:
+    def run(self) -> None:
         self.STATE.app.exec()
         raise ez.NormalTermination
