@@ -133,7 +133,7 @@ components:
       rem_confidence_threshold: 0.8
       accepted_eye_signals: [LRL, RLR]
       wake_up_signal_interval: 4
-      experiment_state: SLEEP
+      experiment_state: WAKE
 
   REM_CUEING:
     unit: Cueing

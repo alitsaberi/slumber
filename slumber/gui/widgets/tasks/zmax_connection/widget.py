@@ -1,5 +1,4 @@
 from enum import Enum
-from pathlib import Path
 
 from loguru import logger
 from PySide6.QtCore import QThread, Signal
@@ -7,7 +6,6 @@ from PySide6.QtWidgets import QDialog, QWidget
 
 from slumber import settings
 from slumber.gui.widgets.tasks.base import TaskPage
-from slumber.scripts.run_session import LOGS_DIR_NAME
 from slumber.sources.zmax import (
     DataType,
     ZMax,
@@ -65,7 +63,6 @@ class ConnectThread(QThread):
         except Exception as e:
             logger.error(f"ZMax connection error: {e}")
             self.connected.emit(False)
-        
 
 
 class ZMaxConnectionPage(TaskPage, Ui_ZMaxConnectionPage):
@@ -84,9 +81,6 @@ class ZMaxConnectionPage(TaskPage, Ui_ZMaxConnectionPage):
         self.connect_button.clicked.connect(self._on_connect)
         self.info_button.clicked.connect(self.info_dialog.exec)
         self.connect_thread.connected.connect(self._on_connected)
-        self.connect_thread.process_created.connect(
-            self.window().store_hdserver_process
-        )
 
     def _on_connect(self) -> None:
         self._update_status(Status.ATTEMPTING)
