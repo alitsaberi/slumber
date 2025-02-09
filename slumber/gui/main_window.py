@@ -1,51 +1,47 @@
 import typing
-from pathlib import Path
+from multiprocessing import Process
+from multiprocessing.connection import PipeConnection
 
 from loguru import logger
+from PySide6.QtCore import Signal
 from PySide6.QtWidgets import (
     QMainWindow,
     QSizePolicy,
 )
 
+from slumber.dag.units.home_lucid_dreaming.master import ExperimentState
 from slumber.gui.widgets.help.widget import HelpPage
 from slumber.gui.widgets.home.widget import HomePage
 from slumber.gui.widgets.procedure.widget import ProcedurePage
 from slumber.gui.widgets.sleep.widget import SleepPage, State
-from slumber.scripts.run_session import LOGS_DIR_NAME
-from slumber.sources.zmax import open_server
+from slumber.models.gui import GUIConfig, Procedure
 
 from .main_window_ui import Ui_MainWindow
 
-if typing.TYPE_CHECKING:
-    from slumber.dag.units.gui import Procedure
-
-
 EXPANDING_POLICY = QSizePolicy.Policy.Expanding
 DEFAULT_WIDGET_POLICY = (EXPANDING_POLICY, EXPANDING_POLICY)
-HDSERVER_LOG_FILE = Path(LOGS_DIR_NAME) / "hdserver.log"
 
 
 class MainWindow(QMainWindow, Ui_MainWindow):
+    experiment_state = Signal(ExperimentState)
+
     def __init__(
         self,
-        procedures: list["Procedure"],
+        gui_config: GUIConfig,
+        dag_process: Process,
     ):
         super().__init__()
         self.setupUi(self)  # Setup the UI from the generated class
-        self._initialize_widgets()
-        self.procedures = procedures
-        self.set_procedure(
-            procedures[0],
-            self.open_sleep_page,
-        )
-        self._hdserver_process = open_server(HDSERVER_LOG_FILE)
 
-    def closeEvent(self, event):
-        if self._hdserver_process:
-            logger.info("Terminating HDServer process")
-            self._hdserver_process.terminate()
-            self._hdserver_process.wait()
-        super().closeEvent(event)
+        self._initialize_widgets()
+        self.dag_process = dag_process
+        self.dag_connection = gui_config.dag_connection
+        self.pre_sleep_procedure = gui_config.pre_sleep_procedure
+        self.awakening_procedure = gui_config.awakening_procedure
+        self.post_sleep_procedure = gui_config.post_sleep_procedure
+        self.wbtb_procedure = gui_config.wbtb_procedure
+        self.set_procedure(self.pre_sleep_procedure, self._open_sleep_page)
+        self.state = None
 
     def _initialize_widgets(self) -> None:
         self._setup_home_page()
@@ -89,26 +85,34 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         logger.info("Main page opened")
         self.stacked_widget.setCurrentWidget(self.main_page)
 
+    def _open_sleep_page(self) -> None:
+        logger.info("Sleep page opened")
+        self.body_stacked_widget.setCurrentWidget(self.sleep_page)
+        self.set_procedure(self.awakening_procedure, self._open_sleep_page)
+
     def _on_sleep_state_changed(self, state: State) -> None:
         logger.info(f"Sleep state changed to {state}")
 
+        if self.state is None:
+            logger.info("Starting the DAG process")
+            self.dag_process.start()
+            
+        self.state = state
+
         if state == State.Awake:
             self.start_procedure()
+            self.dag_connection.send(ExperimentState.AWAKE)
+        else:
+            self.dag_connection.send(ExperimentState.ASLEEP)
 
     def start_procedure(self) -> None:
         logger.info("Procedure started")
         self.body_stacked_widget.setCurrentWidget(self.procedure_page)
 
-    def open_sleep_page(self) -> None:
-        self.body_stacked_widget.setCurrentWidget(self.sleep_page)
-        self.set_procedure(
-            self.procedures[1],
-            self.open_sleep_page,
-        )
-
     def set_procedure(
         self, procedure: "Procedure", callback: typing.Callable = None
     ) -> None:
+        logger.info(f"Setting procedure: {procedure}")
         self.procedure_page.done_signal.disconnect()
         self.procedure_page.set_procedure(procedure)
         if callback:

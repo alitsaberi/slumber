@@ -2,6 +2,7 @@ import asyncio
 import time
 from collections.abc import AsyncGenerator
 from enum import Enum, auto
+from multiprocessing.connection import PipeConnection
 from typing import Annotated
 
 import ezmsg.core as ez
@@ -16,6 +17,8 @@ from slumber.dag.utils import PydanticSettings
 from slumber.utils.data import Data, Event
 from slumber.utils.helpers import create_enum_by_name_resolver
 
+_CONNECTION_CHECK_INTERVAL = 0.5
+
 
 class EventType(Enum):
     EYE_MOVEMENT = "eye_movement"
@@ -23,13 +26,13 @@ class EventType(Enum):
     VISUAL_CUE = "visual_cue"
     AUDITORY_CUE = "auditory_cue"
     TACTILE_CUE = "tactile_cue"
-    WAKING_UP = "waking_up"
+    EXPERIMENT_STATE_CHANGED = "experiment_state_changed"
 
 
 class ExperimentState(Enum):
-    WAKE = auto()
-    SLEEP = auto()
-    WAKING = auto()
+    AWAKE = "awake"
+    ASLEEP = "asleep"
+    WAKING = "waking"
 
 
 class Settings(PydanticSettings):
@@ -40,7 +43,8 @@ class Settings(PydanticSettings):
     wake_up_signal_interval: float = Field(ge=0.0)
     experiment_state: Annotated[
         ExperimentState, BeforeValidator(create_enum_by_name_resolver(ExperimentState))
-    ] = ExperimentState.WAKE
+    ] = ExperimentState.AWAKE
+    gui_connection: PipeConnection | None = None
 
 
 class State(ez.State):
@@ -50,6 +54,7 @@ class State(ez.State):
     aroused: bool
     eye_signaling: bool
     rem_cueing: bool
+    gui_connection: PipeConnection
 
 
 class Master(ez.Unit):
@@ -74,13 +79,34 @@ class Master(ez.Unit):
         self.STATE.aroused = False
         self.STATE.eye_signaling = False
         self.STATE.rem_cueing = self.SETTINGS.cueing_enabled
+        self.STATE.gui_connection = self.SETTINGS.gui_connection
 
-    @ez.subscriber(INPUT_EXPERIMENT_STATE)
-    def update_experiment_state(self, state: ExperimentState) -> None:
-        logger.info(
-            f"Updating experiment state from {self.STATE.experiment_state} to {state}."
-        )
-        self.STATE.experiment_state = state
+    @ez.publisher(OUTPUT_LOG_EVENT)
+    async def update_experiment_state(self) -> AsyncGenerator:
+        if self.STATE.gui_connection is None:
+            logger.warning(
+                "GUI connection is not set. Skipping experiment state update."
+            )
+            return
+
+        while True:
+            if not self.STATE.gui_connection.poll():
+                await asyncio.sleep(_CONNECTION_CHECK_INTERVAL)
+                continue
+
+            state = self.STATE.gui_connection.recv()
+            logger.info(
+                f"Updating experiment state from {self.STATE.experiment_state}"
+                f" to {state}."
+            )
+            self.STATE.experiment_state = state
+            yield (
+                self.OUTPUT_LOG_EVENT,
+                LogEvent(
+                    type=EventType.EXPERIMENT_STATE_CHANGED,
+                    new_state=self.STATE.experiment_state,
+                ),
+            )
 
     @ez.subscriber(INPUT_SLEEP_SCORES)
     @ez.publisher(OUTPUT_WAKE_UP_SIGNAL)
@@ -88,7 +114,7 @@ class Master(ez.Unit):
     @ez.publisher(OUTPUT_CUEING_ENABLE_INCREASE_INTENSITY_SIGNAL)
     @ez.publisher(OUTPUT_LOG_EVENT)
     async def update_in_rem(self, scores: Data) -> AsyncGenerator:
-        if self.STATE.experiment_state != ExperimentState.SLEEP:
+        if self.STATE.experiment_state != ExperimentState.ASLEEP:
             logger.debug(
                 "Experiment is not in sleep state. Ignoring sleep scores.",
                 experiment_state=self.STATE.experiment_state,
@@ -121,7 +147,7 @@ class Master(ez.Unit):
         async for output_event in self._log_events(events, EventType.EYE_MOVEMENT):
             yield output_event
 
-        if self.STATE.experiment_state != ExperimentState.SLEEP:
+        if self.STATE.experiment_state != ExperimentState.ASLEEP:
             logger.debug(
                 "Experiment is not in sleep state. Ignoring eye movement events.",
                 experiment_state=self.STATE.experiment_state,
@@ -156,7 +182,7 @@ class Master(ez.Unit):
         ):
             yield output_event
 
-        if self.STATE.experiment_state != ExperimentState.SLEEP:
+        if self.STATE.experiment_state != ExperimentState.ASLEEP:
             logger.debug(
                 "Experiment is not in sleep state. Ignoring arousal events.",
                 experiment_state=self.STATE.experiment_state,
@@ -189,10 +215,16 @@ class Master(ez.Unit):
 
     async def _wake_up(self) -> AsyncGenerator:
         self.STATE.experiment_state = ExperimentState.WAKING
-        yield (self.OUTPUT_LOG_EVENT, LogEvent(type=EventType.WAKING_UP))
+        yield (
+            self.OUTPUT_LOG_EVENT,
+            LogEvent(
+                type=EventType.EXPERIMENT_STATE_CHANGED,
+                new_state=self.STATE.experiment_state,
+            ),
+        )
         yield (self.OUTPUT_CUEING_ENABLE_SIGNAL, False)
 
-        while self.STATE.experiment_state != ExperimentState.WAKE:
+        while self.STATE.experiment_state != ExperimentState.AWAKE:
             yield (self.OUTPUT_WAKE_UP_SIGNAL, self.SETTINGS.wake_up_signal)
             logger.info("Wake up signal sent", signal=self.SETTINGS.wake_up_signal)
             await asyncio.sleep(self.SETTINGS.wake_up_signal_interval)
