@@ -1,7 +1,7 @@
 import asyncio
 import time
 from collections.abc import AsyncGenerator
-from enum import Enum, auto
+from enum import Enum
 from multiprocessing.connection import PipeConnection
 from typing import Annotated
 
