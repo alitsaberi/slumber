@@ -7,7 +7,7 @@ import ezmsg.core as ez
 from loguru import logger
 from PySide6.QtWidgets import QApplication
 
-from slumber import CONDITIONS_DIR, settings
+from slumber import CONDITIONS_DIR
 from slumber.gui.main_window import MainWindow
 from slumber.models.condition import Condition
 from slumber.models.dag import CollectionConfig
@@ -22,15 +22,31 @@ DATA_DIR_NAME = "data"
 RUN_DIR_SUBDIRECTORIES = [LOGS_DIR_NAME, DATA_DIR_NAME]
 CONDITION_CONFIG_FILE_EXTENSION = "yaml"
 HDSERVER_LOG_FILE_NAME = "hdserver.log"
+DAG_LOG_FILE_NAME = "dag.log"
+MAIN_LOG_FILE_NAME = "slumber.log"
+PROCESS_TERMINATION_TIMEOUT = 5.0
+
+
+def _run_dag(
+    dag_config: CollectionConfig,
+    logs_dir: Path,
+) -> None:
+    setup_logging(logs_dir / DAG_LOG_FILE_NAME)
+    ez.run(**dag_config.model_dump(by_alias=True))
 
 
 def _setup_dag_process(
     dag_config: CollectionConfig,
+    logs_dir: Path,
 ) -> Process:
     logger.info(f"Creating the DAG process: {dag_config}")
+
     return Process(
-        target=ez.run,
-        kwargs=dag_config.model_dump(by_alias=True),
+        target=_run_dag,
+        args=(
+            dag_config,
+            logs_dir,
+        ),
         name="dag_process",
     )
 
@@ -79,12 +95,6 @@ def _create_run_directory(condition_name: str) -> Path:
     return directory.absolute()
 
 
-def _setup_logging(run_directory: Path) -> Path:
-    logs_dir = run_directory / LOGS_DIR_NAME
-    setup_logging(logs_dir, settings["logging"])
-    return logs_dir
-
-
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Run an experiment session.")
     parser.add_argument(
@@ -101,11 +111,12 @@ def main():
     condition = _get_condition(args.condition_config_file)
 
     run_directory = _create_run_directory(condition.name)
-    logs_dir = _setup_logging(run_directory)
+    logs_dir = run_directory / LOGS_DIR_NAME
+    setup_logging(logs_dir / MAIN_LOG_FILE_NAME)
 
     os.chdir(run_directory)
 
-    dag_process = _setup_dag_process(condition.dag)
+    dag_process = _setup_dag_process(condition.dag, logs_dir)
 
     app = QApplication()
     window = MainWindow(gui_config=condition.gui, dag_process=dag_process)
@@ -117,12 +128,12 @@ def main():
     try:
         app.exec()
     finally:
-        if window.dag_process and window.dag_process.is_alive():
+        if dag_process.is_alive():
             logger.info("Terminating the DAG process...")
-            window.dag_process.terminate()
-            window.dag_process.join(timeout=5.0)
-            if window.dag_process.is_alive():
-                window.dag_process.kill()
+            dag_process.terminate()
+            dag_process.join(timeout=PROCESS_TERMINATION_TIMEOUT)
+            if dag_process.is_alive():
+                dag_process.kill()
 
         logger.info("Terminating the HDServer process...")
         hdserver_process.terminate()

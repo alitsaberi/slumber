@@ -31,7 +31,6 @@ logging:
       level: "INFO"
       colorize: True
     file:
-      file_name: "slumber"
       level: "DEBUG"
       format: "{message}"
       rotation: "50 MB"

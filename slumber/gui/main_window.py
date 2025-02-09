@@ -1,6 +1,5 @@
 import typing
 from multiprocessing import Process
-from multiprocessing.connection import PipeConnection
 
 from loguru import logger
 from PySide6.QtCore import Signal
@@ -96,7 +95,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if self.state is None:
             logger.info("Starting the DAG process")
             self.dag_process.start()
-            
+
         self.state = state
 
         if state == State.Awake:
