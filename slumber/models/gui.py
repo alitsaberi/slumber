@@ -1,18 +1,12 @@
 import importlib
 import inspect
+from multiprocessing.connection import PipeConnection
 from typing import Any
 
-import ezmsg.core as ez
 from pydantic import BaseModel, ConfigDict, Field, field_validator
-from PySide6.QtWidgets import QApplication
 
-from slumber import settings
-from slumber.dag.utils import PydanticSettings
-from slumber.gui.main_window import MainWindow
 from slumber.gui.widgets import tasks
 from slumber.gui.widgets.tasks.base import TaskPage
-
-DEFAULTS = settings["gui"]
 
 
 class Task(BaseModel):
@@ -40,7 +34,6 @@ class Task(BaseModel):
 
 
 class Procedure(BaseModel):
-    name: str
     tasks: list[Task] = Field(min_length=1)
 
     @property
@@ -48,29 +41,11 @@ class Procedure(BaseModel):
         return len(self.tasks)
 
 
-class Settings(PydanticSettings):
-    procedures: list[Procedure] = Field(min_length=1)
+class GUIConfig(BaseModel):
+    dag_connection: PipeConnection
+    pre_sleep_procedure: Procedure = Field(alias="pre_sleep")
+    awakening_procedure: Procedure = Field(alias="awakening")
+    post_sleep_procedure: Procedure = Field(alias="post_sleep")
+    wbtb_procedure: Procedure | None = Field(None, alias="wbtb")
 
-
-class State(ez.State):
-    app: QApplication
-    window: MainWindow
-
-
-class GUI(ez.Unit):
-    SETTINGS = Settings
-    STATE = State
-
-    def initialize(self) -> None:
-        self.STATE.app = QApplication()
-        self.STATE.window = MainWindow(procedures=self.SETTINGS.procedures)
-        self.STATE.window.show()
-
-    def shutdown(self):
-        self.STATE.window.close()
-        self.STATE.app.quit()
-
-    @ez.task
-    def run(self) -> None:
-        self.STATE.app.exec()
-        raise ez.NormalTermination
+    model_config = ConfigDict(arbitrary_types_allowed=True)

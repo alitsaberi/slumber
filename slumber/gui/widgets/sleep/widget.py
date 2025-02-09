@@ -21,7 +21,6 @@ class SleepPage(QWidget, Ui_SleepPage):
         super().__init__(parent)
         self.setupUi(self)
 
-        self.state = State.Awake
         self.status_label.setText(f"{State.Awake.value}")
         self.sleep_button.clicked.connect(self.handle_sleep)
         self.awake_button.clicked.connect(self.handle_awake)
@@ -57,6 +56,5 @@ class SleepPage(QWidget, Ui_SleepPage):
             self.update_state(State.Awake)
 
     def update_state(self, state: State) -> None:
-        self.state = state
         self.status_label.setText(f"{state.value}")
         self.state_changed.emit(state)
