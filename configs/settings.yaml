@@ -13,7 +13,6 @@ zmax:
   retry_delay: 5
   socket_timeout: 10
   hypnodyne_suite_directory: "C:/Users/Mahdad/Desktop/ZMax"
-  battery_threshold: 70
 
 sleep_scoring:
   labels:
