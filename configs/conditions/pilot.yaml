@@ -7,63 +7,87 @@ gui:
         widget: instruction
         kwargs:
           instruction_path: ../../configs/instructions/study_information.md
-    # - title: EEG Headband Setup
-    #   widget: instruction
-    #   kwargs:
-    #     instruction_path: ../../configs/instructions/zmax_setup.md
-    # - title: EEG Headband Connection
-    #   widget: zmax_connection
-    # - title: Lucid Dream Task
-    #   widget: instruction
-    #   kwargs:
-    #     instruction_path: ../../configs/instructions/lucidity_task.md
-    # - title: Eye Movement Detection Test
-    #   widget: eye_test
-    #   kwargs:
-    #     accepted_eye_signals: [LRL, RLR]
-    #     difference_threshold: 280
-    #     max_test_duration: 30
-    # - title: Light Cueing
-    #   widget: instruction
-    #   kwargs:
-    #     instruction_path: ../../configs/instructions/light_cueing.md
-    # - title: Light Cue Calibration
-    #   widget: light_cue_calibration
-    #   kwargs:
-    #     min: 5
-    #     max: 100
-    #     step: 5
-    #     led_color: RED
-    #     repetitions: 3
-    #     on_duration: 5
-    #     off_duration: 5
-    #     alternate_eyes: false
-    #     countdown_seconds: 5
-    # - title: Audio Cueing
-    #   widget: instruction
-    #   kwargs:
-    #     instruction_path: ../../configs/instructions/audio_cueing.md
-    # - title: Audio Cue Calibration
-    #   widget: audio_cue_calibration
-    #   kwargs:
-    #     min: 5
-    #     max: 100
-    #     step: 5
-    #     countdown_seconds: 5
-    #     rate: 175
-    #     text: You are dreaming
+      - title: Session Preparation
+        widget: instruction
+        kwargs:
+          instruction_path: ../../configs/instructions/session_preparation.md
+      - title: EEG Headband Setup
+        widget: instruction
+        kwargs:
+          instruction_path: ../../configs/instructions/zmax_setup.md
+      - title: EEG Headband Connection
+        widget: zmax_connection
+      - title: Put on the EEG Headband
+        widget: instruction
+        kwargs:
+          instruction_path: ../../configs/instructions/how_to_wear_zmax.md
+      - title: Lucid Dream Task
+        widget: instruction
+        kwargs:
+          instruction_path: ../../configs/instructions/lucidity_task.md
+      - title: Eye Movement Detection Test
+        widget: eye_test
+        kwargs:
+          accepted_eye_signals: [LRL, RLR]
+          difference_threshold: 280
+          max_test_duration: 30
+      - title: Visual Cueing
+        widget: instruction
+        kwargs:
+          instruction_path: ../../configs/instructions/light_cueing.md
+      - title: Light Cue Calibration
+        widget: light_cue_calibration
+        kwargs:
+          min: 5
+          max: 100
+          step: 5
+          led_color: RED
+          repetitions: 3
+          on_duration: 5
+          off_duration: 5
+          alternate_eyes: false
+          countdown_seconds: 5
+      - title: Auditory Cueing
+        widget: instruction
+        kwargs:
+          instruction_path: ../../configs/instructions/audio_cueing.md
+      - title: Audio Cue Calibration
+        widget: audio_cue_calibration
+        kwargs:
+          min: 5
+          max: 100
+          step: 5
+          countdown_seconds: 5
+          rate: 175
+          text: You are dreaming
+      - title: Auditory Cueing
+        widget: instruction
+        kwargs:
+          instruction_path: ../../configs/instructions/audio_cueing.md
+      - title: Tactile Cueing
+        widget: instruction
+        kwargs:
+          instruction_path: ../../configs/instructions/tactile_cueing.md
+      - title: Voice Recording Assessment
+        widget: survey
+        kwargs:
+          survey_config_path: ../../configs/surveys/sample_survey.json
+      - title: Prepare for Sleep
+        widget: instruction
+        kwargs:
+          instruction_path: ../../configs/instructions/pre_sleep.md
   awakening:
     tasks:
       - title: Subjectve Assessment
         widget: survey
         kwargs:
-          survey_config_path: ../../configs/surveys/experience_questionnaire.json
+          survey_config_path: ../../configs/surveys/sample_survey.json
   post_sleep:
     tasks:
       - title: Subjectve Assessment
         widget: survey
         kwargs:
-          survey_config_path: ../../configs/surveys/experience_questionnaire.json
+          survey_config_path: ../../configs/surveys/sample_survey.json
 
 dag:
   components:
