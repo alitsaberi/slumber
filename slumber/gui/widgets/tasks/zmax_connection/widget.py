@@ -66,11 +66,13 @@ class ConnectThread(QThread):
 
 
 class ZMaxConnectionPage(TaskPage, Ui_ZMaxConnectionPage):
-    def __init__(self, index: int, title: str, parent: QWidget | None = None) -> None:
+    def __init__(self, index: int, title: str, battery_level_threshold: int, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self.setupUi(self)
         self.index = index
         self.title.setText(title)
+        
+        self.battery_level_threshold = battery_level_threshold
 
         self.info_dialog = self._init_info_dialog()
         self.connect_thread = ConnectThread()
@@ -109,7 +111,7 @@ class ZMaxConnectionPage(TaskPage, Ui_ZMaxConnectionPage):
 
     def _check_battery_level(self, battery_level: int) -> None:
         self.battery_led.display(battery_level)
-        if battery_level >= settings["zmax"]["battery_threshold"]:
+        if battery_level >= self.battery_level_threshold:
             self._update_status(Status.SUCCESS)
             self._toggle_button(False)
             self.done()

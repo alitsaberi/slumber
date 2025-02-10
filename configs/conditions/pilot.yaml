@@ -17,6 +17,8 @@ gui:
           instruction_path: ../../configs/instructions/zmax_setup.md
       - title: EEG Headband Connection
         widget: zmax_connection
+        kwargs:
+          battery_level_threshold: 10
       - title: Put on the EEG Headband
         widget: instruction
         kwargs:
