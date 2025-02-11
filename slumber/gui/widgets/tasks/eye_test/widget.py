@@ -38,12 +38,9 @@ class Status(Enum):
     )
 
 
-
-
-
-class ButtonText(Enum):
-    START = "Start Test"
-    STOP = "End Test"
+class ButtonState(Enum):
+    START = ("Start Test", "background-color: #4CAF50; color: white; font-weight: bold; padding: 10px; margin-bottom: 25px;")
+    STOP = ("End Test", "background-color: #F44336; color: white; font-weight: bold; padding: 10px; margin-bottom: 25px;")
 
 
 class DataCollectionThread(QThread):
@@ -95,6 +92,7 @@ class EyeTestPage(TaskPage, Ui_EyeTestPage):
         self.test_data = []
         self.collection_thread = DataCollectionThread()
         self.timer = QTimer()
+        self._update_button_state(ButtonState.START)
 
         self._connect_signals()
 
@@ -123,7 +121,7 @@ class EyeTestPage(TaskPage, Ui_EyeTestPage):
     def _start_test(self) -> None:
         logger.info("Starting eye test")
         self.test_button.setEnabled(False)
-        self.test_button.setText(ButtonText.STOP.value)
+        self._update_button_state(ButtonState.STOP)
         self._update_status(Status.TEST_STARTED)
         self.test_data = []
         self.collection_thread.start()
@@ -134,20 +132,25 @@ class EyeTestPage(TaskPage, Ui_EyeTestPage):
         logger.info("Ending eye test")
         self.timer.stop()
         self.test_button.setEnabled(False)
-        self.test_button.setText(ButtonText.START.value)
+        self._update_button_state(ButtonState.STOP)
         self.collection_thread.is_collecting_data = False
         self.collection_thread.wait()
         self._update_status(Status.TEST_ENDED)
         self._detect_eye_movements()
         self.test_button.setEnabled(True)
 
-    def _handle_data(self, data: np.ndarray) -> None:
-        self.test_data.append(data)
-
     def _handle_error(self, error_msg):
         logger.error(f"Error during eye test: {error_msg}")
         self._update_status(Status.DATA_COLLECTION_FAILURE)
-        self.test_button.setText(ButtonText.START.value)
+        self._update_button_state(ButtonState.START)
+        
+    def _update_button_state(self, state: ButtonState) -> None:
+        logger.debug(f"Updating button state to {state.name}")
+        self.test_button.setText(state.value[0])
+        self.test_button.setStyleSheet(state.value[1])
+
+    def _handle_data(self, data: np.ndarray) -> None:
+        self.test_data.append(data)
 
     def _detect_eye_movements(self) -> None:
         data = Data(

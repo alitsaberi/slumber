@@ -172,6 +172,9 @@
        <property name="text">
         <string>Please click &quot;Start&quot; to start the test.</string>
        </property>
+       <property name="margin">
+        <number>0</number>
+       </property>
       </widget>
      </item>
      <item>
