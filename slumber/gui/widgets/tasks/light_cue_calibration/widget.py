@@ -77,7 +77,8 @@ class LightCueCalibrationPage(TaskPage, Ui_LightCueCalibrationPage):
         title: str,
         min: int,
         max: int,
-        step: int,
+        increment: int,
+        decrement: int,
         led_color: str,
         repetitions: int,
         on_duration: int,
@@ -95,7 +96,8 @@ class LightCueCalibrationPage(TaskPage, Ui_LightCueCalibrationPage):
             value=min,
             min=min,
             max=max,
-            step=step,
+            increment=increment,
+            decrement=decrement,
         )
         self.stimulation_signal = ZMaxStimulationSignal(
             led_color=led_color,

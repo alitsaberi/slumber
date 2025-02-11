@@ -25,8 +25,13 @@ from slumber.sources.zmax import (
     STIMULATION_MIN_REPETITIONS,
     LEDColor,
 )
-from slumber.utils.helpers import create_enum_by_name_resolver
+from slumber.utils.helpers import (
+    create_enum_by_name_resolver,
+    get_system_volume,
+    set_system_volume,
+)
 from slumber.utils.text2speech import (
+    MAX_VOLUME,
     init_text2speech_engine,
     text2speech,
 )
@@ -36,7 +41,8 @@ class CueIntensityConfig(BaseModel):
     value: int
     max: int
     min: int
-    step: int = Field(ge=1)
+    increment: int = Field(ge=1)
+    decrement: int = Field(ge=1)
 
     @model_validator(mode="after")
     def validate(self) -> "CueIntensityConfig":
@@ -50,9 +56,9 @@ class CueIntensityConfig(BaseModel):
 
     def adjust(self, increment: bool) -> None:
         new_value = (
-            min(self.max, self.value + self.step)
+            min(self.max, self.value + self.increment)
             if increment
-            else max(self.min, self.value - self.step)
+            else max(self.min, self.value - self.decrement)
         )
         if new_value != self.value:
             action = "Incrementing" if increment else "Decrementing"
@@ -68,10 +74,6 @@ class AudioIntensityConfig(CueIntensityConfig):
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
-    def adjust(self, increment: bool) -> None:
-        super().adjust(increment)
-        self.engine.setProperty("volume", self.value / 100)
-
     @field_serializer("engine")
     def serialize_engine(self, engine: pyttsx3.Engine, _info):
         return {
@@ -79,6 +81,16 @@ class AudioIntensityConfig(CueIntensityConfig):
             "rate": engine.getProperty("rate"),
             "voice": engine.getProperty("voice"),
         }
+
+
+def deliver_auditory_cue(text: str, volume: int, engine: pyttsx3.Engine) -> None:
+    old_system_volume = get_system_volume()
+    logger.debug(f"Setting system volume to {volume}" f" from {old_system_volume}")
+    set_system_volume(volume)
+    text2speech(text, engine=engine)
+    logger.info("Auditory cue delivered")
+    logger.debug(f"Setting system volume to {old_system_volume} from {volume}")
+    set_system_volume(old_system_volume)
 
 
 class TactileCueingConfig(BaseModel):
@@ -154,7 +166,7 @@ class Cueing(ez.Unit):
             **self.SETTINGS.auditory_cueing.intensity.model_dump(),
             engine=init_text2speech_engine(
                 rate=self.SETTINGS.auditory_cueing.rate,
-                volume=self.SETTINGS.auditory_cueing.intensity.value,
+                volume=MAX_VOLUME,
                 voice=self.SETTINGS.auditory_cueing.voice,
             ),
         )
@@ -212,7 +224,7 @@ class Cueing(ez.Unit):
 
             logger.debug(
                 f"Auditory cueing: {self.SETTINGS.auditory_cueing.text}."
-                f" Engine: {self.STATE.audio_intensity.model_dump(include={'engine'})}"
+                f" {self.STATE.audio_intensity.model_dump(include={'engine'})}"
             )
             yield (
                 self.OUTPUT_LOG_EVENT,
@@ -220,8 +232,10 @@ class Cueing(ez.Unit):
                     type=EventType.AUDITORY_CUE, value=self.STATE.audio_intensity.value
                 ),
             )
-            text2speech(
-                self.SETTINGS.auditory_cueing.text, self.STATE.audio_intensity.engine
+            deliver_auditory_cue(
+                self.SETTINGS.auditory_cueing.text,
+                self.STATE.audio_intensity.value,
+                self.STATE.audio_intensity.engine,
             )
             await asyncio.sleep(self.SETTINGS.cueing_interval)
 

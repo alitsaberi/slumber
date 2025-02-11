@@ -4,10 +4,12 @@ from loguru import logger
 from PySide6.QtCore import QTimer
 from PySide6.QtWidgets import QDialog, QPushButton, QWidget
 
-from slumber.dag.units.home_lucid_dreaming.cueing import CueIntensityConfig
+from slumber.dag.units.home_lucid_dreaming.cueing import (
+    CueIntensityConfig,
+    deliver_auditory_cue,
+)
 from slumber.gui.widgets.tasks.base import TaskPage
-from slumber.utils.helpers import get_system_volume, set_system_volume
-from slumber.utils.text2speech import MAX_VOLUME, init_text2speech_engine, text2speech
+from slumber.utils.text2speech import MAX_VOLUME, init_text2speech_engine
 
 from .widget_ui import Ui_AudioCueCalibrationPage
 
@@ -66,7 +68,8 @@ class AudioCueCalibrationPage(TaskPage, Ui_AudioCueCalibrationPage):
         title: str,
         min: int,
         max: int,
-        step: int,
+        increment: int,
+        decrement: int,
         rate: int,
         text: str,
         countdown_seconds: int,
@@ -81,7 +84,8 @@ class AudioCueCalibrationPage(TaskPage, Ui_AudioCueCalibrationPage):
             value=min,
             min=min,
             max=max,
-            step=step,
+            increment=increment,
+            decrement=decrement,
         )
 
         self.engine = init_text2speech_engine(
@@ -162,20 +166,10 @@ class AudioCueCalibrationPage(TaskPage, Ui_AudioCueCalibrationPage):
     def _deliver_cue(self) -> None:
         logger.info(f"Delivering cue: {self.cue_intensity_config}")
         try:
-            old_system_volume = get_system_volume()
-            logger.debug(
-                f"Setting system volume to {self.cue_intensity_config.value}"
-                f" from {old_system_volume}"
+            deliver_auditory_cue(
+                self.text, self.cue_intensity_config.value, self.engine
             )
-            set_system_volume(self.cue_intensity_config.value)
-            text2speech(self.text, self.engine)
-            logger.info("Cue delivered", cue_intensity=self.cue_intensity_config)
             self._update_status(Status.CUED)
-            logger.debug(
-                f"Setting system volume to {old_system_volume} from"
-                f" {self.cue_intensity_config.value}"
-            )
-            set_system_volume(old_system_volume)
             self._set_perception_widget_visible(True)
         except Exception as e:
             logger.error(f"Error delivering audio cue: {e}")
