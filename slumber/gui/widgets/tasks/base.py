@@ -7,5 +7,5 @@ class TaskPage(QWidget):
     done_signal = Signal(int)
 
     def done(self) -> None:
-        logger.info(f"Task {self.title} is done")
+        logger.info(f"Task {self.title.text()} is done")
         self.done_signal.emit(self.index)

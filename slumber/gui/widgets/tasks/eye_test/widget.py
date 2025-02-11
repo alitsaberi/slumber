@@ -38,7 +38,7 @@ class Status(Enum):
     )
 
 
-EEG_DATA_TYPE = [DataType.EEG_LEFT, DataType.EEG_RIGHT]
+
 
 
 class ButtonText(Enum):
@@ -59,7 +59,7 @@ class DataCollectionThread(QThread):
         try:
             with ZMax() as zmax:
                 while self.is_collecting_data:
-                    data = zmax.read(data_types=EEG_DATA_TYPE)
+                    data = zmax.read(data_types=DataType.get_by_category("EEG"))
                     self.data_received.emit(data)
         except Exception as e:
             self.error_occurred.emit(str(e))
@@ -152,7 +152,7 @@ class EyeTestPage(TaskPage, Ui_EyeTestPage):
     def _detect_eye_movements(self) -> None:
         data = Data(
             array=np.array(self.test_data),
-            channel_names=[data_type.name for data_type in EEG_DATA_TYPE],
+            channel_names=[data_type.name for data_type in DataType.get_by_category("EEG")],
             sample_rate=SAMPLE_RATE,
         )
         events = detect_lr_eye_movements(
