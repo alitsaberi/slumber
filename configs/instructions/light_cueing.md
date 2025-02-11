@@ -4,3 +4,5 @@ Initially, the light cue intensity is set to its minimum. In the next task, you 
 
 - If you **do not** perceive the light, increase the intensity by one step and try again.  
 - Continue this process until you can **clearly perceive** the light while keeping your eyes closed.  
+
+* eyes closed

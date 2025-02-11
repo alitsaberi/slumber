@@ -4,3 +4,5 @@ Initially, the audio cue volume is set to its minimum. In the next task, you wil
 
 - If you **do not** perceive the sound, increase the volume by one step and try again.  
 - Continue this process until you can **clearly perceive** the sound while keeping your eyes closed. 
+
+* right distance from the laptop

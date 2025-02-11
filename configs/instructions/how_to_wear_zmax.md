@@ -13,7 +13,7 @@
         src="https://www.youtube.com/embed/TRJcIeSam28?si=GqUzpNKyhvF2rIvF&rel=0" 
         title="YouTube video player" 
         frameborder="0" 
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; web-share" 
+        allow="accelerometer; encrypted-media; gyroscope;" 
         referrerpolicy="strict-origin-when-cross-origin" 
         allowfullscreen>
 </iframe>
