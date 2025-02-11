@@ -3,46 +3,47 @@ name: pilot
 gui:
   pre_sleep:
     tasks:
-      - title: Study Information
-        widget: instruction
-        kwargs:
-          instruction_path: ../../configs/instructions/study_information.md
-      - title: Session Preparation
-        widget: instruction
-        kwargs:
-          instruction_path: ../../configs/instructions/session_preparation.md
-      - title: EEG Headband Setup
-        widget: instruction
-        kwargs:
-          instruction_path: ../../configs/instructions/zmax_setup.md
+      # - title: Study Information
+      #   widget: instruction
+      #   kwargs:
+      #     instruction_path: ../../configs/instructions/study_information.md
+      # - title: Session Preparation
+      #   widget: instruction
+      #   kwargs:
+      #     instruction_path: ../../configs/instructions/session_preparation.md
+      # - title: EEG Headband Setup
+      #   widget: instruction
+      #   kwargs:
+      #     instruction_path: ../../configs/instructions/zmax_setup.md
       - title: EEG Headband Connection
         widget: zmax_connection
         kwargs:
           battery_level_threshold: 10
-      - title: Put on the EEG Headband
-        widget: instruction
-        kwargs:
-          instruction_path: ../../configs/instructions/how_to_wear_zmax.md
-      - title: Lucid Dream Task
-        widget: instruction
-        kwargs:
-          instruction_path: ../../configs/instructions/lucidity_task.md
-      - title: Eye Movement Detection Test
-        widget: eye_test
-        kwargs:
-          accepted_eye_signals: [LRL, RLR]
-          difference_threshold: 280
-          max_test_duration: 30
-      - title: Visual Cueing
-        widget: instruction
-        kwargs:
-          instruction_path: ../../configs/instructions/light_cueing.md
+      # - title: Put on the EEG Headband
+      #   widget: instruction
+      #   kwargs:
+      #     instruction_path: ../../configs/instructions/how_to_wear_zmax.md
+      # - title: Lucid Dream Task
+      #   widget: instruction
+      #   kwargs:
+      #     instruction_path: ../../configs/instructions/lucidity_task.md
+      # - title: Eye Movement Detection Test
+      #   widget: eye_test
+      #   kwargs:
+      #     accepted_eye_signals: [LRL, RLR]
+      #     difference_threshold: 280
+      #     max_test_duration: 30
+      # - title: Visual Cueing
+      #   widget: instruction
+      #   kwargs:
+      #     instruction_path: ../../configs/instructions/light_cueing.md
       - title: Light Cue Calibration
         widget: light_cue_calibration
         kwargs:
           min: 5
           max: 100
-          step: 5
+          increment: 5
+          decrement: 2
           led_color: RED
           repetitions: 3
           on_duration: 5
@@ -58,14 +59,11 @@ gui:
         kwargs:
           min: 5
           max: 100
-          step: 5
+          increment: 5
+          decrement: 2
           countdown_seconds: 5
           rate: 175
           text: You are dreaming
-      - title: Auditory Cueing
-        widget: instruction
-        kwargs:
-          instruction_path: ../../configs/instructions/audio_cueing.md
       - title: Tactile Cueing
         widget: instruction
         kwargs:
@@ -238,7 +236,8 @@ dag:
             value: 20
             min: 1
             max: 100
-            step: 5
+            increment: 5
+            decrement: 5
         tactile_cueing:
           on_duration: 2
           off_duration: 5
@@ -246,7 +245,8 @@ dag:
             value: 1
             min: 1
             max: 3
-            step: 1
+            increment: 1
+            decrement: 1
         auditory_cueing:
           text: You are dreaming
           rate: 175
@@ -254,7 +254,8 @@ dag:
             value: 10
             min: 0
             max: 100
-            step: 5
+            increment: 5
+            decrement: 5
         enabled: false
         increase_intensity: false
         enabled_check_interval: 5.0
