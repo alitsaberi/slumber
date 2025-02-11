@@ -4,7 +4,6 @@ from loguru import logger
 from PySide6.QtCore import QThread, Signal
 from PySide6.QtWidgets import QDialog, QWidget
 
-from slumber import settings
 from slumber.gui.widgets.tasks.base import TaskPage
 from slumber.sources.zmax import (
     DataType,
@@ -66,12 +65,18 @@ class ConnectThread(QThread):
 
 
 class ZMaxConnectionPage(TaskPage, Ui_ZMaxConnectionPage):
-    def __init__(self, index: int, title: str, battery_level_threshold: int, parent: QWidget | None = None) -> None:
+    def __init__(
+        self,
+        index: int,
+        title: str,
+        battery_level_threshold: int,
+        parent: QWidget | None = None,
+    ) -> None:
         super().__init__(parent)
         self.setupUi(self)
         self.index = index
         self.title.setText(title)
-        
+
         self.battery_level_threshold = battery_level_threshold
 
         self.info_dialog = self._init_info_dialog()

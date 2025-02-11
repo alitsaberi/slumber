@@ -39,8 +39,16 @@ class Status(Enum):
 
 
 class ButtonState(Enum):
-    START = ("Start Test", "background-color: #4CAF50; color: white; font-weight: bold; padding: 10px; margin-bottom: 25px;")
-    STOP = ("End Test", "background-color: #F44336; color: white; font-weight: bold; padding: 10px; margin-bottom: 25px;")
+    START = (
+        "Start Test",
+        "background-color: #4CAF50; color: white;"
+        " font-weight: bold; padding: 10px; margin-bottom: 25px;",
+    )
+    STOP = (
+        "End Test",
+        "background-color: #F44336; color: white;"
+        " font-weight: bold; padding: 10px; margin-bottom: 25px;",
+    )
 
 
 class DataCollectionThread(QThread):
@@ -132,7 +140,7 @@ class EyeTestPage(TaskPage, Ui_EyeTestPage):
         logger.info("Ending eye test")
         self.timer.stop()
         self.test_button.setEnabled(False)
-        self._update_button_state(ButtonState.STOP)
+        self._update_button_state(ButtonState.START)
         self.collection_thread.is_collecting_data = False
         self.collection_thread.wait()
         self._update_status(Status.TEST_ENDED)
@@ -143,7 +151,7 @@ class EyeTestPage(TaskPage, Ui_EyeTestPage):
         logger.error(f"Error during eye test: {error_msg}")
         self._update_status(Status.DATA_COLLECTION_FAILURE)
         self._update_button_state(ButtonState.START)
-        
+
     def _update_button_state(self, state: ButtonState) -> None:
         logger.debug(f"Updating button state to {state.name}")
         self.test_button.setText(state.value[0])
@@ -155,7 +163,9 @@ class EyeTestPage(TaskPage, Ui_EyeTestPage):
     def _detect_eye_movements(self) -> None:
         data = Data(
             array=np.array(self.test_data),
-            channel_names=[data_type.name for data_type in DataType.get_by_category("EEG")],
+            channel_names=[
+                data_type.name for data_type in DataType.get_by_category("EEG")
+            ],
             sample_rate=SAMPLE_RATE,
         )
         events = detect_lr_eye_movements(

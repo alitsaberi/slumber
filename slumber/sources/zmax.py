@@ -177,16 +177,15 @@ class DataType(Enum):
 
     def __str__(self) -> str:
         return self.name
-    
+
     @property
     def category(self) -> str:
         return self.name.split("_")[0]
-    
+
     @classmethod
     def get_by_category(cls, category: str) -> list["DataType"]:
         return [data_type for data_type in cls if data_type.category == category]
-     
-    
+
 
 class ZMax:
     def __init__(
