@@ -112,6 +112,7 @@ class Ui_EyeTestPage(object):
 "            color: white;\n"
 "            padding: 10px;\n"
 "            border-radius: 10px;")
+        self.status_label.setMargin(0)
 
         self.body.addWidget(self.status_label, 0, Qt.AlignmentFlag.AlignHCenter)
 
