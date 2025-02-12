@@ -1,5 +1,6 @@
 import typing
-from multiprocessing import Process
+from multiprocessing import Pipe, Process
+from multiprocessing.connection import PipeConnection
 
 from loguru import logger
 from PySide6.QtCore import Signal
@@ -13,7 +14,9 @@ from slumber.gui.widgets.help.widget import HelpPage
 from slumber.gui.widgets.home.widget import HomePage
 from slumber.gui.widgets.procedure.widget import ProcedurePage
 from slumber.gui.widgets.sleep.widget import SleepPage, State
-from slumber.models.gui import GUIConfig, Procedure
+from slumber.models.condition import Condition
+from slumber.models.dag import CollectionConfig
+from slumber.models.gui import Procedure
 
 from .main_window_ui import Ui_MainWindow
 
@@ -26,21 +29,23 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def __init__(
         self,
-        gui_config: GUIConfig,
-        dag_process: Process,
+        condition: Condition,
+        run_dag_function: typing.Callable[[CollectionConfig], None],
     ):
         super().__init__()
         self.setupUi(self)  # Setup the UI from the generated class
 
         self._initialize_widgets()
-        self.dag_process = dag_process
-        self.dag_connection = gui_config.dag_connection
-        self.pre_sleep_procedure = gui_config.pre_sleep_procedure
-        self.awakening_procedure = gui_config.awakening_procedure
-        self.post_sleep_procedure = gui_config.post_sleep_procedure
-        self.wbtb_procedure = gui_config.wbtb_procedure
-        self.set_procedure(self.pre_sleep_procedure, self._open_sleep_page)
-        self.state = None
+        self.dag = condition.dag
+        self.run_dag_function = run_dag_function
+        self.pre_sleep_procedure = condition.gui.pre_sleep_procedure
+        self.awakening_procedure = condition.gui.awakening_procedure
+        self.post_sleep_procedure = condition.gui.post_sleep_procedure
+        self.wbtb_procedure = condition.gui.wbtb_procedure
+        self.set_procedure(self.pre_sleep_procedure, self._on_pre_sleep_procedure_done)
+        self.state: State | None = None
+        self.dag_process: Process | None = None
+        self.dag_connection: PipeConnection | None = None
 
     def _initialize_widgets(self) -> None:
         self._setup_home_page()
@@ -84,6 +89,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         logger.info("Main page opened")
         self.stacked_widget.setCurrentWidget(self.main_page)
 
+    def _on_pre_sleep_procedure_done(self) -> None:
+        logger.info("Pre-sleep procedure done")
+        self.dag_process, self.dag_connection = self._setup_dag_process()
+        self._open_sleep_page()
+
     def _open_sleep_page(self) -> None:
         logger.info("Sleep page opened")
         self.body_stacked_widget.setCurrentWidget(self.sleep_page)
@@ -103,6 +113,19 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.dag_connection.send(ExperimentState.AWAKE)
         else:
             self.dag_connection.send(ExperimentState.ASLEEP)
+
+    def _setup_dag_process(self) -> tuple[Process, PipeConnection]:
+        parent_connection, child_connection = Pipe()
+        self.dag.components_mapping["MASTER"].settings["gui_connection"] = (
+            child_connection
+        )
+        logger.info(f"Creating the DAG process: {self.dag}")
+        process = Process(
+            target=self.run_dag_function,
+            args=(self.dag,),
+            name="dag_process",
+        )
+        return process, parent_connection
 
     def start_procedure(self) -> None:
         logger.info("Procedure started")

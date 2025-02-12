@@ -1,6 +1,5 @@
 import importlib
 import inspect
-from multiprocessing.connection import PipeConnection
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
@@ -42,7 +41,6 @@ class Procedure(BaseModel):
 
 
 class GUIConfig(BaseModel):
-    dag_connection: PipeConnection
     pre_sleep_procedure: Procedure = Field(alias="pre_sleep")
     awakening_procedure: Procedure = Field(alias="awakening")
     post_sleep_procedure: Procedure = Field(alias="post_sleep")

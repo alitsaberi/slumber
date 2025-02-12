@@ -1,4 +1,5 @@
 import re
+from dataclasses import asdict
 from functools import cached_property
 from typing import Any, TypeAlias
 
@@ -22,7 +23,7 @@ StreamConnection: TypeAlias = tuple[str, str]
 class ComponentConfig(BaseModel):
     name: str = Field(min_length=1, upper=True)
     unit: type[ez.Unit]
-    settings: ez.Settings | None = None
+    settings: dict[str, Any] | None = None
 
     model_config = ConfigDict(strict=False, arbitrary_types_allowed=True)
 
@@ -41,17 +42,20 @@ class ComponentConfig(BaseModel):
                 raise ValueError(
                     f"Unit {unit.__name__} does not have a SETTINGS attribute."
                 )
+                
+            if not isinstance(settings, dict):
+                raise ValueError(
+                    f"Settings must be a dictionary, not {type(settings)}."
+                )
 
             if hasattr(unit.SETTINGS, "model_validate"):
-                settings = unit.SETTINGS.model_validate(settings)
-            elif isinstance(settings, dict):
+                unit.SETTINGS.model_validate(settings)
+            else:
                 logger.warning(
                     f"Settings for {unit.__name__} are not validated. "
                     "This may cause unexpected behavior."
                 )
-                settings = unit.SETTINGS(**data["settings"])
-
-            data["settings"] = settings
+                unit.SETTINGS(**data["settings"])
 
         data["unit"] = unit
 
@@ -68,15 +72,20 @@ class ComponentConfig(BaseModel):
         return value
 
     def configure(self) -> ez.Unit:
-        logger.info(f"Configured {self.unit.__name__} with settings: {self.settings}")
-        return self.unit(self.settings)
+        logger.info(f"Configuring {self.unit.__name__} with settings: {self.settings}")
+        
+        if hasattr(self.unit.SETTINGS, "model_validate"):
+            settings = self.unit.SETTINGS.model_validate(self.settings)
+        else:
+            settings = self.unit.SETTINGS(**self.settings)
+         
+        return self.unit(settings)
 
 
 class CollectionConfig(BaseModel):
     components: list[ComponentConfig] = Field(min_length=1)
     connections: list[StreamConnection] = Field(default_factory=list)
     process_components: list[str] = Field(default_factory=list)
-    name: str | None = Field(None, serialization_alias="root_name")
 
     model_config = ConfigDict(strict=False, arbitrary_types_allowed=True)
 
@@ -144,3 +153,14 @@ class CollectionConfig(BaseModel):
                 )
 
         return self
+
+    def configure(self) -> dict[str, Any]:
+        components = {
+            component.name: component.configure()
+            for component in self.components
+        }
+        return {
+            "components": components,
+            "connections": self.connections,
+            "process_components": [components[component_name] for component_name in self.process_components],
+        }

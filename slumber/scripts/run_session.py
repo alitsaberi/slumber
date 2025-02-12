@@ -1,6 +1,7 @@
 import argparse
+from functools import partial
 import os
-from multiprocessing import Pipe, Process
+from collections.abc import Callable
 from pathlib import Path
 
 import ezmsg.core as ez
@@ -27,36 +28,11 @@ MAIN_LOG_FILE_NAME = "slumber.log"
 PROCESS_TERMINATION_TIMEOUT = 5.0
 
 
-def _run_dag(
-    dag_config: CollectionConfig,
-    logs_dir: Path,
-) -> None:
+def run_dag(logs_dir: Path, dag_config: CollectionConfig) -> None:
     setup_logging(logs_dir / DAG_LOG_FILE_NAME)
-    ez.run(**dag_config.model_dump(by_alias=True))
-
-
-def _setup_dag_process(
-    dag_config: CollectionConfig,
-    logs_dir: Path,
-) -> Process:
-    logger.info(f"Creating the DAG process: {dag_config}")
-
-    return Process(
-        target=_run_dag,
-        args=(
-            dag_config,
-            logs_dir,
-        ),
-        name="dag_process",
+    ez.run(
+        **dag_config.configure()
     )
-
-
-def _setup_pipe_connections(condition_config: dict) -> None:
-    parent_connection, child_connection = Pipe()
-    condition_config["dag"]["components"]["MASTER"]["settings"]["gui_connection"] = (
-        child_connection
-    )
-    condition_config["gui"]["dag_connection"] = parent_connection
 
 
 def _get_condition(config_name: str) -> Condition:
@@ -64,10 +40,7 @@ def _get_condition(config_name: str) -> Condition:
     if not config_file.exists():
         raise FileNotFoundError(f"Condition config file {config_file} does not exist.")
 
-    condition_config = load_yaml(config_file)
-    _setup_pipe_connections(condition_config)
-
-    return Condition.model_validate(condition_config)
+    return Condition.model_validate(load_yaml(config_file))
 
 
 def _create_run_subdirectories(run_directory: Path) -> None:
@@ -109,17 +82,18 @@ def main():
     args = parse_args()
 
     condition = _get_condition(args.condition_config_file)
+    logger.info(f"Condition: {condition}")
 
     run_directory = _create_run_directory(condition.name)
+
     logs_dir = run_directory / LOGS_DIR_NAME
     setup_logging(logs_dir / MAIN_LOG_FILE_NAME)
+    run_dag_function = partial(run_dag, logs_dir)
 
     os.chdir(run_directory)
 
-    dag_process = _setup_dag_process(condition.dag, logs_dir)
-
     app = QApplication()
-    window = MainWindow(gui_config=condition.gui, dag_process=dag_process)
+    window = MainWindow(condition=condition, run_dag_function=run_dag_function)
 
     window.show()
 
@@ -128,13 +102,6 @@ def main():
     try:
         app.exec()
     finally:
-        if dag_process.is_alive():
-            logger.info("Terminating the DAG process...")
-            dag_process.terminate()
-            dag_process.join(timeout=PROCESS_TERMINATION_TIMEOUT)
-            if dag_process.is_alive():
-                dag_process.kill()
-
         logger.info("Terminating the HDServer process...")
         hdserver_process.terminate()
 
