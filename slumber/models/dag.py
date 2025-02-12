@@ -1,5 +1,4 @@
 import re
-from dataclasses import asdict
 from functools import cached_property
 from typing import Any, TypeAlias
 
@@ -42,7 +41,7 @@ class ComponentConfig(BaseModel):
                 raise ValueError(
                     f"Unit {unit.__name__} does not have a SETTINGS attribute."
                 )
-                
+
             if not isinstance(settings, dict):
                 raise ValueError(
                     f"Settings must be a dictionary, not {type(settings)}."
@@ -73,12 +72,12 @@ class ComponentConfig(BaseModel):
 
     def configure(self) -> ez.Unit:
         logger.info(f"Configuring {self.unit.__name__} with settings: {self.settings}")
-        
+
         if hasattr(self.unit.SETTINGS, "model_validate"):
             settings = self.unit.SETTINGS.model_validate(self.settings)
         else:
             settings = self.unit.SETTINGS(**self.settings)
-         
+
         return self.unit(settings)
 
 
@@ -156,11 +155,12 @@ class CollectionConfig(BaseModel):
 
     def configure(self) -> dict[str, Any]:
         components = {
-            component.name: component.configure()
-            for component in self.components
+            component.name: component.configure() for component in self.components
         }
         return {
             "components": components,
             "connections": self.connections,
-            "process_components": [components[component_name] for component_name in self.process_components],
+            "process_components": [
+                components[component_name] for component_name in self.process_components
+            ],
         }

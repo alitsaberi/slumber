@@ -1,7 +1,6 @@
 import argparse
-from functools import partial
 import os
-from collections.abc import Callable
+from functools import partial
 from pathlib import Path
 
 import ezmsg.core as ez
@@ -30,9 +29,7 @@ PROCESS_TERMINATION_TIMEOUT = 5.0
 
 def run_dag(logs_dir: Path, dag_config: CollectionConfig) -> None:
     setup_logging(logs_dir / DAG_LOG_FILE_NAME)
-    ez.run(
-        **dag_config.configure()
-    )
+    ez.run(**dag_config.configure())
 
 
 def _get_condition(config_name: str) -> Condition:

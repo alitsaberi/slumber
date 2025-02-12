@@ -4,6 +4,7 @@ from multiprocessing.connection import PipeConnection
 
 from loguru import logger
 from PySide6.QtCore import Signal
+from PySide6.QtGui import QCloseEvent
 from PySide6.QtWidgets import (
     QMainWindow,
     QSizePolicy,
@@ -46,6 +47,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.state: State | None = None
         self.dag_process: Process | None = None
         self.dag_connection: PipeConnection | None = None
+
+    def closeEvent(self, event: QCloseEvent) -> None:
+        if self.dag_process is not None:
+            logger.info("Terminating DAG process")
+            self.dag_process.terminate()
+            self.dag_process.join()
+        super().closeEvent(event)
 
     def _initialize_widgets(self) -> None:
         self._setup_home_page()
