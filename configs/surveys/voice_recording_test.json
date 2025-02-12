@@ -1,0 +1,20 @@
+{
+    "logoPosition": "right",
+    "completedHtml": "<h3>Click Next to continue</h3>",
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "voice",
+            "name": "voice_recording_test",
+            "title": " Please record your voice while reading the following text.",
+            "description": "Lucid dreaming is when you are aware that you're dreaming while still asleep.",
+            "isRequired": true
+          }
+        ]
+      }
+    ],
+    "showTitle": false,
+    "questionsOnPageMode": "questionPerPage"
+}
