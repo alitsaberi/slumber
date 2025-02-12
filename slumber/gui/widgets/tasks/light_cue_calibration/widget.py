@@ -108,7 +108,7 @@ class LightCueCalibrationPage(TaskPage, Ui_LightCueCalibrationPage):
             led_intensity=self.cue_intensity_config.value,
             alternate_eyes=alternate_eyes,
         )
-        
+
         self.phase = Phase.INCREASING
         self.countdown_seconds = countdown_seconds
         self.timer = QTimer()

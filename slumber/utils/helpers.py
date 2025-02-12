@@ -97,19 +97,17 @@ def create_enum_by_name_resolver(
 
 def create_class_by_name_resolver(
     modules: ModuleType | list[ModuleType], base_class: type[T] | None = None
-) -> Callable[[Any], Any]:
+) -> Callable[[T | str], T]:
     if not isinstance(modules, list):
         modules = [modules]
 
-    def resolve(v: Any) -> Any:
+    def resolve(v: T | str) -> T:
+        if not isinstance(v, str):
+            return v
+
         for module in modules:
             try:
-                cls = (
-                    get_class_by_name(v, module, base_class)
-                    if isinstance(v, str)
-                    else v
-                )
-                return cls
+                return get_class_by_name(v, module, base_class)
             except ValueError as e:
                 logger.debug(e)
                 continue

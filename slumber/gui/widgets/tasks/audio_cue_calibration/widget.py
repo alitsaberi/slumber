@@ -1,8 +1,8 @@
 from enum import Enum, auto
 
 from loguru import logger
-from PySide6.QtCore import QTimer, Qt
-from PySide6.QtWidgets import QDialog, QPushButton, QWidget, QMessageBox
+from PySide6.QtCore import QTimer
+from PySide6.QtWidgets import QDialog, QMessageBox, QPushButton, QWidget
 
 from slumber.dag.units.home_lucid_dreaming.cueing import (
     CueIntensityConfig,
@@ -153,7 +153,7 @@ class AudioCueCalibrationPage(TaskPage, Ui_AudioCueCalibrationPage):
         except Exception as e:
             logger.error(f"Error delivering audio cue: {e}")
             self._update_status(Status.FAILURE)
-            
+
     def _show_perception_question(self):
         logger.info("Showing perception question")
         reply = QMessageBox.question(
