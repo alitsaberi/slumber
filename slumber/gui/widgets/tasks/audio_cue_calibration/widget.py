@@ -1,8 +1,8 @@
-from enum import Enum
+from enum import Enum, auto
 
 from loguru import logger
-from PySide6.QtCore import QTimer
-from PySide6.QtWidgets import QDialog, QPushButton, QWidget
+from PySide6.QtCore import QTimer, Qt
+from PySide6.QtWidgets import QDialog, QPushButton, QWidget, QMessageBox
 
 from slumber.dag.units.home_lucid_dreaming.cueing import (
     CueIntensityConfig,
@@ -16,7 +16,7 @@ from .widget_ui import Ui_AudioCueCalibrationPage
 
 class Status(Enum):
     TO_START_CUEING = (
-        "Ready to start cueing.\nAdjust intensity if needed and click `Present Cue`.",
+        "Ready to start cueing. Click `Present Cue` to start.",
         "color: #2196F3; font-weight: bold; padding: 10px;",
     )
     CUEING = (
@@ -28,11 +28,11 @@ class Status(Enum):
         "color: #FFC107; font-weight: bold; padding: 10px;",
     )
     FAILURE = (
-        "❌ Failed to deliver light cue. Please try again.",
+        "❌ Failed to deliver audio cue. Please try again.",
         "color: #F44336; font-weight: bold; padding: 10px;",
     )
-    CONFIRMED = (
-        "✅ Light cue perceived!",
+    SUCCESS = (
+        "✅ Calibration successful!",
         "color: #4CAF50; font-weight: bold; padding: 10px;",
     )
 
@@ -44,6 +44,7 @@ class ButtonStyle(Enum):
         font-weight: bold;
         padding: 10px;
         border-radius: 5px;
+        margin-bottom: 25px;
     """
     ENABLED = """
         background: qlineargradient(x1:0, y1:0, x2:1, 
@@ -52,7 +53,17 @@ class ButtonStyle(Enum):
         font-weight: bold;
         padding: 10px;
         border-radius: 5px;
+        margin-bottom: 25px;
     """
+
+
+PERCEPTION_QUESTION_BOX_TITLE = "Perception"
+PERCEPTION_QUESTION = "Did you perceive the audio cue?"
+
+
+class Phase(Enum):
+    INCREASING = auto()
+    DECREASING = auto()
 
 
 def set_button_enabled(button: QPushButton, enabled: bool) -> None:
@@ -93,75 +104,43 @@ class AudioCueCalibrationPage(TaskPage, Ui_AudioCueCalibrationPage):
             volume=MAX_VOLUME,
         )
         self.text = text
-
+        self.phase = Phase.INCREASING
         self.countdown_seconds = countdown_seconds
         self.timer = QTimer()
         self.timer.setInterval(1000)
         self.timer.timeout.connect(self._update_countdown)
 
-        self._update_status(Status.TO_START_CUEING)
-        self._update_intensity_layout()
-        self._set_perception_widget_visible(False)
-
+        self._init_status()
         self._connect_signals()
+
+    def _init_status(self) -> None:
+        logger.info("Initializing cueing state")
+        self._update_status(Status.TO_START_CUEING)
+        set_button_enabled(self.cue_button, True)
 
     def _connect_signals(self) -> None:
         self.cue_button.clicked.connect(self._on_cue_button_click)
-        self.increase_intensity_button.clicked.connect(self._increase_intensity)
-        self.decrease_intensity_button.clicked.connect(self._decrease_intensity)
-        self.yes_button.clicked.connect(self._confirm_perception)
-        self.no_button.clicked.connect(self._retry)
 
     def _update_status(self, status: Enum) -> None:
         logger.info(f"Updating status to {status}")
         self.status_label.setText(status.value[0])
         self.status_label.setStyleSheet(status.value[1])
 
-    def _update_intensity_layout(self) -> None:
-        logger.info(f"Updating intensity layout: {self.cue_intensity_config}")
-        self.intensity_display.display(self.cue_intensity_config.value)
-        set_button_enabled(
-            self.decrease_intensity_button,
-            self.cue_intensity_config.value > self.cue_intensity_config.min,
-        )
-        set_button_enabled(
-            self.increase_intensity_button,
-            self.cue_intensity_config.value < self.cue_intensity_config.max,
-        )
-
-    def _set_perception_widget_visible(self, visible: bool) -> None:
-        logger.info(
-            f"Setting perception widget visible: {visible}",
-            is_visible=self.perception_widget.isVisible(),
-        )
-        self.perception_widget.setVisible(visible)
-
-    def _set_buttons_enabled(self, enabled: bool) -> None:
-        logger.info(f"Setting buttons enabled: {enabled}")
-        set_button_enabled(self.cue_button, enabled)
-        set_button_enabled(self.increase_intensity_button, enabled)
-        set_button_enabled(self.decrease_intensity_button, enabled)
-
-        if enabled:
-            self._update_intensity_layout()
-
     def _on_cue_button_click(self) -> None:
         logger.info("Cue button clicked")
         self._update_status(Status.CUEING)
-        self._set_buttons_enabled(False)
+        set_button_enabled(self.cue_button, False)
         self.remaining_seconds = self.countdown_seconds
         self._update_countdown()
         self.timer.start()
 
     def _update_countdown(self) -> None:
-        self.intensity_display.display(self.remaining_seconds)
+        self.timer_display.display(self.remaining_seconds)
         if self.remaining_seconds > 0:
             self.remaining_seconds -= 1
         else:
             self.timer.stop()
             self._deliver_cue()
-            self._update_intensity_layout()
-            self._set_buttons_enabled(False)
 
     def _deliver_cue(self) -> None:
         logger.info(f"Delivering cue: {self.cue_intensity_config}")
@@ -170,36 +149,43 @@ class AudioCueCalibrationPage(TaskPage, Ui_AudioCueCalibrationPage):
                 self.text, self.cue_intensity_config.value, self.engine
             )
             self._update_status(Status.CUED)
-            self._set_perception_widget_visible(True)
+            self._show_perception_question()
         except Exception as e:
             logger.error(f"Error delivering audio cue: {e}")
             self._update_status(Status.FAILURE)
-            self._set_buttons_enabled(True)
+            
+    def _show_perception_question(self):
+        logger.info("Showing perception question")
+        reply = QMessageBox.question(
+            self,
+            PERCEPTION_QUESTION_BOX_TITLE,
+            PERCEPTION_QUESTION,
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.No,
+        )
+        logger.info(
+            f"Perception question reply: {'yes' if reply == QMessageBox.Yes else 'no'}"
+        )
 
-    def _increase_intensity(self) -> None:
-        self._adjust_intensity(True)
+        if self.phase == Phase.DECREASING and reply == QMessageBox.No:
+            self._finish_calibration()
+            return
 
-    def _decrease_intensity(self) -> None:
-        self._adjust_intensity(False)
+        if self.phase == Phase.INCREASING and reply == QMessageBox.Yes:
+            self.phase = Phase.DECREASING
+
+        self._adjust_intensity(increase=(self.phase == Phase.INCREASING))
+        self._init_status()
 
     def _adjust_intensity(self, increase: bool) -> None:
+        logger.info(f"Adjusting intensity: {increase}")
         self.cue_intensity_config.adjust(increase)
-        self._update_intensity_layout()
 
-    def _confirm_perception(self) -> None:
-        logger.info("Perception confirmed by participant.")
-        self._set_perception_widget_visible(False)
-        self._update_status(Status.CONFIRMED)
-
-        # TODO: Store intensity
-
+    def _finish_calibration(self) -> None:
+        logger.info("Finishing calibration")
+        self._update_status(Status.SUCCESS)
+        self.engine.stop()
         self.done()
-
-    def _retry(self) -> None:
-        logger.info("Participant did not perceive the cue.")
-        self._set_perception_widget_visible(False)
-        self._update_status(Status.TO_START_CUEING)
-        self._set_buttons_enabled(True)
 
     def _init_info_dialog(self) -> QDialog:
         from .info_ui import Ui_InfoDialog

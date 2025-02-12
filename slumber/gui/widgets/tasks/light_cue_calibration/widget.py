@@ -108,17 +108,15 @@ class LightCueCalibrationPage(TaskPage, Ui_LightCueCalibrationPage):
             led_intensity=self.cue_intensity_config.value,
             alternate_eyes=alternate_eyes,
         )
-        self.countdown_seconds = countdown_seconds
+        
         self.phase = Phase.INCREASING
-
+        self.countdown_seconds = countdown_seconds
         self.timer = QTimer()
         self.timer.setInterval(1000)
         self.timer.timeout.connect(self._update_countdown)
-
         self.zmax = ZMax()
 
         self._init_status()
-
         self._connect_signals()
 
     def _init_status(self) -> None:
