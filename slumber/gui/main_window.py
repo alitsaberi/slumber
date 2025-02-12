@@ -27,6 +27,8 @@ DEFAULT_WIDGET_POLICY = (EXPANDING_POLICY, EXPANDING_POLICY)
 
 class MainWindow(QMainWindow, Ui_MainWindow):
     experiment_state = Signal(ExperimentState)
+    audio_cue_calibrated = Signal(int)
+    light_cue_calibrated = Signal(int)
 
     def __init__(
         self,
@@ -48,8 +50,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.dag_process: Process | None = None
         self.dag_connection: PipeConnection | None = None
 
+        self.audio_cue_calibrated.connect(self._set_minimum_subjective_audio_intensity)
+        self.light_cue_calibrated.connect(self._set_minimum_subjective_light_intensity)
+
     def closeEvent(self, event: QCloseEvent) -> None:
-        if self.dag_process is not None:
+        if self.dag_process is not None and self.dag_process.is_alive():
             logger.info("Terminating DAG process")
             self.dag_process.terminate()
             self.dag_process.join()
@@ -147,3 +152,17 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.procedure_page.set_procedure(procedure)
         if callback:
             self.procedure_page.done_signal.connect(callback)
+
+    def _set_minimum_subjective_audio_intensity(self, value: int) -> None:
+        logger.info(f"Setting minimum subjective audio intensity to {value}")
+        self.dag.components_mapping["REM_CUEING"].settings["auditory_cueing"][
+            "intensity"
+        ]["value"] = value
+        # TODO: not the best way to do this
+
+    def _set_minimum_subjective_light_intensity(self, value: int) -> None:
+        logger.info(f"Setting minimum subjective light intensity to {value}")
+        self.dag.components_mapping["REM_CUEING"].settings["visual_cueing"][
+            "intensity"
+        ]["value"] = value
+        # TODO: not the best way to do this

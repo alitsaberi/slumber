@@ -191,6 +191,7 @@ class LightCueCalibrationPage(TaskPage, Ui_LightCueCalibrationPage):
     def _finish_calibration(self) -> None:
         logger.info("Finishing calibration")
         self._update_status(Status.SUCCESS)
+        self.window().light_cue_calibrated.emit(self.cue_intensity_config.value)
         self.zmax.disconnect()
         self.done()
 
