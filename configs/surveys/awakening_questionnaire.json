@@ -1,0 +1,289 @@
+{
+  "logoPosition": "right",
+  "completedHtml": "<h3>Click Next to continue</h3>",
+  "pages": [
+    {
+      "name": "custom",
+      "title": "\n",
+      "elements": [
+        {
+          "type": "radiogroup",
+          "name": "question1",
+          "title": "What went through your head in the last few minutes? Did you have any experiences, sensations, feelings, thoughts, or emotions?",
+          "isRequired": true,
+          "choices": [
+            {
+              "value": "Item 1",
+              "text": "Yes, I had an experience."
+            },
+            {
+              "value": "Item 2",
+              "text": "Yes, I remember having an experience but I cannot recall."
+            },
+            {
+              "value": "Item 3",
+              "text": "No, I don't remember any experiences from the last few minutes."
+            }
+          ]
+        },
+        {
+          "type": "panel",
+          "name": "panel1",
+          "visibleIf": "{question1} = 'Item 1'",
+          "title": "Please describe your experience in as much detail as possible:",
+          "elements": [
+            {
+              "type": "comment",
+              "name": "question2",
+              "title": "What did you experience? What were your feelings, sensations, or thoughts during the experience? Mention any sensory experiences you had (light, colors, sounds, tactile). If present, describe locations, objects, colors or characters.",
+              "isRequired": true
+            },
+            {
+              "type": "comment",
+              "name": "question3",
+              "title": "Reflect on whether you were aware that you were dreaming (lucid), and if so, describe how and when this awareness began and ended, and the process of realization.",
+              "isRequired": true
+            },
+            {
+              "type": "comment",
+              "name": "question4",
+              "title": "How long did this experience seem to last (e.g., seconds, minutes)? Please clarify the timing of different events or phases within this experience.",
+              "isRequired": true
+            }
+          ]
+        },
+        {
+          "type": "radiogroup",
+          "name": "question5",
+          "visibleIf": "{question1} <> 'Item 3'",
+          "title": " Do you remember making an eye signal while you were having this experience?",
+          "isRequired": true,
+          "choices": [
+            {
+              "value": "Item 1",
+              "text": "Yes"
+            },
+            {
+              "value": "Item 2",
+              "text": "No"
+            },
+            {
+              "value": "Item 3",
+              "text": "Not sure"
+            }
+          ]
+        },
+        {
+          "type": "comment",
+          "name": "question6",
+          "visibleIf": "{question5} = 'Item 1' and {question1} <> 'Item 3'",
+          "title": "Please describe how (e.g., complete or not) and at what specific moment you signaled with your eyes.",
+          "isRequired": true
+        },
+        {
+          "type": "radiogroup",
+          "name": "question7",
+          "visibleIf": "{question1} <> 'Item 3'",
+          "title": "Were you asleep during this experience?",
+          "isRequired": true,
+          "choices": [
+            {
+              "value": "Item 1",
+              "text": "Yes"
+            },
+            {
+              "value": "Item 2",
+              "text": "No"
+            },
+            {
+              "value": "Item 3",
+              "text": "Not sure"
+            }
+          ]
+        },
+        {
+          "type": "radiogroup",
+          "name": "question8",
+          "visibleIf": "{question7} <> 'Item 2' and {question1} <> 'Item 3'",
+          "title": "Were you dreaming?\r\n",
+          "isRequired": true,
+          "choices": [
+            {
+              "value": "Item 1",
+              "text": "Yes"
+            },
+            {
+              "value": "Item 2",
+              "text": "No"
+            },
+            {
+              "value": "Item 3",
+              "text": "Not sure"
+            }
+          ]
+        },
+        {
+          "type": "radiogroup",
+          "name": "question9",
+          "visibleIf": "{question7} <> 'Item 2' and {question1} <> 'Item 3'",
+          "title": " Did you have any awareness that you were dreaming?\r\n",
+          "isRequired": true,
+          "choices": [
+            {
+              "value": "Item 1",
+              "text": "Yes"
+            },
+            {
+              "value": "Item 2",
+              "text": "No"
+            },
+            {
+              "value": "Item 3",
+              "text": "Not sure"
+            }
+          ]
+        },
+        {
+          "type": "radiogroup",
+          "name": "question10",
+          "visibleIf": "{question7} <> 'Item 2' and {question9} = 'Item 1' and {question1} <> 'Item 3'",
+          "title": "How long did your awareness seem to last?\r\n",
+          "isRequired": true,
+          "choices": [
+            {
+              "value": "Item 1",
+              "text": "More like a few seconds."
+            },
+            {
+              "value": "Item 2",
+              "text": "More like one minute."
+            },
+            {
+              "value": "Item 3",
+              "text": "More like 5 minutes or more."
+            }
+          ]
+        },
+        {
+          "type": "radiogroup",
+          "name": "question11",
+          "visibleIf": "{question1} <> 'Item 3'",
+          "title": "Did you notice any light, sound or vibration cues?\r\n",
+          "choices": [
+            {
+              "value": "Item 1",
+              "text": "Yes"
+            },
+            {
+              "value": "Item 2",
+              "text": "No"
+            },
+            {
+              "value": "Item 3",
+              "text": "Not sure"
+            }
+          ]
+        },
+        {
+          "type": "checkbox",
+          "name": "question12",
+          "visibleIf": "{question11} = 'Item 1' and {question1} <> 'Item 3'",
+          "title": "Which kind(s) of cues did you notice?\r\n",
+          "isRequired": true,
+          "choices": [
+            {
+              "value": "Item 1",
+              "text": "Light or color"
+            },
+            {
+              "value": "Item 2",
+              "text": "Sound"
+            },
+            {
+              "value": "Item 3",
+              "text": "Vibration or other bodily sensations"
+            },
+            {
+              "value": "Item 4",
+              "text": "Others"
+            }
+          ]
+        },
+        {
+          "type": "comment",
+          "name": "question13",
+          "visibleIf": "{question11} = 'Item 1' and {question1} <> 'Item 3'",
+          "title": "Describe the cues, how many times you noticed them, and how you experienced them.",
+          "isRequired": true
+        },
+        {
+          "type": "comment",
+          "name": "question14",
+          "visibleIf": "{question11} = 'Item 1' and {question1} <> 'Item 3'",
+          "title": "Is there anything else you'd like to add about this experience? Is there anything else you'd like to say?"
+        }
+      ]
+    },
+    {
+      "name": "dlq",
+      "elements": [
+        {
+          "type": "matrix",
+          "name": "question15",
+          "visibleIf": "{question8} <> 'Item 2' and {question1} <> 'Item 3'",
+          "title": "The following questions are about the experience during the dream.",
+          "isRequired": true,
+          "columns": [
+            {
+              "value": "0",
+              "text": "not at all"
+            },
+            {
+              "value": "1",
+              "text": "just a little"
+            },
+            {
+              "value": "2",
+              "text": "moderately"
+            },
+            {
+              "value": "3",
+              "text": "pretty much"
+            },
+            {
+              "value": "4",
+              "text": "very much"
+            }
+          ],
+          "rows": [
+            {
+              "value": "Row 1",
+              "text": "I was aware that I was dreaming"
+            },
+            {
+              "value": "Row 2",
+              "text": "I was aware that my physical body was asleep"
+            },
+            {
+              "value": "Row 3",
+              "text": "I was aware that all dream objects are not real"
+            },
+            {
+              "value": "Row 4",
+              "text": "I changed dream events in the way I wanted"
+            },
+            {
+              "value": "Row 5",
+              "text": "I changed the dream scene in the way I wanted"
+            }
+          ],
+          "isAllRowRequired": true
+        }
+      ]
+    }
+  ],
+  "progressBarType": "questions",
+  "goNextPageAutomatic": true,
+  "allowCompleteSurveyAutomatic": false,
+  "questionsOnPageMode": "questionPerPage"
+}
