@@ -57,7 +57,7 @@ class ComponentConfig(BaseModel):
 
         return data
 
-    @field_validator("identifier", mode="after")
+    @field_validator("name", mode="after")
     @classmethod
     def check_uppercase_underscore(cls, value: str) -> str:
         if not re.fullmatch(r"[A-Z]+(?:_[A-Z]+)*", value):
