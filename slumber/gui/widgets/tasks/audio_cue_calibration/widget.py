@@ -185,6 +185,7 @@ class AudioCueCalibrationPage(TaskPage, Ui_AudioCueCalibrationPage):
         logger.info("Finishing calibration")
         self._update_status(Status.SUCCESS)
         self.engine.stop()
+        self.window().audio_cue_calibrated.emit(self.cue_intensity_config.value)
         self.done()
 
     def _init_info_dialog(self) -> QDialog:
