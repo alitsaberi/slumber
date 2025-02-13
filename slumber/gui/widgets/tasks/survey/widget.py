@@ -81,7 +81,7 @@ class SurveyPage(TaskPage, Ui_SurveyPage):
         index: int,
         title: str,
         survey_config_path: Path | str,
-        output_directory: Path | str | None = None,
+        output_directory: Path | str,
         parent: QWidget | None = None,
     ):
         super().__init__(index, title, parent=parent)
@@ -90,9 +90,7 @@ class SurveyPage(TaskPage, Ui_SurveyPage):
         if not self.survey_config_path.exists():
             raise FileNotFoundError(f"Survey file not found: {self.survey_config_path}")
 
-        self.output_directory = output_directory
-        if output_directory is not None:
-            self.output_directory = Path(output_directory)
+        self.output_directory = Path(output_directory)
 
         self.web_engine_view.setPage(SurveyWebPage(self.web_engine_view))
 
