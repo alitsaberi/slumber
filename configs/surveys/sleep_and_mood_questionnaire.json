@@ -1,0 +1,128 @@
+{
+  "logoPosition": "right",
+  "completedHtml": "<h3>Click Next to continue</h3>",
+  "pages": [
+    {
+      "name": "page1",
+      "elements": [
+        {
+          "type": "text",
+          "name": "question1",
+          "title": "At what time did you go to sleep last night? ",
+          "isRequired": true,
+          "inputType": "time"
+        },
+        {
+          "type": "text",
+          "name": "question2",
+          "title": "At what time did you wake up today?",
+          "isRequired": true,
+          "inputType": "time"
+        },
+        {
+          "type": "radiogroup",
+          "name": "question3",
+          "title": "How well did you sleep last night?",
+          "isRequired": true,
+          "choices": [
+            {
+              "value": "Item 1",
+              "text": "Very badly"
+            },
+            {
+              "value": "Item 2",
+              "text": "Badly"
+            },
+            {
+              "value": "Item 3",
+              "text": "Fairly badly"
+            },
+            {
+              "value": "Item 4",
+              "text": "Fairly well"
+            },
+            {
+              "value": "Item 5",
+              "text": "Well"
+            },
+            {
+              "value": "Item 6",
+              "text": "Very well"
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "name": "question4",
+          "title": "How many times did you wake up last night?",
+          "isRequired": true,
+          "inputType": "number",
+          "min": 0
+        },
+        {
+          "type": "boolean",
+          "name": "question5",
+          "title": "Was there any special circumstances impacting your sleep (illness, noise, etc.)?",
+          "isRequired": true,
+          "showCommentArea": true,
+          "commentText": "If yes, please describe:",
+          "swapOrder": true
+        },
+        {
+          "type": "rating",
+          "name": "question7",
+          "title": "Please rate on a 1-5 scale how POSITIVE your mood is this morning.",
+          "isRequired": true,
+          "minRateDescription": "not at all positive",
+          "maxRateDescription": "extremely positive"
+        },
+        {
+          "type": "rating",
+          "name": "question8",
+          "title": "Please rate on a 1-5 scale how NEGATIVE your mood is this morning.",
+          "isRequired": true,
+          "minRateDescription": "not at all negative",
+          "maxRateDescription": "extremely negative"
+        },
+        {
+          "type": "boolean",
+          "name": "question9",
+          "title": "Did you take a nap yesterday?",
+          "isRequired": true,
+          "swapOrder": true
+        },
+        {
+          "type": "text",
+          "name": "question10",
+          "visibleIf": "{question8} = true",
+          "title": "For how long (in minutes)?",
+          "isRequired": true,
+          "inputType": "number",
+          "min": 1,
+          "max": 90
+        },
+        {
+          "type": "text",
+          "name": "question11",
+          "title": "How many servings of alcohol did you drink yesterday?",
+          "isRequired": true,
+          "inputType": "number",
+          "min": 0
+        },
+        {
+          "type": "text",
+          "name": "question12",
+          "title": "How many servings of caffeine did you drink yesterday?",
+          "isRequired": true,
+          "inputType": "number",
+          "min": 0
+        }
+      ]
+    }
+  ],
+  "showTitle": false,
+  "progressBarType": "questions",
+  "goNextPageAutomatic": true,
+  "allowCompleteSurveyAutomatic": false,
+  "questionsOnPageMode": "questionPerPage"
+}
