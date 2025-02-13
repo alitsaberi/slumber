@@ -64,9 +64,14 @@
           "name": "question5",
           "title": "Was there any special circumstances impacting your sleep (illness, noise, etc.)?",
           "isRequired": true,
-          "showCommentArea": true,
           "commentText": "If yes, please describe:",
           "swapOrder": true
+        },
+        {
+          "type": "comment",
+          "name": "question6",
+          "visibleIf": "{question5} = true",
+          "title": "If yes, please describe:"
         },
         {
           "type": "rating",

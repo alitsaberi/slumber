@@ -4,6 +4,7 @@ from enum import Enum
 from pathlib import Path
 from typing import Any
 
+from logtail import LogtailHandler
 from loguru import logger
 
 from slumber import settings
@@ -12,6 +13,7 @@ from slumber import settings
 class HandlerType(Enum):
     CONSOLE = "console"
     FILE = "file"
+    LOGTAIL = "logtail"
 
 
 class InterceptHandler(logging.Handler):
@@ -38,7 +40,17 @@ def setup_logging(log_file: Path, config: dict[str, Any] = settings["logging"]) 
     for handler_name, handler_config in config["handlers"].items():
         handler_type = HandlerType(handler_name)
 
-        sink = log_file if handler_type == HandlerType.FILE else sys.stdout
+        match handler_type:
+            case HandlerType.CONSOLE:
+                sink = sys.stdout
+            case HandlerType.LOGTAIL:
+                sink = LogtailHandler(
+                    source_token=handler_config.pop("source_token"),
+                    host=handler_config.pop("host"),
+                )
+            case HandlerType.FILE:
+                sink = log_file
+
         logger.add(sink, **handler_config)
 
     # Intercept standard library logging
