@@ -36,6 +36,12 @@ logging:
       rotation: "50 MB"
       serialize: True
       enqueue: True
+    logtail:
+      level: "INFO"
+      format: "{message}"
+      host: https://s1203225.eu-nbg-2.betterstackdata.com
+      source_token: vDd2X1TkfUEKUtE3VDFgfVxW
+
 
 text2speech:
   rate: 175 # Integer speech rate in words per minute.
