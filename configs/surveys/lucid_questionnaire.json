@@ -1,0 +1,296 @@
+{
+    "logoPosition": "right",
+    "completedHtml": "<h3>Click Next to continue</h3>",
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "rating",
+            "name": "question1",
+            "title": "While dreaming. I was aware of the fact that the things I was experiencing in the dream were not real.",
+            "isRequired": true,
+            "rateCount": 6,
+            "rateMin": 0,
+            "minRateDescription": "strongly disagree",
+            "maxRateDescription": "strongly agree"
+          },
+          {
+            "type": "rating",
+            "name": "question2",
+            "title": "While dreaming, I was able to remember my intention to do certain things in the dream.",
+            "isRequired": true,
+            "rateCount": 6,
+            "rateMin": 0,
+            "minRateDescription": "strongly disagree",
+            "maxRateDescription": "strongly agree"
+          },
+          {
+            "type": "rating",
+            "name": "question3",
+            "title": "While dreaming, I was aware that the self I experienced in my dream wasn't the same as my waking self.",
+            "isRequired": true,
+            "rateCount": 6,
+            "rateMin": 0,
+            "minRateDescription": "strongly disagree",
+            "maxRateDescription": "strongly agree"
+          },
+          {
+            "type": "rating",
+            "name": "question4",
+            "title": "In my dream, I was able to manipulate or control other dream characters in a way that would be possible in waking.",
+            "isRequired": true,
+            "rateCount": 6,
+            "rateMin": 0,
+            "minRateDescription": "strongly disagree",
+            "maxRateDescription": "strongly agree"
+          },
+          {
+            "type": "rating",
+            "name": "question5",
+            "title": "While dreaming, I thought about other dream characters.",
+            "isRequired": true,
+            "rateCount": 6,
+            "rateMin": 0,
+            "minRateDescription": "strongly disagree",
+            "maxRateDescription": "strongly agree"
+          },
+          {
+            "type": "rating",
+            "name": "question6",
+            "title": "While dreaming I was able to successfully perform supernatural actions (like flying or passing through walls).",
+            "isRequired": true,
+            "rateCount": 6,
+            "rateMin": 0,
+            "minRateDescription": "strongly disagree",
+            "maxRateDescription": "strongly agree"
+          },
+          {
+            "type": "rating",
+            "name": "question7",
+            "title": "The emotions I experienced in my dream were exactly the same as those I would experience in such a situation during wakefulness.",
+            "isRequired": true,
+            "rateCount": 6,
+            "rateMin": 0,
+            "minRateDescription": "strongly disagree",
+            "maxRateDescription": "strongly agree"
+          },
+          {
+            "type": "rating",
+            "name": "question8",
+            "title": "While dreaming, I was aware of the fact that the body I experienced in the dream did not correspond to my real sleep body.",
+            "isRequired": true,
+            "rateCount": 6,
+            "rateMin": 0,
+            "minRateDescription": "strongly disagree",
+            "maxRateDescription": "strongly agree"
+          },
+          {
+            "type": "rating",
+            "name": "question9",
+            "title": "I was very certain that the things I was experiencing in my dream wouldn't have any consequences on the real world.",
+            "isRequired": true,
+            "rateCount": 6,
+            "rateMin": 0,
+            "minRateDescription": "strongly disagree",
+            "maxRateDescription": "strongly agree"
+          },
+          {
+            "type": "rating",
+            "name": "question10",
+            "title": "While dreaming I was able to successfully control or change the dream environment in a way that would be impossible during wakefulness.",
+            "isRequired": true,
+            "rateCount": 6,
+            "rateMin": 0,
+            "minRateDescription": "strongly disagree",
+            "maxRateDescription": "strongly agree"
+          },
+          {
+            "type": "rating",
+            "name": "question11",
+            "title": "While dreaming, I saw myself from outside",
+            "isRequired": true,
+            "rateCount": 6,
+            "rateMin": 0,
+            "minRateDescription": "strongly disagree",
+            "maxRateDescription": "strongly agree"
+          },
+          {
+            "type": "rating",
+            "name": "question12",
+            "title": "While dreaming, I thought about my own actions.",
+            "isRequired": true,
+            "rateCount": 6,
+            "rateMin": 0,
+            "minRateDescription": "strongly disagree",
+            "maxRateDescription": "strongly agree"
+          },
+          {
+            "type": "rating",
+            "name": "question13",
+            "title": "While dreaming, I had the feeling that I had forgotten something important.",
+            "isRequired": true,
+            "rateCount": 6,
+            "rateMin": 0,
+            "minRateDescription": "strongly disagree",
+            "maxRateDescription": "strongly agree"
+          },
+          {
+            "type": "rating",
+            "name": "question14",
+            "title": "While dreaming, I was able to change or move objects (not persons) in a way that would be  impossible in waking.",
+            "isRequired": true,
+            "rateCount": 6,
+            "rateMin": 0,
+            "minRateDescription": "strongly disagree",
+            "maxRateDescription": "strongly agree"
+          },
+          {
+            "type": "rating",
+            "name": "question15",
+            "title": "While dreaming I was not myself but a completely different person.",
+            "isRequired": true,
+            "rateCount": 6,
+            "rateMin": 0,
+            "minRateDescription": "strongly disagree",
+            "maxRateDescription": "strongly agree"
+          },
+          {
+            "type": "rating",
+            "name": "question16",
+            "title": "While dreaming, I often asked myself whether I was dreaming.",
+            "isRequired": true,
+            "rateCount": 6,
+            "rateMin": 0,
+            "minRateDescription": "strongly disagree",
+            "maxRateDescription": "strongly agree"
+          },
+          {
+            "type": "rating",
+            "name": "question17",
+            "title": "The thoughts I had in my dream were exactly the same as I would have in a similar situation during wakefulness.",
+            "isRequired": true,
+            "rateCount": 6,
+            "rateMin": 0,
+            "minRateDescription": "strongly disagree",
+            "maxRateDescription": "strongly agree"
+          },
+          {
+            "type": "rating",
+            "name": "question18",
+            "title": "While dreaming, I had the feeling that I could remember my waking life.\n",
+            "isRequired": true,
+            "rateCount": 6,
+            "rateMin": 0,
+            "minRateDescription": "strongly disagree",
+            "maxRateDescription": "strongly agree"
+          },
+          {
+            "type": "rating",
+            "name": "question19",
+            "title": "While dreaming, I was aware of the fact that other dream characters in my dream were not real.",
+            "isRequired": true,
+            "rateCount": 6,
+            "rateMin": 0,
+            "minRateDescription": "strongly disagree",
+            "maxRateDescription": "strongly agree"
+          },
+          {
+            "type": "rating",
+            "name": "question20",
+            "title": "Most things that happened in my dream could have also happened during wakefulness.",
+            "isRequired": true,
+            "rateCount": 6,
+            "rateMin": 0,
+            "minRateDescription": "strongly disagree",
+            "maxRateDescription": "strongly agree"
+          },
+          {
+            "type": "rating",
+            "name": "question21",
+            "title": "I watched the dream from the outside, as if on a screen.",
+            "isRequired": true,
+            "rateCount": 6,
+            "rateMin": 0,
+            "minRateDescription": "strongly disagree",
+            "maxRateDescription": "strongly agree"
+          },
+          {
+            "type": "rating",
+            "name": "question22",
+            "title": "While dreaming, I often thought about the things I was experiencing.",
+            "isRequired": true,
+            "rateCount": 6,
+            "rateMin": 0,
+            "minRateDescription": "strongly disagree",
+            "maxRateDescription": "strongly agree"
+          },
+          {
+            "type": "rating",
+            "name": "question23",
+            "title": "I was able to influence the story line of my dreams at will/at libitum.",
+            "isRequired": true,
+            "rateCount": 6,
+            "rateMin": 0,
+            "minRateDescription": "strongly disagree",
+            "maxRateDescription": "strongly agree"
+          },
+          {
+            "type": "rating",
+            "name": "question24",
+            "title": "While dreaming, I was able to remember certain plans for the future.",
+            "isRequired": true,
+            "rateCount": 6,
+            "rateMin": 0,
+            "minRateDescription": "strongly disagree",
+            "maxRateDescription": "strongly agree"
+          },
+          {
+            "type": "rating",
+            "name": "question25",
+            "title": "While dreaming, I felt euphoric/upbeat.",
+            "isRequired": true,
+            "rateCount": 6,
+            "rateMin": 0,
+            "minRateDescription": "strongly disagree",
+            "maxRateDescription": "strongly agree"
+          },
+          {
+            "type": "rating",
+            "name": "question26",
+            "title": "While dreaming, I had strong negative feelings.",
+            "isRequired": true,
+            "rateCount": 6,
+            "rateMin": 0,
+            "minRateDescription": "strongly disagree",
+            "maxRateDescription": "strongly agree"
+          },
+          {
+            "type": "rating",
+            "name": "question27",
+            "title": "While dreaming, I had strong positive feelings.",
+            "isRequired": true,
+            "rateCount": 6,
+            "rateMin": 0,
+            "minRateDescription": "strongly disagree",
+            "maxRateDescription": "strongly agree"
+          },
+          {
+            "type": "rating",
+            "name": "question28",
+            "title": "While dreaming, I felt very anxious.",
+            "isRequired": true,
+            "rateCount": 6,
+            "rateMin": 0,
+            "minRateDescription": "strongly disagree",
+            "maxRateDescription": "strongly agree"
+          }
+        ]
+      }
+    ],
+    "showTitle": false,
+    "progressBarType": "questions",
+    "goNextPageAutomatic": true,
+    "allowCompleteSurveyAutomatic": false,
+    "questionsOnPageMode": "questionPerPage"
+  }

@@ -282,6 +282,7 @@
       ]
     }
   ],
+  "showTitle": false,
   "progressBarType": "questions",
   "goNextPageAutomatic": true,
   "allowCompleteSurveyAutomatic": false,
