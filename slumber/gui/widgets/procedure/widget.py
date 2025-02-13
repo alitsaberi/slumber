@@ -22,7 +22,7 @@ def _set_item_enabled(item: QListWidgetItem, enabled: bool) -> None:
         flags |= Qt.ItemIsEnabled
     else:
         flags &= ~Qt.ItemIsEnabled
-    item.setFlags(flags)
+    item.setFlags(flags & ~Qt.ItemFlag.ItemIsUserCheckable)
 
 
 class ProcedurePage(QWidget, Ui_ProcedurePage):
