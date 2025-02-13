@@ -2,7 +2,7 @@ from enum import Enum
 
 from loguru import logger
 from PySide6.QtCore import QTimer
-from PySide6.QtWidgets import QDialog, QMessageBox, QPushButton, QWidget
+from PySide6.QtWidgets import QMessageBox, QPushButton, QWidget
 
 from slumber.dag.units.zmax import ZMaxStimulationSignal
 from slumber.gui.widgets.tasks.base import TaskPage
@@ -75,10 +75,7 @@ class VibrationCueCalibrationPage(TaskPage, Ui_VibrationCueCalibrationPage):
         countdown_seconds: int,
         parent: QWidget | None = None,
     ) -> None:
-        super().__init__(parent)
-        self.setupUi(self)
-        self.index = index
-        self.title.setText(title)
+        super().__init__(index, title, parent=parent)
 
         self.stimulation_signal = ZMaxStimulationSignal(
             vibration=True,
@@ -162,10 +159,3 @@ class VibrationCueCalibrationPage(TaskPage, Ui_VibrationCueCalibrationPage):
         self._update_status(Status.SUCCESS)
         self.zmax.disconnect()
         self.done()
-
-    def _init_info_dialog(self) -> QDialog:
-        from .info_ui import Ui_InfoDialog
-
-        dialog = QDialog(self)
-        Ui_InfoDialog().setupUi(dialog)
-        return dialog

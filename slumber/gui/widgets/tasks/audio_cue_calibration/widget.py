@@ -2,7 +2,7 @@ from enum import Enum, auto
 
 from loguru import logger
 from PySide6.QtCore import QTimer
-from PySide6.QtWidgets import QDialog, QMessageBox, QPushButton, QWidget
+from PySide6.QtWidgets import QMessageBox, QPushButton, QWidget
 
 from slumber.dag.units.home_lucid_dreaming.cueing import (
     CueIntensityConfig,
@@ -86,10 +86,7 @@ class AudioCueCalibrationPage(TaskPage, Ui_AudioCueCalibrationPage):
         countdown_seconds: int,
         parent: QWidget | None = None,
     ) -> None:
-        super().__init__(parent)
-        self.setupUi(self)
-        self.index = index
-        self.title.setText(title)
+        super().__init__(index, title, parent=parent)
 
         self.cue_intensity_config = CueIntensityConfig(
             value=min,
@@ -187,10 +184,3 @@ class AudioCueCalibrationPage(TaskPage, Ui_AudioCueCalibrationPage):
         self.engine.stop()
         self.window().audio_cue_calibrated.emit(self.cue_intensity_config.value)
         self.done()
-
-    def _init_info_dialog(self) -> QDialog:
-        from .info_ui import Ui_InfoDialog
-
-        dialog = QDialog(self)
-        Ui_InfoDialog().setupUi(dialog)
-        return dialog
