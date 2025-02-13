@@ -1,4 +1,5 @@
 time_zone: "Europe/Amsterdam"
+process_termination_timeout: 10.0
 
 database:
   name: slumber.db

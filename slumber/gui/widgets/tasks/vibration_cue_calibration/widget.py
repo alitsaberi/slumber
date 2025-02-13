@@ -1,10 +1,9 @@
-from enum import Enum, auto
+from enum import Enum
 
 from loguru import logger
 from PySide6.QtCore import QTimer
 from PySide6.QtWidgets import QDialog, QMessageBox, QPushButton, QWidget
 
-from slumber.dag.units.home_lucid_dreaming.cueing import CueIntensityConfig
 from slumber.dag.units.zmax import ZMaxStimulationSignal
 from slumber.gui.widgets.tasks.base import TaskPage
 from slumber.sources.zmax import LEDColor, ZMax
