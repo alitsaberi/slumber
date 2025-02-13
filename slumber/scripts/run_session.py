@@ -7,7 +7,7 @@ import ezmsg.core as ez
 from loguru import logger
 from PySide6.QtWidgets import QApplication
 
-from slumber import CONDITIONS_DIR
+from slumber import CONDITIONS_DIR, settings
 from slumber.gui.main_window import MainWindow
 from slumber.models.condition import Condition
 from slumber.models.dag import CollectionConfig
@@ -24,7 +24,6 @@ CONDITION_CONFIG_FILE_EXTENSION = "yaml"
 HDSERVER_LOG_FILE_NAME = "hdserver.log"
 DAG_LOG_FILE_NAME = "dag.log"
 MAIN_LOG_FILE_NAME = "slumber.log"
-PROCESS_TERMINATION_TIMEOUT = 5.0
 
 
 def run_dag(logs_dir: Path, dag_config: CollectionConfig) -> None:
@@ -101,6 +100,7 @@ def main():
     finally:
         logger.info("Terminating the HDServer process...")
         hdserver_process.terminate()
+        hdserver_process.wait(settings["process_termination_timeout"])
 
 
 if __name__ == "__main__":

@@ -53,10 +53,7 @@ class Ui_SleepPage(object):
         sizePolicy1.setVerticalStretch(0)
         sizePolicy1.setHeightForWidth(self.status_help_label.sizePolicy().hasHeightForWidth())
         self.status_help_label.setSizePolicy(sizePolicy1)
-        self.status_help_label.setStyleSheet(u"background-color: rgba(255, 255, 255, 0.1);\n"
-"            color: white;\n"
-"            padding: 10px;\n"
-"            border-radius: 10px;")
+        self.status_help_label.setStyleSheet(u"color: white;")
 
         self.status_layout.addWidget(self.status_help_label)
 
@@ -138,6 +135,30 @@ class Ui_SleepPage(object):
 
         self.body.addItem(self.verticalSpacer_2)
 
+        self.end_button = QPushButton(SleepPage)
+        self.end_button.setObjectName(u"end_button")
+        sizePolicy2.setHeightForWidth(self.end_button.sizePolicy().hasHeightForWidth())
+        self.end_button.setSizePolicy(sizePolicy2)
+        self.end_button.setStyleSheet(u"QPushButton {\n"
+"    font-size: 18px;\n"
+"    padding: 12px;\n"
+"    border-radius: 10px;\n"
+"    border: 2px solid #E67E22;\n"
+"    background-color: #D35400;\n"
+"    color: white;\n"
+"}\n"
+"QPushButton:hover {\n"
+"    background-color: #E98B39;\n"
+"}\n"
+"QPushButton:disabled {\n"
+"    background-color: #A04000;\n"
+"    border: 2px solid #873600;\n"
+"    color: #FDEBD0;\n"
+"}\n"
+"")
+
+        self.body.addWidget(self.end_button, 0, Qt.AlignmentFlag.AlignHCenter)
+
 
         self.verticalLayout.addLayout(self.body)
 
@@ -153,5 +174,6 @@ class Ui_SleepPage(object):
         self.status_label.setText("")
         self.awake_button.setText(QCoreApplication.translate("SleepPage", u"Awake", None))
         self.sleep_button.setText(QCoreApplication.translate("SleepPage", u"Going to Sleep", None))
+        self.end_button.setText(QCoreApplication.translate("SleepPage", u"End Session", None))
     # retranslateUi
 

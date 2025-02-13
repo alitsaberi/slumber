@@ -10,6 +10,7 @@ from PySide6.QtWidgets import (
     QSizePolicy,
 )
 
+from slumber import settings
 from slumber.dag.units.home_lucid_dreaming.master import ExperimentState
 from slumber.gui.widgets.help.widget import HelpPage
 from slumber.gui.widgets.home.widget import HomePage
@@ -54,10 +55,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.light_cue_calibrated.connect(self._set_minimum_subjective_light_intensity)
 
     def closeEvent(self, event: QCloseEvent) -> None:
-        if self.dag_process is not None and self.dag_process.is_alive():
-            logger.info("Terminating DAG process")
-            self.dag_process.terminate()
-            self.dag_process.join()
+        self._terminate_dag_process()
         super().closeEvent(event)
 
     def _initialize_widgets(self) -> None:
@@ -90,6 +88,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.sleep_page.setSizePolicy(*DEFAULT_WIDGET_POLICY)
         self.body_stacked_widget.addWidget(self.sleep_page)
         self.sleep_page.state_changed.connect(self._on_sleep_state_changed)
+        self.sleep_page.end_session.connect(self._end_session)
 
     def _on_help_button_clicked(self) -> None:
         logger.info("Help button clicked")
@@ -166,3 +165,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             "intensity"
         ]["value"] = value
         # TODO: not the best way to do this
+
+    def _end_session(self) -> None:
+        logger.info("Ending session")
+        self.set_procedure(self.post_sleep_procedure, self.close)
+        self._terminate_dag_process()
+        self.start_procedure()
+
+    def _terminate_dag_process(self) -> None:
+        if self.dag_process is not None and self.dag_process.is_alive():
+            logger.info("Terminating DAG process")
+            self.dag_process.terminate()
+            self.dag_process.join(settings["process_termination_timeout"])

@@ -27,7 +27,7 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <layout class="QVBoxLayout" name="body" stretch="0,0,0,0,0">
+    <layout class="QVBoxLayout" name="body" stretch="0,0,0,0,0,0">
      <property name="sizeConstraint">
       <enum>QLayout::SizeConstraint::SetMaximumSize</enum>
      </property>
@@ -74,10 +74,7 @@
           </sizepolicy>
          </property>
          <property name="styleSheet">
-          <string notr="true">background-color: rgba(255, 255, 255, 0.1);
-            color: white;
-            padding: 10px;
-            border-radius: 10px;</string>
+          <string notr="true">color: white;</string>
          </property>
          <property name="text">
           <string>Current Status:</string>
@@ -198,6 +195,38 @@
         </size>
        </property>
       </spacer>
+     </item>
+     <item alignment="Qt::AlignmentFlag::AlignHCenter">
+      <widget class="QPushButton" name="end_button">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QPushButton {
+    font-size: 18px;
+    padding: 12px;
+    border-radius: 10px;
+    border: 2px solid #E67E22;
+    background-color: #D35400;
+    color: white;
+}
+QPushButton:hover {
+    background-color: #E98B39;
+}
+QPushButton:disabled {
+    background-color: #A04000;
+    border: 2px solid #873600;
+    color: #FDEBD0;
+}
+</string>
+       </property>
+       <property name="text">
+        <string>End Session</string>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>
