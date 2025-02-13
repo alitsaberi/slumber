@@ -2,7 +2,7 @@ from enum import Enum
 
 from loguru import logger
 from PySide6.QtCore import QThread, Signal
-from PySide6.QtWidgets import QDialog, QWidget
+from PySide6.QtWidgets import QWidget
 
 from slumber.gui.widgets.tasks.base import TaskPage
 from slumber.sources.zmax import (
@@ -72,21 +72,16 @@ class ZMaxConnectionPage(TaskPage, Ui_ZMaxConnectionPage):
         battery_level_threshold: int,
         parent: QWidget | None = None,
     ) -> None:
-        super().__init__(parent)
-        self.setupUi(self)
-        self.index = index
-        self.title.setText(title)
+        super().__init__(index, title, parent=parent)
 
         self.battery_level_threshold = battery_level_threshold
 
-        self.info_dialog = self._init_info_dialog()
         self.connect_thread = ConnectThread()
 
         self._connect_signals()
 
     def _connect_signals(self) -> None:
         self.connect_button.clicked.connect(self._on_connect)
-        self.info_button.clicked.connect(self.info_dialog.exec)
         self.connect_thread.connected.connect(self._on_connected)
 
     def _on_connect(self) -> None:
@@ -132,10 +127,3 @@ class ZMaxConnectionPage(TaskPage, Ui_ZMaxConnectionPage):
         self.connect_button.setEnabled(enabled)
         style = ButtonStyle.ENABLED if enabled else ButtonStyle.DISABLED
         self.connect_button.setStyleSheet(style.value)
-
-    def _init_info_dialog(self) -> QDialog:
-        from .info_ui import Ui_InfoDialog
-
-        dialog = QDialog(self)
-        Ui_InfoDialog().setupUi(dialog)
-        return dialog

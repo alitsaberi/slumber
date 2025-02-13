@@ -51,6 +51,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.dag_process: Process | None = None
         self.dag_connection: PipeConnection | None = None
 
+        self.settings_button.setVisible(False)
+
         self.audio_cue_calibrated.connect(self._set_minimum_subjective_audio_intensity)
         self.light_cue_calibrated.connect(self._set_minimum_subjective_light_intensity)
 

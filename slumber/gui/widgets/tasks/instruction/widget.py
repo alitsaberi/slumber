@@ -3,7 +3,7 @@ from pathlib import Path
 import markdown
 from jinja2 import Template
 from loguru import logger
-from PySide6.QtWidgets import QDialog, QWidget
+from PySide6.QtWidgets import QWidget
 
 from slumber.gui.widgets.tasks.base import TaskPage
 
@@ -22,12 +22,7 @@ class EmptyWebPage(TaskPage, Ui_EmptyWebPage):
         instruction_path: Path | str,
         parent: QWidget = None,
     ):
-        super().__init__(parent)
-        self.setupUi(self)  # Setup the UI from the generated class
-
-        self.index = index
-        self.title.setText(title)
-        self.info_dialog = self._init_info_dialog()
+        super().__init__(index, title, parent=parent)
 
         self.instruction_path = Path(instruction_path).absolute()
         if not self.instruction_path.exists():
@@ -49,17 +44,4 @@ class EmptyWebPage(TaskPage, Ui_EmptyWebPage):
         self.web_engine_view.setHtml(rendered_html)
 
     def _connect_signals(self) -> None:
-        self.info_button.clicked.connect(self.open_info_dialog)
         self.done_button.clicked.connect(self.done)
-
-    def _init_info_dialog(self) -> QDialog:
-        from .info_ui import Ui_InfoDialog
-
-        dialog = QDialog(self)
-        ui = Ui_InfoDialog()
-        ui.setupUi(dialog)
-        return dialog
-
-    def open_info_dialog(self) -> None:
-        logger.info("Opening info dialog")
-        self.info_dialog.exec()

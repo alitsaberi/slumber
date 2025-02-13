@@ -3,40 +3,16 @@ name: pilot
 gui:
   pre_sleep:
     tasks:
-      # - title: Study Information
-      #   widget: instruction
-      #   kwargs:
-      #     instruction_path: ../../configs/instructions/study_information.md
-      # - title: Session Preparation
-      #   widget: instruction
-      #   kwargs:
-      #     instruction_path: ../../configs/instructions/session_preparation.md
-      # - title: EEG Headband Setup
-      #   widget: instruction
-      #   kwargs:
-      #     instruction_path: ../../configs/instructions/zmax_setup.md
       - title: EEG Headband Connection
         widget: zmax_connection
         kwargs:
           battery_level_threshold: 10
-      # - title: Put on the EEG Headband
-      #   widget: instruction
-      #   kwargs:
-      #     instruction_path: ../../configs/instructions/how_to_wear_zmax.md
-      # - title: Lucid Dream Task
-      #   widget: instruction
-      #   kwargs:
-      #     instruction_path: ../../configs/instructions/lucidity_task.md
-      # - title: Eye Movement Detection Test
-      #   widget: eye_test
-      #   kwargs:
-      #     accepted_eye_signals: [LRL, RLR]
-      #     difference_threshold: 280
-      #     max_test_duration: 30
-      # - title: Visual Cueing
-      #   widget: instruction
-      #   kwargs:
-      #     instruction_path: ../../configs/instructions/light_cueing.md
+      - title: Eye Movement Detection Test
+        widget: eye_test
+        kwargs:
+          accepted_eye_signals: [LRL, RLR]
+          difference_threshold: 280
+          max_test_duration: 30
       - title: Light Cue Calibration
         widget: light_cue_calibration
         kwargs:
@@ -50,10 +26,6 @@ gui:
           off_duration: 5
           alternate_eyes: false
           countdown_seconds: 5
-      - title: Auditory Cueing
-        widget: instruction
-        kwargs:
-          instruction_path: ../../configs/instructions/audio_cueing.md
       - title: Audio Cue Calibration
         widget: audio_cue_calibration
         kwargs:
@@ -64,214 +36,216 @@ gui:
           countdown_seconds: 5
           rate: 175
           text: You are dreaming
-      - title: Tactile Cueing
-        widget: instruction
+      - title: Vibration Cue Calibration
+        widget: vibration_cue_calibration
         kwargs:
-          instruction_path: ../../configs/instructions/tactile_cueing.md
+          on_duration: 2
+          off_duration: 5
+          repetitions: 2
+          countdown_seconds: 5
       - title: Voice Recording Assessment
         widget: survey
         kwargs:
-          survey_config_path: ../../configs/surveys/sample_survey.json
-      - title: Prepare for Sleep
-        widget: instruction
-        kwargs:
-          instruction_path: ../../configs/instructions/pre_sleep.md
+          survey_config_path: ../../configs/surveys/voice_recording_test.json
   awakening:
     tasks:
-      - title: Subjectve Assessment
+      - title: Before Awakening Experience
         widget: survey
         kwargs:
-          survey_config_path: ../../configs/surveys/sample_survey.json
+          survey_config_path: ../../configs/surveys/awakening_questionnaire.json
   post_sleep:
     tasks:
-      - title: Subjectve Assessment
+      - title: Lucidity and Consciousness in Dreams
         widget: survey
         kwargs:
-          survey_config_path: ../../configs/surveys/sample_survey.json
+          survey_config_path: ../../configs/surveys/lucid_questionnaire.json
+      - title: Sleep and Mood
+        widget: survey
+        kwargs:
+          survey_config_path: ../../configs/surveys/sleep_and_mood_questionnaire.json
 
 dag:
   components:
-    ZMAX:
-      unit: ZMaxDataReceiver
-      settings:
-        zmax:
-          socket_timeout: 1
-        data_collection_enabled: true
-        data_collection_enabled_check_interval: 5.0
-        data_types:
-          - EEG_LEFT
-          - EEG_RIGHT
-        retry_attempts: 6
-        retry_delay: 10
+  - name: ZMAX
+    unit: ZMaxDataReceiver
+    settings:
+      zmax:
+        socket_timeout: 1
+      data_collection_enabled: true
+      data_collection_enabled_check_interval: 5.0
+      data_types:
+        - EEG_LEFT
+        - EEG_RIGHT
+      retry_attempts: 6
+      retry_delay: 10
 
-    ZMAX_STORAGE_QUEUE:
-      unit: CountQueue
-      settings:
-        max_size: 5120
-        leaky: False
-        log_queue_size_interval: 5
-        publish_interval: 0.01
-        publish_count: 2560
+  - name: ZMAX_STORAGE_QUEUE
+    unit: CountQueue
+    settings:
+      max_size: 5120
+      leaky: False
+      log_queue_size_interval: 5
+      publish_count: 2560
 
-    ZMAX_SAMPLE_RATE_REGULATOR:
-      unit: TimeQueue
-      settings:
-        max_size: 5120
-        leaky: True
-        log_queue_size_interval: 5
-        publish_interval: 10
-        publish_enabled: true
-        publish_enabled_check_interval: 5.0
-        sample_rate: 256
-        gap_threshold: 1.0
-        channel_names: [EEG_LEFT, EEG_RIGHT]
-        timestamp_margin: 1.0
+  - name: ZMAX_SAMPLE_RATE_REGULATOR
+    unit: TimeQueue
+    settings:
+      max_size: 5120
+      leaky: True
+      log_queue_size_interval: 5
+      publish_interval: 10
+      publish_enabled: true
+      publish_enabled_check_interval: 5.0
+      sample_rate: 256
+      gap_threshold: 1.0
+      channel_names: [EEG_LEFT, EEG_RIGHT]
+      timestamp_margin: 1.0
 
-    ZMAX_STORAGE:
-      unit: HDF5Storage
-      settings:
-        file_path: ./data/storage.h5
-        group_name: "zmax_raw"
-        flush_after: 90
+  - name: ZMAX_STORAGE
+    unit: HDF5Storage
+    settings:
+      file_path: ./data/storage.h5
+      group_name: "zmax_raw"
+      flush_after: 90
 
-    PREPROCESS:
-      unit: Transform
-      settings:
-        transforms:
-          - class_name: ArraySelector
-            kwargs:
-              channels: [EEG_LEFT, EEG_RIGHT]
-          - class_name: Resample
-            kwargs:
-              new_sample_rate: 128
+  - name: PREPROCESS
+    unit: Transform
+    settings:
+      transforms:
+        - class_name: ArraySelector
+          kwargs:
+            channels: [EEG_LEFT, EEG_RIGHT]
+        - class_name: Resample
+          kwargs:
+            new_sample_rate: 128
 
-    ZMAX_PREPROCESSED_STORAGE:
-      unit: HDF5Storage
-      settings:
-        file_path: ./data/storage.h5
-        group_name: "zmax_preprocessed"
-        flush_after: 90
+  - name: ZMAX_PREPROCESSED_STORAGE
+    unit: HDF5Storage
+    settings:
+      file_path: ./data/storage.h5
+      group_name: "zmax_preprocessed"
+      flush_after: 90
 
-    SLEEP_SCORING_ROLLING_BUFFER:
-      unit: RollingBuffer
-      settings:
-        size: 105
+  - name: SLEEP_SCORING_ROLLING_BUFFER
+    unit: RollingBuffer
+    settings:
+      size: 105
 
-    SLEEP_SCORING_PREPROCESS:
-      unit: Transform
-      settings:
-        transforms:
-          - class_name: FIRFilter
-            kwargs:
-              low_cutoff: 0.3
-              high_cutoff: 30.0
+  - name: SLEEP_SCORING_PREPROCESS
+    unit: Transform
+    settings:
+      transforms:
+        - class_name: FIRFilter
+          kwargs:
+            low_cutoff: 0.3
+            high_cutoff: 30.0
 
-    SLEEP_SCORING:
-      unit: SleepScoring
-      settings:
-        model:
-          model_dir: C:\Users\Mahdad\Projects\slumber\tests\resources\sample_utime_model
-          n_periods: 105
-          n_samples_per_prediction: 1
-        channel_groups: [[EEG_LEFT], [EEG_RIGHT]]
-        arg_max: false
+  - name: SLEEP_SCORING
+    unit: SleepScoring
+    settings:
+      model:
+        model_dir: C:\Users\Mahdad\Projects\slumber\tests\resources\sample_utime_model
+        n_periods: 105
+        n_samples_per_prediction: 1
+      channel_groups: [[EEG_LEFT], [EEG_RIGHT]]
+      arg_max: false
 
-    AROUSAL_DETECTION_SCORES_SELECTOR:
-      unit: Transform
-      settings:
-        transforms:
-          - class_name: ArraySelector
-            kwargs:
-              start_index: -3840 # 30 seconds
+  - name: AROUSAL_DETECTION_SCORES_SELECTOR
+    unit: Transform
+    settings:
+      transforms:
+        - class_name: ArraySelector
+          kwargs:
+            start_index: -3840 # 30 seconds
 
-    MASTER_SCORES_SELECTOR:
-      unit: Transform
-      settings:
-        transforms:
-          - class_name: ArraySelector
-            kwargs:
-              start_index: -7680 # 60 seconds
+  - name: MASTER_SCORES_SELECTOR
+    unit: Transform
+    settings:
+      transforms:
+        - class_name: ArraySelector
+          kwargs:
+            start_index: -7680 # 60 seconds
 
-    EYE_MOVEMENT_DETECTION_ROLLING_BUFFER:
-      unit: RollingBuffer
-      settings:
-        size: 3
+  - name: EYE_MOVEMENT_DETECTION_ROLLING_BUFFER
+    unit: RollingBuffer
+    settings:
+      size: 3
 
-    EYE_MOVEMENT_DETECTION:
-      unit: EyeMovementDetection
-      settings:
-        left_eeg_label: EEG_LEFT
-        right_eeg_label: EEG_RIGHT
-        difference_threshold: 280
+  - name: EYE_MOVEMENT_DETECTION
+    unit: EyeMovementDetection
+    settings:
+      left_eeg_label: EEG_LEFT
+      right_eeg_label: EEG_RIGHT
+      difference_threshold: 280
 
-    AROUSAL_DETECTION:
-      unit: ArousalDetection
-      settings:
-        wake_n1_threshold: 0.4
+  - name: AROUSAL_DETECTION
+    unit: ArousalDetection
+    settings:
+      wake_n1_threshold: 0.4
 
-    MASTER:
-      unit: Master
-      settings:
-        wake_up_signal:
-          vibration: true
-          led_color: "OFF"
-          on_duration: 5
-          off_duration: 5
-          repetitions: 3
-        cueing_enabled: true
-        rem_confidence_threshold: 0.8
-        accepted_eye_signals: [LRL, RLR]
-        wake_up_signal_interval: 4
-        experiment_state: AWAKE
+  - name: MASTER
+    unit: Master
+    settings:
+      wake_up_signal:
+        vibration: true
+        led_color: "OFF"
+        on_duration: 5
+        off_duration: 5
+        repetitions: 3
+      cueing_enabled: true
+      rem_confidence_threshold: 0.8
+      accepted_eye_signals: [LRL, RLR]
+      wake_up_signal_interval: 4
+      experiment_state: AWAKE
 
-    REM_CUEING:
-      unit: Cueing
-      settings:
-        visual_cueing:
-          led_color: RED
-          repetitions: 3
-          on_duration: 5
-          off_duration: 5
-          intensity:
-            value: 20
-            min: 1
-            max: 100
-            increment: 5
-            decrement: 5
-        tactile_cueing:
-          on_duration: 2
-          off_duration: 5
-          intensity:
-            value: 1
-            min: 1
-            max: 3
-            increment: 1
-            decrement: 1
-        auditory_cueing:
-          text: You are dreaming
-          rate: 175
-          intensity:
-            value: 10
-            min: 0
-            max: 100
-            increment: 5
-            decrement: 5
-        enabled: false
-        increase_intensity: false
-        enabled_check_interval: 5.0
-        cueing_interval: 20
+  - name: REM_CUEING
+    unit: Cueing
+    settings:
+      visual_cueing:
+        led_color: RED
+        repetitions: 3
+        on_duration: 5
+        off_duration: 5
+        intensity:
+          value: 5
+          min: 1
+          max: 100
+          increment: 5
+          decrement: 5
+      tactile_cueing:
+        on_duration: 2
+        off_duration: 5
+        intensity:
+          value: 1
+          min: 1
+          max: 3
+          increment: 1
+          decrement: 1
+      auditory_cueing:
+        text: You are dreaming
+        rate: 175
+        intensity:
+          value: 5
+          min: 0
+          max: 100
+          increment: 5
+          decrement: 5
+      enabled: false
+      increase_intensity: false
+      enabled_check_interval: 5.0
+      cueing_interval: 20
 
-    SLEEP_SCORING_STORAGE:
-      unit: HDF5Storage
-      settings:
-        file_path: ./data/storage.h5
-        group_name: "sleep_scoring"
-        flush_after: 90
+  - name: SLEEP_SCORING_STORAGE
+    unit: HDF5Storage
+    settings:
+      file_path: ./data/storage.h5
+      group_name: "sleep_scoring"
+      flush_after: 90
 
-    EVENT_LOGGER:
-      unit: EventLogger
-      settings:
-        output: ./data/events.jsonl
+  - name: EVENT_LOGGER
+    unit: EventLogger
+    settings:
+      output: ./data/events.jsonl
 
   connections:
     - [ZMAX.OUTPUT_SAMPLE, ZMAX_STORAGE_QUEUE.INPUT]

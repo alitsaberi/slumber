@@ -7,7 +7,7 @@ from PySide6.QtWebChannel import QWebChannel
 from PySide6.QtWebEngineCore import (
     QWebEnginePage,
 )
-from PySide6.QtWidgets import QDialog, QWidget
+from PySide6.QtWidgets import QWidget
 
 from slumber import settings
 from slumber.gui.widgets.tasks.base import TaskPage
@@ -84,12 +84,7 @@ class SurveyPage(TaskPage, Ui_SurveyPage):
         output_directory: Path | str | None = None,
         parent: QWidget | None = None,
     ):
-        super().__init__(parent)
-        self.setupUi(self)  # Setup the UI from the generated class
-
-        self.index = index
-        self.title.setText(title)
-        self.info_dialog = self._init_info_dialog()
+        super().__init__(index, title, parent=parent)
 
         self.survey_config_path = Path(survey_config_path).absolute()
         if not self.survey_config_path.exists():
@@ -113,7 +108,6 @@ class SurveyPage(TaskPage, Ui_SurveyPage):
         self.web_engine_view.page().setWebChannel(self.channel)
 
     def _connect_signals(self) -> None:
-        self.info_button.clicked.connect(self.open_info_dialog)
         self.channel_object.survey_complete.connect(self.done)
 
     def _load_survey(self) -> None:
@@ -127,18 +121,6 @@ class SurveyPage(TaskPage, Ui_SurveyPage):
 
         logger.debug(f"Loading survey from {html_url}")
         self.web_engine_view.setUrl(html_url)
-
-    def _init_info_dialog(self) -> QDialog:
-        from .info_ui import Ui_InfoDialog
-
-        dialog = QDialog(self)
-        ui = Ui_InfoDialog()
-        ui.setupUi(dialog)
-        return dialog
-
-    def open_info_dialog(self) -> None:
-        logger.info("Opening info dialog")
-        self.info_dialog.exec()
 
     def done(self, survey_data: str) -> None:
         if self.output_directory is not None:

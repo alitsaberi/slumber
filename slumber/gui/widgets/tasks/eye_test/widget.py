@@ -4,7 +4,7 @@ from enum import Enum
 import numpy as np
 from loguru import logger
 from PySide6.QtCore import QThread, QTimer, Signal
-from PySide6.QtWidgets import QDialog, QWidget
+from PySide6.QtWidgets import QWidget
 
 from slumber.dag.units.eye_movement_detection import Settings
 from slumber.gui.widgets.tasks.base import TaskPage
@@ -80,10 +80,7 @@ class EyeTestPage(TaskPage, Ui_EyeTestPage):
         parent: QWidget | None = None,
         **eye_movement_detection_kwargs,
     ) -> None:
-        super().__init__(parent)
-        self.setupUi(self)
-        self.index = index
-        self.title.setText(title)
+        super().__init__(index, title, parent=parent)
 
         self._accepted_eye_signals = accepted_eye_signals
         self._max_test_duration = max_test_duration
@@ -96,7 +93,6 @@ class EyeTestPage(TaskPage, Ui_EyeTestPage):
         )
         logger.debug(self._eye_movement_detection_settings)
 
-        self.info_dialog = self._init_info_dialog()
         self.test_data = []
         self.collection_thread = DataCollectionThread()
         self.timer = QTimer()
@@ -185,10 +181,3 @@ class EyeTestPage(TaskPage, Ui_EyeTestPage):
         else:
             logger.info("No eye movements detected.")
             self._update_status(Status.MOVEMENT_NOT_DETECTED)
-
-    def _init_info_dialog(self) -> QDialog:
-        from .info_ui import Ui_InfoDialog
-
-        dialog = QDialog(self)
-        Ui_InfoDialog().setupUi(dialog)
-        return dialog
