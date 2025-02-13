@@ -91,7 +91,7 @@ def main():
     app = QApplication()
     window = MainWindow(condition=condition, run_dag_function=run_dag_function)
 
-    window.show()
+    window.showFullScreen()
 
     hdserver_process = open_server(logs_dir / HDSERVER_LOG_FILE_NAME)
 
