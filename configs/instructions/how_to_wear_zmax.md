@@ -1,5 +1,3 @@
-* How to attach the patch to the headband
-
 1. position ZMax on a flat portion of your forehead, towards your eyebrows
 2. the lower central electrode should not 'stick out' (if this conflicts with #1, you can cut off a part of it)
 3. the headband must cover the lateral sensing areas

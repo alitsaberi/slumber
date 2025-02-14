@@ -39,13 +39,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         super().__init__()
         self.setupUi(self)  # Setup the UI from the generated class
 
-        self._initialize_widgets()
         self.dag = condition.dag
         self.run_dag_function = run_dag_function
+        self.help_page_config_path = condition.gui.help_page_config_path
         self.pre_sleep_procedure = condition.gui.pre_sleep_procedure
         self.awakening_procedure = condition.gui.awakening_procedure
         self.post_sleep_procedure = condition.gui.post_sleep_procedure
         self.wbtb_procedure = condition.gui.wbtb_procedure
+
+        self._initialize_widgets()
         self.set_procedure(self.pre_sleep_procedure, self._on_pre_sleep_procedure_done)
         self.state: State | None = None
         self.dag_process: Process | None = None
@@ -74,7 +76,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.home_page.start_signal.connect(self.start_procedure)
 
     def _setup_help_page(self) -> None:
-        self.help_page = HelpPage(self)
+        self.help_page = HelpPage(self.help_page_config_path, self)
         self.help_page.setSizePolicy(*DEFAULT_WIDGET_POLICY)
         self.stacked_widget.addWidget(self.help_page)
         self.help_button.clicked.connect(self._on_help_button_clicked)

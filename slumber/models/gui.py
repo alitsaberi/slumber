@@ -1,5 +1,6 @@
 import importlib
 import inspect
+from pathlib import Path
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
@@ -41,6 +42,7 @@ class Procedure(BaseModel):
 
 
 class GUIConfig(BaseModel):
+    help_page_config_path: Path = Field(alias="help")
     pre_sleep_procedure: Procedure = Field(alias="pre_sleep")
     awakening_procedure: Procedure = Field(alias="awakening")
     post_sleep_procedure: Procedure = Field(alias="post_sleep")

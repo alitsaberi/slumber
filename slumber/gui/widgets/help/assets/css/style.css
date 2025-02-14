@@ -101,9 +101,9 @@ body {
 
 /* FAQ Answer */
 .faq-answer {
-  max-height: 0; /* Initially hidden */
+  max-height: 0;
   overflow: hidden;
-  transition: max-height 0.3s ease;
+  transition: max-height 0.3s ease-out;
   background-color: #34495e;
   padding: 0 18px;
   border-radius: 5px;
