@@ -1,0 +1,5 @@
+- question: Question 1
+  instruction_path: ../../configs/instructions/how_to_wear_zmax.md
+- question: Question 2
+  instruction_path: ../../configs/instructions/study_information.md
+  
