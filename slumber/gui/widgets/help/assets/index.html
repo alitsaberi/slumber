@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>FAQ Accordion</title>
+    <style>
+        {{ css }}
+    </style>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            document.querySelectorAll(".faq-question").forEach(button => {
+                button.addEventListener("click", function() {
+                    this.classList.toggle("active");
+                    let answer = this.nextElementSibling;
+                    
+                    if (answer.style.maxHeight) {
+                        answer.style.maxHeight = null; // Collapse answer
+                    } else {
+                        answer.style.maxHeight = answer.scrollHeight + "px"; // Expand answer
+                    }
+                });
+            });
+        });
+    </script>    
+</head>
+<body>
+    <div class="faq-container">
+        <h1>Frequently Asked Questions</h1>
+        {% for item in faq_items %}
+        <div class="faq-item">
+            <button class="faq-question">
+                {{ item.question }} <span class="arrow">&#9660;</span>
+            </button>
+            <div class="faq-answer">
+                {{ item.html_content | safe }}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</body>
+</html>

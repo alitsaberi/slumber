@@ -37,7 +37,7 @@ logging:
       serialize: True
       enqueue: True
     logtail:
-      level: "INFO"
+      level: "WARNING"
       format: "{message}"
       host: https://s1203225.eu-nbg-2.betterstackdata.com
       source_token: vDd2X1TkfUEKUtE3VDFgfVxW
