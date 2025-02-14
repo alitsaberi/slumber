@@ -1,5 +1,3 @@
-# FILE: home.py
-
 from pathlib import Path
 
 from loguru import logger
@@ -8,7 +6,7 @@ from PySide6.QtWidgets import QWidget
 
 from .widget_ui import Ui_HomePage
 
-HTML_FILE_PATH = Path(__file__).parent / "assets" / "html" / "index.html"
+HTML_FILE_PATH = Path(__file__).parent / "assets" / "index.html"
 
 
 class HomePage(QWidget, Ui_HomePage):
