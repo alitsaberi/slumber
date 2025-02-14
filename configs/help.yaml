@@ -1,3 +1,28 @@
-- question: How can I wear the headband?
-  instruction_path: ../../configs/instructions/how_to_wear_zmax.md
-  
+- question: How to prepare a good sleep environment?
+  instruction_path: ../../configs/instructions/sleep_environment.md
+- question: How to clean my forehead?
+  instruction_path: ../../configs/instructions/clean_forehead.md
+- question: How to clean the patch?
+  instruction_path: ../../configs/instructions/clean_patch.md
+- question: How to change the patch?
+  instruction_path: ../../configs/instructions/change_patch.md
+- question: Where should I place my laptop?
+  instruction_path: ../../configs/instructions/laptop_placement.md
+- question: How to connect the EEG headband receiver?
+  instruction_path: ../../configs/instructions/receiver_connection.md
+- question: How to turn on the EEG headband?
+  instruction_path: ../../configs/instructions/turn_on_headband.md
+- question: What do the light indicators on the EEG headband mean?
+  instruction_path: ../../configs/instructions/headband_light_indicator.md
+- question: How to do reality checks?
+  instruction_path: ../../configs/instructions/reality_checks.md
+- question: How to troubleshoot connection issues with the EEG headband?
+  instruction_path: ../../configs/instructions/headband_connection_failure.md
+- question: How to reset the EEG headband?
+  instruction_path: ../../configs/instructions/headband_reset.md
+- question: How to charge the EEG headband?
+  instruction_path: ../../configs/instructions/headband_charging.md
+- question: How to end a session?
+  instruction_path: ../../configs/instructions/end_session.md
+- question: How to restart the laptop?
+  instruction_path: ../../configs/instructions/laptop_restart.md
