@@ -4,16 +4,52 @@ gui:
   help: ../../configs/help.yaml
   pre_sleep:
     tasks:
-      - title: EEG Headband Connection
+      - title: Study Information And Software Introduction
+        widget: instruction
+        kwargs:
+          instruction_path: ../../configs/instructions/software_information.md
+      - title: Session Preparation
+        widget: instruction
+        kwargs:
+          instruction_path: ../../configs/instructions/session_preparation.md
+      - title: EEG Headband Setup 
+        widget: instruction
+        kwargs:
+          instruction_path: ../../configs/instructions/headband_setup.md
+      - title: EEG Headband Connection Task Introduction
+        widget: instruction
+        kwargs:
+          instruction_path: ../../configs/instructions/headband_connection.md
+      - title: EEG Headband Connection Task
         widget: zmax_connection
         kwargs:
-          battery_level_threshold: 95
+          battery_level_threshold: 90
+      - title: Put On The EEG Headband
+        widget: instruction
+        kwargs:
+          instruction_path: ../../configs/instructions/wear_headband.md
+      - title: LRLR Eye Movements
+        widget: instruction
+        kwargs:
+          instruction_path: ../../configs/instructions/eye_movement.md
+      - title: When Lucidity Occurs In Dreams
+        widget: instruction
+        kwargs:
+          instruction_path: ../../configs/instructions/when_LD_occures.md
+      - title: LRLR Eye Movements Test Introduction
+        widget: instruction
+        kwargs:
+          instruction_path: ../../configs/instructions/LRLR_task.md
       - title: Eye Movement Detection Test
         widget: eye_test
         kwargs:
           accepted_eye_signals: [LRL, RLR]
           difference_threshold: 280
           max_test_duration: 30
+      - title: Light Cueing Calibration Introduction
+        widget: instruction
+        kwargs:
+          instruction_path: ../../configs/instructions/light_cueing_task.md
       - title: Light Cue Calibration
         widget: light_cue_calibration
         kwargs:
@@ -27,6 +63,10 @@ gui:
           off_duration: 5
           alternate_eyes: false
           countdown_seconds: 5
+      - title: Audio Cueing Calibration Introduction
+        widget: instruction
+        kwargs:
+          instruction_path: ../../configs/instructions/audio_cueing_task.md
       - title: Audio Cue Calibration
         widget: audio_cue_calibration
         kwargs:
@@ -38,18 +78,34 @@ gui:
           rate: 200
           text: You are dreaming
           voice: HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Speech\Voices\Tokens\TTS_MS_EN-GB_HAZEL_11.0
-      - title: Vibration Cue Calibration
+      - title: Tactile Cue Calibration Introduction
+        widget: instruction
+        kwargs:
+          instruction_path: ../../configs/instructions/tactile_cueing.md
+      - title: Tactile Cue Calibration
         widget: vibration_cue_calibration
         kwargs:
           on_duration: 2
           off_duration: 5
           repetitions: 2
           countdown_seconds: 5
+      - title: Voice Recording Assessment Introduction
+        widget: instruction
+        kwargs:
+          instruction_path: ../../configs/instructions/voice_recording_task.md
       - title: Voice Recording Assessment
         widget: survey
         kwargs:
           survey_config_path: ../../configs/surveys/voice_recording_test.json
           output_directory: ./data/survey_responses
+      - title: Sleep Page
+        widget: instruction
+        kwargs:
+          instruction_path: ../../configs/instructions/sleep_page.md
+      - title: About Cognitive Training
+        widget: instruction
+        kwargs:
+          instruction_path: ../../configs/instructions/cognitive_training.md
       - title: Cognitive Training
         widget: cognitive_training
         kwargs:
@@ -76,6 +132,10 @@ gui:
         kwargs:
           survey_config_path: ../../configs/surveys/sleep_and_mood_questionnaire.json
           output_directory: ./data/survey_responses
+      - title: Session End
+        widget: instruction
+        kwargs:
+          instruction_path: ../../configs/instructions/post_sleep.md
 
 dag:
   components:
