@@ -1,8 +1,16 @@
-During the experiment, you may receive auditory cues as **semantic audio** played from the laptop speakers. These cues are designed to be effective yet unobtrusive, so it is important to adjust their volume accordingly.  
+During the experiment, you may receive auditory cues as **semantic audio** played from the laptop speakers.
 
-Initially, the audio cue volume is set to its minimum. In the next task, you will assess whether you can perceive the sound while remaining in a resting wakefulness state with your eyes closed.  
+- If you do, respond by repeating the **LRLR eye movement**.
 
-- If you **do not** perceive the sound, increase the volume by one step and try again.  
-- Continue this process until you can **clearly perceive** the sound while keeping your eyes closed. 
+For the next step, You will assess whether you can perceive the audio while keeping your eyes closed in a resting wakefulness state.
 
-* right distance from the laptop
+**Next step: Audio calibration test.**
+- Place the laptop within reach, at most an arm’s length away from you.
+
+- Click the **"Present Cue"** button. A countdown will appear.
+
+- After the countdown ends, click the **"Yes/No"** button to indicate whether you perceived the audio cue.
+
+- Repeat this process until a confirmation message appears and the **"Done"** button is activated.
+
+- If you have repeated the tasks for >20 times and a confirmation message still does not appear, end the current experimental session and contact us to report this issue in the morning.

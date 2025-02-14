@@ -1,3 +1,24 @@
 - question: How can I wear the headband?
   instruction_path: ../../configs/instructions/how_to_wear_zmax.md
-  
+- question: About software information.
+  instruction_path: ../../configs/instructions/Question_1_software.md
+- question: Where should you place your laptop?
+  instruction_path: ../../configs/instructions/Question_2_place_laptop.md
+- question: Troubleshooting.
+  instruction_path: ../../configs/instructions/Question_3_troubleshooting.md
+- question: How to prepare the sleep environment?
+  instruction_path: ../../configs/instructions/Question_4_sleep_environment.md
+- question: How to clean my forehead?
+  instruction_path: ../../configs/instructions/Question_5_clean_forehead.md
+- question: How to clean the EEG headband patch?
+  instruction_path: ../../configs/instructions/Question_6_clean_patch.md
+- question: How to change the EEG headband patch?
+  instruction_path: ../../configs/instructions/Question_7_change_patch.md
+- question: How to determine if the EEG headband is turned on?
+  instruction_path: ../../configs/instructions/Question_8_turn_on_zmax.md
+- question: About wearing the EEG headband.
+  instruction_path: ../../configs/instructions/Question_9_wear_zmax.md
+- question: About the eye movement detection test.
+  instruction_path: ../../configs/instructions/Question_10_LR_troubleshooting.md
+- question: About the "I'm Awake" button.
+  instruction_path: ../../configs/instructions/Question_11_I'm_awake.md

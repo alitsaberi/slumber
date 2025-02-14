@@ -12,9 +12,11 @@ If you experience any sensory cues, such as light, sound, or vibration, respond 
 
 ---
 
-### **Next Step: Eye Movement Detection Test**
-
-To begin the test, **click the button** to indicate you're ready to perform the eye movement. Stay still performing the **LRLR eye movement** (left-right-left-right). Once you've completed the movement, click the button again to confirm you did the test.
+**Next step: Eye movements detection test.**
+- Click the **“Start”** button and remain as steady as possible.
+- Perform the **LRLR eye movements**.
+- Click the **“End”** button.
+- If the eye movements were successfully recorded, a confirmation message will appear.
 
 **Advice for the Eye Movement:**
 - Keep your eyes relaxed and follow the movement pattern clearly: left-right-left-right.

@@ -4,16 +4,44 @@ gui:
   help: ../../configs/help.yaml
   pre_sleep:
     tasks:
+      - title: Study Information
+        widget: instructions
+        kwargs:
+          instruction_path: ../../configs/instructions/study_information.md
+      - title: Software Information
+        widget: instructions
+        kwargs:
+          instruction_path: ../../configs/instructions/software_information.md
+      - title: Session Preparation
+        widget: instructions
+        kwargs:
+          instruction_path: ../../configs/instructions/session_preparation.md
+      - title: EEG Headband Setup
+        widget: instructions
+        kwargs:
+          instruction_path: ../../configs/instructions/zmax_setup.md
       - title: EEG Headband Connection
         widget: zmax_connection
         kwargs:
-          battery_level_threshold: 95
+          battery_level_threshold: 90
+      - title: Put On The EEG Headband
+        widget: instructions
+        kwargs:
+          instruction_path: ../../configs/instructions/how_to_wear_zmax.md
+      - title: Lucidity Task And Eye Movements
+        widget: instructions
+        kwargs:
+          instruction_path: ../../configs/instructions/lucidity_task.md
       - title: Eye Movement Detection Test
         widget: eye_test
         kwargs:
           accepted_eye_signals: [LRL, RLR]
           difference_threshold: 280
           max_test_duration: 30
+      - title: Light Cueing
+        widget: instructions
+        kwargs:
+          instruction_path: ../../configs/instructions/light_cueing.md
       - title: Light Cue Calibration
         widget: light_cue_calibration
         kwargs:
@@ -27,6 +55,10 @@ gui:
           off_duration: 5
           alternate_eyes: false
           countdown_seconds: 5
+      - title: Audio Cueing
+        widget: instructions
+        kwargs:
+          instruction_path: ../../configs/instructions/audio_cueing.md
       - title: Audio Cue Calibration
         widget: audio_cue_calibration
         kwargs:
@@ -38,6 +70,10 @@ gui:
           rate: 200
           text: You are dreaming
           voice: HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Speech\Voices\Tokens\TTS_MS_EN-GB_HAZEL_11.0
+      - title: Tactile cueing
+        widget: instructions
+        kwargs:
+          instruction_path: ../../configs/instructions/tactile_cueing.md
       - title: Vibration Cue Calibration
         widget: vibration_cue_calibration
         kwargs:
@@ -45,11 +81,23 @@ gui:
           off_duration: 5
           repetitions: 2
           countdown_seconds: 5
+      - title: Voice Recording
+        widget: instructions
+        kwargs:
+          instruction_path: ../../configs/instructions/voice_recording.md
       - title: Voice Recording Assessment
         widget: survey
         kwargs:
           survey_config_path: ../../configs/surveys/voice_recording_test.json
           output_directory: ./data/survey_responses
+      - title: Sleep Status Page
+        widget: instructions
+        kwargs:
+          instruction_path: ../../configs/instructions/sleep_page.md
+      - title: Reality Checks
+        widget: instructions
+        kwargs:
+          instruction_path: ../../configs/instructions/during_sleep.md
       - title: Cognitive Training
         widget: cognitive_training
         kwargs:
@@ -76,6 +124,10 @@ gui:
         kwargs:
           survey_config_path: ../../configs/surveys/sleep_and_mood_questionnaire.json
           output_directory: ./data/survey_responses
+      - title: Daily Routine
+        widget: instructions
+        kwargs:
+          instruction_path: ../../configs/instructions/daily_routine.md
 
 dag:
   components:
