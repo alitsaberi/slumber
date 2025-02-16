@@ -23,7 +23,6 @@ from slumber.sources.zmax import (
     STIMULATION_MAX_REPETITIONS,
     STIMULATION_MIN_DURATION,
     STIMULATION_MIN_REPETITIONS,
-    ConnectionClosedError,
     DataType,
     LEDColor,
     ZMax,
@@ -98,23 +97,12 @@ class ZMaxDataReceiver(ez.Unit):
 
     async def initialize(self):
         self.STATE.zmax = ZMax(**self.SETTINGS.zmax.model_dump())
+        self.STATE.zmax.connect()
         self.STATE.data_collection_enabled = self.SETTINGS.data_collection_enabled
 
     async def shutdown(self) -> None:
         self.STATE.data_collection_enabled = False
         self.STATE.zmax.disconnect()
-
-    @ez.subscriber(INPUT_CONNECT_SIGNAL)
-    async def connect(self, connect: bool) -> None:
-        if connect:
-            logger.info("Connection signal received. Connecting to ZMax...")
-            self.STATE.zmax.connect(
-                retry_attempts=self.SETTINGS.retry_attempts,
-                retry_delay=self.SETTINGS.retry_delay,
-            )
-        else:
-            logger.info("Disconnection signal received. Disconnecting from ZMax...")
-            self.STATE.zmax.disconnect()
 
     @ez.subscriber(INPUT_DATA_COLLECTION_ENABLED)
     async def enable(self, enabled: bool) -> None:
@@ -152,27 +140,8 @@ class ZMaxDataReceiver(ez.Unit):
                     f"Timeout while reading from ZMax: {e}."
                     " Possible causes: Connection between ZMax and PC is lost"
                     " (e.g., ZMax is off or dongle is disconnected)"
-                    " or HDRecorder has never been connected."
-                    f" Reconnecting in {self.SETTINGS.retry_delay}",
-                    connected=self.STATE.zmax.is_connected(),
                 )
-                # TODO: Inform user about the problem
-                await asyncio.sleep(self.SETTINGS.retry_delay)
-                self.STATE.zmax.flush_buffer(
-                    retry_attempts=self.SETTINGS.retry_attempts,
-                    retry_delay=self.SETTINGS.retry_delay,
-                )
-            except ConnectionClosedError as e:
-                logger.error(
-                    f"{e}. Trying reconnection in"
-                    f" {self.SETTINGS.retry_delay} seconds.",
-                    connected=self.STATE.zmax.is_connected(),
-                )
-                await asyncio.sleep(self.SETTINGS.retry_delay)
-                self.STATE.zmax.flush_buffer(
-                    retry_attempts=self.SETTINGS.retry_attempts,
-                    retry_delay=self.SETTINGS.retry_delay,
-                )
+
 
     @ez.subscriber(INPUT_STIMULATION_SIGNAL)
     async def stimulate(self, signal: ZMaxStimulationSignal) -> None:

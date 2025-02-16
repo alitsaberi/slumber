@@ -1,9 +1,6 @@
 time_zone: "Europe/Amsterdam"
 process_termination_timeout: 10.0
 
-database:
-  name: slumber.db
-
 hdf5:
   compression: gzip
 
@@ -12,7 +9,7 @@ zmax:
   port: 8000
   retry_attempts: 3
   retry_delay: 5
-  socket_timeout: 10
+  socket_timeout: 1
   hypnodyne_suite_directory: "C:/Users/Mahdad/Desktop/ZMax"
 
 sleep_scoring:
@@ -42,7 +39,6 @@ logging:
       host: https://s1203225.eu-nbg-2.betterstackdata.com
       source_token: vDd2X1TkfUEKUtE3VDFgfVxW
 
-
 text2speech:
   rate: 175 # Integer speech rate in words per minute.
   volume: 100 # [0, 100]
@@ -65,16 +61,6 @@ arousal_detection:
   min_transition_increase: 0.2
   gap_threshold_factor: 0.8
   arousal_label: AROUSAL
-  
-gui:
-  font_size: 0
-  app_width: 1920
-  app_height: 1080
-  app_mode: window
-  language: English
-
-study:
-  duration: 14
 
 tasks:
   default: base
