@@ -1,10 +1,11 @@
 import socket
 from collections.abc import Callable
 from dataclasses import dataclass
-from enum import Enum
+from enum import Enum, auto
 from pathlib import Path
 from subprocess import Popen
 from time import sleep
+import types
 
 import numpy as np
 import psutil
@@ -12,11 +13,35 @@ from loguru import logger
 
 from slumber import settings
 
+
+class Mode(Enum):
+    """
+    Enum representing the different modes of operation for the ZMax device.
+    """
+
+    LIVE = "LIVEMODE"
+    IDLE = "IDLEMODE"
+
+
+class Command(Enum):
+    """
+    Enum representing the different commands that can be sent to the
+    """
+
+    SEND_BYTES = "SENDBYTES"
+    
+class DongleStatus(Enum):
+    UNKNOWN = "unknown"
+    INSERTED = "inserted"
+    REMOVED = "removed"
+
+
+_DONGLE_MESSAGE_PREFIX = "_DONGLE"
+_SENDBYTES_MAX_RETRIES = 1
 _PACKET_TYPE_POSITION = 0
 _VALID_PACKET_TYPES = range(1, 12)
 _EXPECTED_DATA_LENGTH = 119
-_SEND_BYTES_COMMAND = "LIVEMODE_SENDBYTES"
-_STIMULATION_RETRIES = 15
+
 _STIMULATION_RETRY_DELAY = 111  # Milliseconds
 _STIMULATION_FLASH_LED_COMMAND = 4
 _STIMULATION_PWM_MAX = 254  # 100% intensity
@@ -187,6 +212,17 @@ class DataType(Enum):
         return [data_type for data_type in cls if data_type.category == category]
 
 
+def _initialize_socket(
+    socket_timeout: float | None = None,
+) -> socket.socket:
+    _socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    _socket.settimeout(socket_timeout)
+    return _socket
+
+
+def _is_dongle_message(message: str) -> bool:
+    return message.startswith(_DONGLE_MESSAGE_PREFIX)
+
 class ZMax:
     def __init__(
         self,
@@ -196,14 +232,10 @@ class ZMax:
     ) -> None:
         self._ip = ip
         self._port = port
-        self._socket_timeout = socket_timeout
-        self._message_counter = 0
-        self._socket = None
-        self._initialize_socket()
-
-    def _initialize_socket(self) -> None:
-        self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self._socket.settimeout(self._socket_timeout)
+        self._socket = _initialize_socket(socket_timeout)
+        self._idle_sequence_number = 1
+        self._live_sequence_number = 1
+        self._dongle_status = DongleStatus.UNKNOWN
 
     def __repr__(self) -> str:
         return f"ZMax(ip={self._ip}, port={self._port})"
@@ -212,17 +244,13 @@ class ZMax:
         self.connect()
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
-        self.disconnect()
-
-    def flush_buffer(
+    def __exit__(
         self,
-        retry_attempts: int = DEFAULTS["retry_attempts"],
-        retry_delay: float = DEFAULTS["retry_delay"],
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: types.TracebackType | None,
     ) -> None:
-        logger.info("Flushing ZMax buffer...")
         self.disconnect()
-        self.connect(retry_attempts=retry_attempts, retry_delay=retry_delay)
 
     def disconnect(self) -> None:
         if self._socket:
@@ -238,14 +266,11 @@ class ZMax:
             logger.warning(f"Already connected to {self!r}")
             return
 
-        self._initialize_socket()
-
         for attempt in range(retry_attempts):
             try:
                 self._socket.connect((self._ip, self._port))
-                self.send_string("HELLO\n")  # ?
-                logger.info(f"Connected to {self}")
-                return
+                logger.info(f"Connected to {self!r}")
+                self._handle_handshake()
             except OSError as e:
                 logger.warning(
                     f"Attempt {attempt + 1}/{retry_attempts} to connect to {self!r}"
@@ -256,36 +281,64 @@ class ZMax:
         raise ConnectionError(
             f"Failed to connect to {self!r} after {retry_attempts} attempts"
         )
+        
+    def _handle_handshake(self) -> None:
+        # Expect 3 lines: version, dongle status, RF channel
+        logger.info("Handling handshake...")
+        for _ in range(3):  # Expect 3 lines
+            message = self._receive_line()
+            
+            if _is_dongle_message(message):
+                self._handle_dongle_message(message)
+                
+    @property
+    def dongle_inserted(self) -> bool:
+        return self._dongle_status == DongleStatus.INSERTED
 
     def is_connected(self) -> bool:
         try:
-            # Check if socket exists and is connected by attempting to get peer name
             self._socket.getpeername()
             return True
-        except (OSError, AttributeError):
+        except OSError:
             return False
+        
+    def _handle_dongle_message(self, message: str) -> None:
+        self._dongle_status = DongleStatus(message.split("_")[2])
+        logger.info(f"Dongle status: {self._dongle_status.value}")
+
+    def read_with_keepalive(
+        self, data_types: list[DataType] | None = None
+    ) -> np.ndarray:
+        while True:
+            try:
+                return self.read(data_types)
+            except TimeoutError:
+                logger.debug("Timeout while reading data from the server")
+                self.send_idle_command()
 
     def read(self, data_types: list[DataType] | None = None) -> np.ndarray:
         while True:
-            message = self._receive_line_buffer()  # Raw data received
+            message = self._receive_line()
 
             if message.startswith("DEBUG"):  # Ignore debugging messages from the server
-                logger.debug(f"Ignoring debug message: {message}")
+                logger.debug(f"Debug message: {message}")
                 continue
 
             if not message.startswith("D"):  # Only process valid data packets
-                logger.debug(f"Ignoring non-data message: {message}")
+                logger.debug(f"Non-data message: {message}")
                 continue
-
-            # Split the raw data into data packets
-            data_packet = message.split(".")
-
-            if len(data_packet) != 2:
-                logger.debug(f"Ignoring invalid data packet: {data_packet}")
+            
+            if not _is_dongle_message(message):
+                logger.debug("Dongle message: {message}")
+                self._handle_dongle_message(message)
                 continue
-
-            # Process the second part of the data packet
-            data = data_packet[1]
+            
+            try:
+                _, data = message.split(".")
+            except ValueError as e:
+                logger.warning(f"Failed to extract data from data message {message}: {e}")
+                continue
+            
             if not self._is_valid_data(data):
                 continue
 
@@ -294,8 +347,8 @@ class ZMax:
                 [data_type.value.get_value(data) for data_type in data_types]
             )
 
-    def _receive_line_buffer(self):
-        buffer = bytearray()
+    def _receive_line(self) -> str:
+        line = bytearray()
         while True:
             char = self._socket.recv(1)
             if not char:
@@ -310,18 +363,18 @@ class ZMax:
             if char == b"\n":
                 break
 
-            buffer.extend(char)
-        return buffer.decode("utf-8")
+            line.extend(char)
+        return line.decode("utf-8")
 
     def _is_valid_data(self, data: str) -> bool:
-        """Validate the received data."""
+        """Validate the received data"""
         packet_type = get_byte_at(data, _PACKET_TYPE_POSITION)
         if packet_type not in _VALID_PACKET_TYPES:
-            logger.debug(f"Ignoring invalid packet type: {packet_type}")
+            logger.warning(f"Invalid type: {packet_type}")
             return False
 
         if len(data) != _EXPECTED_DATA_LENGTH:
-            logger.debug(f"Ignoring invalid data length: {len(data)}")
+            logger.warning(f"Invalid data length: {len(data)}")
             return False
 
         return True
@@ -412,21 +465,27 @@ class ZMax:
         ]
 
         command = (
-            f"{_SEND_BYTES_COMMAND} {_STIMULATION_RETRIES}"
-            f" {self._get_next_message_number()} {_STIMULATION_RETRY_DELAY}"
+            f"{Mode.LIVE.value}_{Command.SEND_BYTES.value} {_SENDBYTES_MAX_RETRIES}"
+            f" {self._get_next_live_sequence_number()} {_STIMULATION_RETRY_DELAY}"
             f" {'-'.join(hex_values)}\r\n"
         )
         logger.debug(f"ZMax stimulation command: {command}")
 
         self.send_string(command)
+        
+    def send_idle_command(self) -> None:
+        self.send_string(
+            f"{Mode.IDLE.value}_{Command.SEND_BYTES.value}"
+            f" {_SENDBYTES_MAX_RETRIES} {self._idle_sequence_number}\n"
+        )
+        self._idle_sequence_number += 1
 
     def send_string(self, message: str) -> None:
         self._socket.sendall(message.encode("utf-8"))
 
-    def _get_next_message_number(self) -> int:
-        """Get next message sequence number (0-255)"""
-        self._message_counter = (self._message_counter + 1) % 256
-        return self._message_counter
+    def _get_next_live_sequence_number(self) -> int:
+        self._live_sequence_number += 1
+        return self._live_sequence_number % 256
 
 
 def is_connected(zmax: ZMax) -> ZMax:
