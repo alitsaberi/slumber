@@ -45,9 +45,6 @@ class TimeQueueSettings(QueueSettings):
     publish_interval: float = Field(gt=0)
     sample_rate: int = Field(ge=1)
     gap_threshold: float = Field(ge=0)
-    channel_names: list[str] = Field(
-        min_length=1
-    )  # TODO: this should not be set manually
     dropped_samples_warn_threshold: int | None = Field(None, ge=0)
     timestamp_margin: float = Field(ge=0)
 
@@ -64,6 +61,7 @@ class QueueState(ez.State):
 class TimeQueueState(QueueState):
     publish_rate: Rate
     publish_enabled: bool
+    channel_names: list[str] | None = None
 
 
 class Queue(ez.Unit, Generic[T]):
@@ -147,6 +145,14 @@ class TimeQueue(Queue[Sample]):
 
     @ez.publisher(OUTPUT)
     async def publish(self) -> AsyncGenerator:
+        
+        while self.STATE.queue.empty():
+            logger.info("Waiting for the first sample to be received.")
+            await asyncio.sleep(self.SETTINGS.publish_enabled_check_interval)
+            continue   
+        
+        self._set_channel_names()
+        
         while True:
             if not self.STATE.publish_enabled:
                 logger.info(
@@ -182,6 +188,11 @@ class TimeQueue(Queue[Sample]):
             logger.debug(f"{self.address} publishing {data}.")
             yield (self.OUTPUT, data)
 
+    def _set_channel_names(self) -> None:
+        sample: Sample = self.STATE.queue.get_nowait()
+        self.STATE.channel_names = sample.channel_names
+        logger.info(f"Setting channel names to {self.STATE.channel_names}.")
+    
     def _process_queue(self, start_time: float, end_time: float) -> list[Sample]:
         regular_timestamps = np.linspace(
             start_time, end_time, self.SETTINGS.expected_publish_samples
@@ -189,7 +200,7 @@ class TimeQueue(Queue[Sample]):
         array = np.zeros(
             (
                 self.SETTINGS.expected_publish_samples,
-                len(self.SETTINGS.channel_names),
+                len(self.STATE.channel_names),
             )
         )
 
@@ -246,5 +257,5 @@ class TimeQueue(Queue[Sample]):
             array=array,
             timestamps=regular_timestamps,
             sample_rate=self.SETTINGS.sample_rate,
-            channel_names=self.SETTINGS.channel_names,
+            channel_names=self.STATE.channel_names,
         )

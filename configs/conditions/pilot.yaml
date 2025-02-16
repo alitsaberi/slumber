@@ -4,14 +4,10 @@ gui:
   help: ../../configs/help.yaml
   pre_sleep:
     tasks:
-      - title: How to Wear the Headband
-        widget: instruction
-        kwargs:
-          instruction_path: ../../configs/instructions/how_to_wear_zmax.md
       - title: EEG Headband Connection
         widget: zmax_connection
         kwargs:
-          battery_level_threshold: 10
+          battery_level_threshold: 95
       - title: Eye Movement Detection Test
         widget: eye_test
         kwargs:
@@ -38,9 +34,10 @@ gui:
           max: 100
           increment: 5
           decrement: 2
-          countdown_seconds: 5
-          rate: 175
+          countdown_seconds: 10
+          rate: 200
           text: You are dreaming
+          voice: HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Speech\Voices\Tokens\TTS_MS_EN-GB_HAZEL_11.0
       - title: Vibration Cue Calibration
         widget: vibration_cue_calibration
         kwargs:
@@ -82,11 +79,6 @@ dag:
           socket_timeout: 1
         data_collection_enabled: true
         data_collection_enabled_check_interval: 5.0
-        data_types:
-          - EEG_LEFT
-          - EEG_RIGHT
-        retry_attempts: 6
-        retry_delay: 10
 
     - name: ZMAX_STORAGE_QUEUE
       unit: CountQueue
@@ -107,7 +99,6 @@ dag:
         publish_enabled_check_interval: 5.0
         sample_rate: 256
         gap_threshold: 1.0
-        channel_names: [EEG_LEFT, EEG_RIGHT]
         timestamp_margin: 1.0
 
     - name: ZMAX_STORAGE
@@ -115,7 +106,7 @@ dag:
       settings:
         file_path: ./data/storage.h5
         group_name: "zmax_raw"
-        flush_after: 90
+        flush_after: 6
 
     - name: PREPROCESS
       unit: Transform
@@ -133,7 +124,7 @@ dag:
       settings:
         file_path: ./data/storage.h5
         group_name: "zmax_preprocessed"
-        flush_after: 90
+        flush_after: 6
 
     - name: SLEEP_SCORING_ROLLING_BUFFER
       unit: RollingBuffer
@@ -153,9 +144,9 @@ dag:
       unit: SleepScoring
       settings:
         model:
-          model_dir: C:\Users\Mahdad\Projects\slumber\tests\resources\sample_utime_model
+          model_dir: ../../configs/models/utime_EEG_10
           n_periods: 105
-          n_samples_per_prediction: 1
+          n_samples_per_prediction: 128
         channel_groups: [[EEG_LEFT], [EEG_RIGHT]]
         arg_max: false
 
@@ -165,7 +156,7 @@ dag:
         transforms:
           - class_name: ArraySelector
             kwargs:
-              start_index: -3840 # 30 seconds
+              start_index: -30 # 30 seconds
 
     - name: MASTER_SCORES_SELECTOR
       unit: Transform
@@ -173,7 +164,7 @@ dag:
         transforms:
           - class_name: ArraySelector
             kwargs:
-              start_index: -7680 # 60 seconds
+              start_index: -60 # 60 seconds
 
     - name: EYE_MOVEMENT_DETECTION_ROLLING_BUFFER
       unit: RollingBuffer
@@ -216,7 +207,7 @@ dag:
           on_duration: 5
           off_duration: 5
           intensity:
-            value: 5
+            value: 5 # will be replaced by the code after calibration
             min: 1
             max: 100
             increment: 5
@@ -233,6 +224,7 @@ dag:
         auditory_cueing:
           text: You are dreaming
           rate: 175
+          voice: HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Speech\Voices\Tokens\TTS_MS_EN-GB_HAZEL_11.0
           intensity:
             value: 5
             min: 0
@@ -249,7 +241,7 @@ dag:
       settings:
         file_path: ./data/storage.h5
         group_name: "sleep_scoring"
-        flush_after: 90
+        flush_after: 6
 
     - name: EVENT_LOGGER
       unit: EventLogger

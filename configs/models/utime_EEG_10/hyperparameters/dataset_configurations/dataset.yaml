@@ -1,0 +1,35 @@
+train_data:
+  data_dir: 
+  period_length: 10
+  identifier: TRAIN
+
+val_data:
+  data_dir: 
+  identifier: VAL
+
+# Re-sampling rate
+set_sample_rate: 128
+
+channel_sampling_groups: [[F7-Fpz, F8-Fpz]]
+
+sleep_stage_annotations:
+  W: 0
+  N1: 1
+  N2: 2
+  N3: 3
+  REM: 4
+  UNKNOWN: 5
+
+strip_func:
+  # Keep blank to apply no strip function
+  strip_func: strip_to_match
+
+quality_control_func:
+  quality_control_func: clip_noisy_values
+  min_max_times_global_iqr: 20
+
+# Options: MinMaxScaler, StandardScaler, MaxAbsScaler,
+#          RobustScaler, QuantileTransformer, Null
+scaler: RobustScaler
+
+batch_wise_scaling: false

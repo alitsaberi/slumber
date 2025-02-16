@@ -81,7 +81,6 @@ def text2speech(text: str, engine: pyttsx3.Engine | None = None) -> None:
 def try_voices(
     engine: pyttsx3.Engine | None = None,
     text: str = "The quick brown fox jumps over the lazy dog.",
-    language: str = "en_US",
 ) -> None:
     """
     Try out all available voices and print their details.
@@ -90,10 +89,6 @@ def try_voices(
     voices = engine.getProperty("voices")
     logger.info(f"Available voices: {len(voices)}")
     for voice in voices:
-        if language not in voice.languages:
-            logger.debug(f"Skipping voice {voice.id} as it does not support {language}")
-            continue
-
         logger.info(
             f"Voice ID: {voice.id}, Name: {voice.name},"
             f" Languages: {voice.languages}, Gender: {voice.gender}"
