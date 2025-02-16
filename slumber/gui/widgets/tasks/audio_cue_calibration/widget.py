@@ -83,6 +83,7 @@ class AudioCueCalibrationPage(TaskPage, Ui_AudioCueCalibrationPage):
         decrement: int,
         rate: int,
         text: str,
+        voice: str,
         countdown_seconds: int,
         parent: QWidget | None = None,
     ) -> None:
@@ -99,6 +100,7 @@ class AudioCueCalibrationPage(TaskPage, Ui_AudioCueCalibrationPage):
         self.engine = init_text2speech_engine(
             rate=rate,
             volume=MAX_VOLUME,
+            voice=voice,
         )
         self.text = text
         self.phase = Phase.INCREASING

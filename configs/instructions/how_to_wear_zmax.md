@@ -12,6 +12,5 @@
         title="YouTube video player" 
         frameborder="0" 
         allow="accelerometer; encrypted-media; gyroscope;" 
-        referrerpolicy="strict-origin-when-cross-origin" 
-        allowfullscreen>
+        referrerpolicy="strict-origin-when-cross-origin">
 </iframe>
