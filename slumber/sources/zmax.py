@@ -1,11 +1,11 @@
 import socket
+import types
 from collections.abc import Callable
 from dataclasses import dataclass
-from enum import Enum, auto
+from enum import Enum
 from pathlib import Path
 from subprocess import Popen
 from time import sleep
-import types
 
 import numpy as np
 import psutil
@@ -14,28 +14,13 @@ from loguru import logger
 from slumber import settings
 
 
-class Mode(Enum):
-    """
-    Enum representing the different modes of operation for the ZMax device.
-    """
-
-    LIVE = "LIVEMODE"
-    IDLE = "IDLEMODE"
-
-
-class Command(Enum):
-    """
-    Enum representing the different commands that can be sent to the
-    """
-
-    SEND_BYTES = "SENDBYTES"
-    
 class DongleStatus(Enum):
     UNKNOWN = "unknown"
     INSERTED = "inserted"
     REMOVED = "removed"
 
 
+_LIVEMODE_SENDBYTES_COMMAND = "LIVEMODE_SENDBYTES"
 _DONGLE_MESSAGE_PREFIX = "_DONGLE"
 _SENDBYTES_MAX_RETRIES = 1
 _PACKET_TYPE_POSITION = 0
@@ -53,11 +38,12 @@ LED_MIN_INTENSITY = 1
 LED_MAX_INTENSITY = 100
 SAMPLE_RATE = 256
 MIN_VOLTAGE = 3.12
-MAX_VOLTAGE = 4.2
+MAX_VOLTAGE = 4.24
 
 
 DEFAULTS = settings["zmax"]
-HDSERVER_APP_NAME = "HDServer.exe"
+QUICKSTART_APP_NAME = "QuickStart.exe"
+HYPNODYNE_PROCESSES = ["HDServiceGUI.exe", "HDRecorder.exe", "HDServer.exe"]
 
 
 class ConnectionClosedError(Exception):
@@ -122,47 +108,34 @@ def _dec2hex(decimal: int, pad: int = 2) -> str:
     return format(decimal, f"0{pad}x").upper()
 
 
-def open_server(log_file_path: Path | None = None) -> Popen:
-    """
-    Opens the Hypnodyne HDServer application.
-
-    Args:
-        log_file_path: Optional path to write server logs to
-
-    Returns:
-        Popen: Process handle for the server
-
-    Raises:
-        FileNotFoundError: If HDServer executable not found
-        HDServerAlreadyRunningError: If server is already running
-        RuntimeError: If server fails to start
-    """
+def open_quick_start() -> Popen:
     hypnodyne_suite_directory = Path(DEFAULTS["hypnodyne_suite_directory"])
-    hdserver_path = hypnodyne_suite_directory / HDSERVER_APP_NAME
+    quick_start_path = hypnodyne_suite_directory / QUICKSTART_APP_NAME
 
-    # Validate server executable exists
-    if not hdserver_path.exists():
-        raise FileNotFoundError(f"HDServer executable not found at {hdserver_path}")
+    if not quick_start_path.exists():
+        raise FileNotFoundError(
+            f"QuickStart executable not found at {quick_start_path}"
+        )
 
-    # Check if server already running
-    for proc in psutil.process_iter(["name"]):
-        if proc.info["name"] == HDSERVER_APP_NAME:
-            raise HDServerAlreadyRunningError(
-                f"HDServer is already running as PID {proc.pid}"
-            )
-
-    stdout = open(log_file_path, "w") if log_file_path else None  # noqa: SIM115
+    close_all_hypnodyne_processes()
 
     try:
         process = Popen(
-            [str(hdserver_path)], cwd=hypnodyne_suite_directory, stdout=stdout
+            [str(quick_start_path)],
+            cwd=hypnodyne_suite_directory,
         )
-        logger.info("Hypnodyne HDServer started", path=hdserver_path, pid=process.pid)
+        logger.info("Hypnodyne QuickStart started", pid=process.pid)
         return process
     except Exception as e:
-        if stdout:
-            stdout.close()
-        raise RuntimeError(f"Failed to start HDServer: {e}") from e
+        raise RuntimeError(f"Failed to start QuickStart: {e}") from e
+
+
+def close_all_hypnodyne_processes():
+    for proc in psutil.process_iter(["name"]):
+        if proc.info["name"] in HYPNODYNE_PROCESSES:
+            proc.terminate()
+            proc.wait(settings["process_termination_timeout"])
+            logger.info(f"Terminated {proc.info['name']} with PID {proc.pid}")
 
 
 def voltage_to_percentage(voltage: float) -> int:
@@ -223,6 +196,7 @@ def _initialize_socket(
 def _is_dongle_message(message: str) -> bool:
     return message.startswith(_DONGLE_MESSAGE_PREFIX)
 
+
 class ZMax:
     def __init__(
         self,
@@ -232,8 +206,8 @@ class ZMax:
     ) -> None:
         self._ip = ip
         self._port = port
-        self._socket = _initialize_socket(socket_timeout)
-        self._idle_sequence_number = 1
+        self._socket_timeout = socket_timeout
+        self._socket = _initialize_socket(self._socket_timeout)
         self._live_sequence_number = 1
         self._dongle_status = DongleStatus.UNKNOWN
 
@@ -257,6 +231,8 @@ class ZMax:
             self._socket.close()
             logger.info(f"Closed connection to {self!r}")
 
+        self._socket = _initialize_socket(self._socket_timeout)
+
     def connect(
         self,
         retry_attempts: int = DEFAULTS["retry_attempts"],
@@ -270,7 +246,8 @@ class ZMax:
             try:
                 self._socket.connect((self._ip, self._port))
                 logger.info(f"Connected to {self!r}")
-                self._handle_handshake()
+                self.send_string("HELLO\n")
+                return
             except OSError as e:
                 logger.warning(
                     f"Attempt {attempt + 1}/{retry_attempts} to connect to {self!r}"
@@ -281,16 +258,7 @@ class ZMax:
         raise ConnectionError(
             f"Failed to connect to {self!r} after {retry_attempts} attempts"
         )
-        
-    def _handle_handshake(self) -> None:
-        # Expect 3 lines: version, dongle status, RF channel
-        logger.info("Handling handshake...")
-        for _ in range(3):  # Expect 3 lines
-            message = self._receive_line()
-            
-            if _is_dongle_message(message):
-                self._handle_dongle_message(message)
-                
+
     @property
     def dongle_inserted(self) -> bool:
         return self._dongle_status == DongleStatus.INSERTED
@@ -301,20 +269,10 @@ class ZMax:
             return True
         except OSError:
             return False
-        
-    def _handle_dongle_message(self, message: str) -> None:
-        self._dongle_status = DongleStatus(message.split("_")[2])
-        logger.info(f"Dongle status: {self._dongle_status.value}")
 
-    def read_with_keepalive(
-        self, data_types: list[DataType] | None = None
-    ) -> np.ndarray:
-        while True:
-            try:
-                return self.read(data_types)
-            except TimeoutError:
-                logger.debug("Timeout while reading data from the server")
-                self.send_idle_command()
+    def _handle_dongle_message(self, message: str) -> None:
+        self._dongle_status = DongleStatus[message.split("_")[2]]
+        logger.info(f"Dongle status: {self._dongle_status.value}")
 
     def read(self, data_types: list[DataType] | None = None) -> np.ndarray:
         while True:
@@ -324,21 +282,23 @@ class ZMax:
                 logger.debug(f"Debug message: {message}")
                 continue
 
+            if _is_dongle_message(message):
+                logger.debug(f"Dongle message: {message}")
+                self._handle_dongle_message(message)
+                continue
+
             if not message.startswith("D"):  # Only process valid data packets
                 logger.debug(f"Non-data message: {message}")
                 continue
-            
-            if not _is_dongle_message(message):
-                logger.debug("Dongle message: {message}")
-                self._handle_dongle_message(message)
-                continue
-            
+
             try:
                 _, data = message.split(".")
             except ValueError as e:
-                logger.warning(f"Failed to extract data from data message {message}: {e}")
+                logger.warning(
+                    f"Failed to extract data from data message {message}: {e}"
+                )
                 continue
-            
+
             if not self._is_valid_data(data):
                 continue
 
@@ -352,10 +312,7 @@ class ZMax:
         while True:
             char = self._socket.recv(1)
             if not char:
-                raise ConnectionClosedError(
-                    "The connection was closed by the server."
-                    " Make sure the server is running."
-                )
+                raise ConnectionClosedError("The connection was closed by the server.")
 
             if char == b"\r":
                 continue
@@ -465,20 +422,13 @@ class ZMax:
         ]
 
         command = (
-            f"{Mode.LIVE.value}_{Command.SEND_BYTES.value} {_SENDBYTES_MAX_RETRIES}"
+            f"{_LIVEMODE_SENDBYTES_COMMAND} {_SENDBYTES_MAX_RETRIES}"
             f" {self._get_next_live_sequence_number()} {_STIMULATION_RETRY_DELAY}"
             f" {'-'.join(hex_values)}\r\n"
         )
         logger.debug(f"ZMax stimulation command: {command}")
 
         self.send_string(command)
-        
-    def send_idle_command(self) -> None:
-        self.send_string(
-            f"{Mode.IDLE.value}_{Command.SEND_BYTES.value}"
-            f" {_SENDBYTES_MAX_RETRIES} {self._idle_sequence_number}\n"
-        )
-        self._idle_sequence_number += 1
 
     def send_string(self, message: str) -> None:
         self._socket.sendall(message.encode("utf-8"))

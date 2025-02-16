@@ -7,11 +7,11 @@ import ezmsg.core as ez
 from loguru import logger
 from PySide6.QtWidgets import QApplication
 
-from slumber import CONDITIONS_DIR, settings
+from slumber import CONDITIONS_DIR
 from slumber.gui.main_window import MainWindow
 from slumber.models.condition import Condition
 from slumber.models.dag import CollectionConfig
-from slumber.sources.zmax import open_server
+from slumber.sources.zmax import close_all_hypnodyne_processes, open_quick_start
 from slumber.utils.helpers import load_yaml
 from slumber.utils.logger import setup_logging
 from slumber.utils.time import create_timestamped_name
@@ -21,7 +21,6 @@ LOGS_DIR_NAME = "logs"
 DATA_DIR_NAME = "data"
 RUN_DIR_SUBDIRECTORIES = [LOGS_DIR_NAME, DATA_DIR_NAME]
 CONDITION_CONFIG_FILE_EXTENSION = "yaml"
-HDSERVER_LOG_FILE_NAME = "hdserver.log"
 DAG_LOG_FILE_NAME = "dag.log"
 MAIN_LOG_FILE_NAME = "slumber.log"
 
@@ -93,14 +92,12 @@ def main():
 
     window.showFullScreen()
 
-    hdserver_process = open_server(logs_dir / HDSERVER_LOG_FILE_NAME)
+    open_quick_start()
 
     try:
         app.exec()
     finally:
-        logger.info("Terminating the HDServer process...")
-        hdserver_process.terminate()
-        hdserver_process.wait(settings["process_termination_timeout"])
+        close_all_hypnodyne_processes()
 
 
 if __name__ == "__main__":
