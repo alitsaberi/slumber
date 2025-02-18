@@ -1,15 +1,33 @@
-During the experiment, you may receive light cues through the EEG headband.
+The next step is a task assessing whether you can perceive **tactile cues**.
 
-- If you do, try to wake up.
+**Tactile cues** are vibration delivered to your forehead by the EEG headband.
 
-For the next step, You will assess whether you can perceive the vibration.
+During the session, you may receive **tactile cues**. If you do, respond as described below:
 
-**Next step: Tactile cueing test.**
+- Repeat the **LRLR eye movement** if you perceive vibration while sleeping or while performing cognitive training.
 
-- Click the **"Present Cue"** button. A countdown will appear.
+- **Wake up** if you perceive a **high-intensity** vibration during sleep.
 
-- After the countdown ends, click the **"Yes/No"** button to indicate whether you perceived the vibration.
+For the next step, first, you will see a **"Present Cue"** button on the screen. Follow the steps below to complete the connection process.
 
-- Repeat this process until a confirmation message appears and the **"Done"** button is activated.
+1. Lie down on where you want to sleep.
 
-- If you cannot perceive the vibration, refer to **"If you encounter any issues"** in the **"? Help"** section.
+2. Click the **"Present Cue"** button to indicate you are ready to receive the tactile cue. A countdown will appear.
+
+   - After the countdown, an tactile cue will be delivered. 
+
+3. Respond to the question that appears on the screen.
+
+4. Repeat this process until a **confirmation message** appears and then you can proceed to the next task.
+
+   - The **confirmation message** may appear on the first attempt.  
+
+**Two other possible outcomes** may appear:  
+
+1. **Failed to deliver** the tactile cue.
+
+   - There might be an issue connecting to the headband. Consult the **help menu** to reconnect and reset the EEG headband.
+
+2. The **confirmation message does not appear**.
+
+   - If you have repeated the tasks for >20 times and a confirmation message still does not appear, end the current experimental session and contact us to report this issue in the morning.

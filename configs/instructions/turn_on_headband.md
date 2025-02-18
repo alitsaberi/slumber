@@ -1,3 +1,5 @@
+After the EEG headband receiver is pluged in, turn on the EEG headband by sliding the power button on top.
+
 When the headband is **OFF**:
 
 - The blue light on top will blink.

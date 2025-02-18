@@ -1,17 +1,27 @@
-In the last step of the guide, you will see a message and a button.
+After completing all tasks, you will see a page similar to what appears during the session when no tasks are assigned.
 
-- The message indicates your current status: "Awake" or "Asleep".
+In the page contents, you will see:
+ 
+1. Your current status.
 
-- The button indicates the change you want to make.
+   - **Awake:** Indicates that you are awake.
 
-When the message displays **"Awake"** and you are ready to sleep:
+   - **Asleep:** Indicates that you are either asleep or attempting to sleep.
 
-- Click the "Going to sleep" button, and click the "Yes" button.
+2. A button to change your state.
 
-When you wake up from sleep:
+   - **Going to Sleep:** Click this when you are attempting to fall asleep.
 
-- Click the "I'm awake" button, and click the "Yes" button.
+   - **I'm Awake:** Click this if you wake up, either by the software or on your own, or if you fail to fall asleep after trying. If you need to go to the bathroom or drink water, you can do so before clicking.
 
-- Complete the questionnaires.
+   - When changing your state, you will be asked to confirm your selection.  
 
-- Click the "Going to sleep" button to continue the session, or the "End" button to end the session.
+   - If switching to **Awake**, you may need to complete certain tasks. If you accidentally changed your state and are not ready for the upcoming tasks, check the **help menu** for guidance.
+
+3. End Session Button  
+
+   - **"End:"** Use this when you wake up in the morning or if you decide to stop the session for any reason. 
+   
+   - If you end the session early, be sure to report it in the morning.  
+
+   - After ending the session, you will be assigned some final tasks — please ensure that you complete them.

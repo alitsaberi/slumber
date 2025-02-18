@@ -1,24 +1,28 @@
-- question: How can I wear the headband?
-  instruction_path: ../../configs/instructions/how_to_wear_zmax.md
-- question: About software information.
-  instruction_path: ../../configs/instructions/Question_1_software.md
-- question: Where should you place your laptop?
-  instruction_path: ../../configs/instructions/Question_2_place_laptop.md
-- question: Troubleshooting.
-  instruction_path: ../../configs/instructions/Question_3_troubleshooting.md
-- question: How to prepare the sleep environment?
-  instruction_path: ../../configs/instructions/Question_4_sleep_environment.md
+- question: How to prepare a good sleep environment?
+  instruction_path: ../../configs/instructions/sleep_environment.md
 - question: How to clean my forehead?
-  instruction_path: ../../configs/instructions/Question_5_clean_forehead.md
-- question: How to clean the EEG headband patch?
-  instruction_path: ../../configs/instructions/Question_6_clean_patch.md
-- question: How to change the EEG headband patch?
-  instruction_path: ../../configs/instructions/Question_7_change_patch.md
-- question: How to determine if the EEG headband is turned on?
-  instruction_path: ../../configs/instructions/Question_8_turn_on_zmax.md
-- question: About wearing the EEG headband.
-  instruction_path: ../../configs/instructions/Question_9_wear_zmax.md
-- question: About the eye movement detection test.
-  instruction_path: ../../configs/instructions/Question_10_LR_troubleshooting.md
-- question: About the "I'm Awake" button.
-  instruction_path: ../../configs/instructions/Question_11_I'm_awake.md
+  instruction_path: ../../configs/instructions/clean_forehead.md
+- question: How to clean the patch?
+  instruction_path: ../../configs/instructions/clean_patch.md
+- question: How to change the patch?
+  instruction_path: ../../configs/instructions/change_patch.md
+- question: Where should I place my laptop?
+  instruction_path: ../../configs/instructions/laptop_placement.md
+- question: How to connect the EEG headband receiver?
+  instruction_path: ../../configs/instructions/receiver_connection.md
+- question: How to turn on the EEG headband?
+  instruction_path: ../../configs/instructions/turn_on_headband.md
+- question: What do the light indicators on the EEG headband mean?
+  instruction_path: ../../configs/instructions/light_indicator.md
+- question: What if the hair on my forehead and temples is too long?
+  instruction_path: ../../configs/instructions/cut_hair_headband.md
+- question: How to do reality checks?
+  instruction_path: ../../configs/instructions/reality_checks.md
+- question: What should I do if I clicked "I'm Awake" on the sleep page but I'm not ready for the questionnaires?
+  instruction_path: ../../configs/instructions/accident_click_I'm_awake.md
+- question: Do I need to do anything in the daytime?
+  instruction_path: ../../configs/instructions/daily_routine.md
+- question: How to reconnect the EEG headband?
+  instruction_path: ../../configs/instructions/how_to_reconnect.md
+- question: How to reset the EEG headband?
+  instruction_path: ../../configs/instructions/reset_headband.md
