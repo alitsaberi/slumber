@@ -145,14 +145,13 @@ class TimeQueue(Queue[Sample]):
 
     @ez.publisher(OUTPUT)
     async def publish(self) -> AsyncGenerator:
-        
         while self.STATE.queue.empty():
             logger.info("Waiting for the first sample to be received.")
             await asyncio.sleep(self.SETTINGS.publish_enabled_check_interval)
-            continue   
-        
+            continue
+
         self._set_channel_names()
-        
+
         while True:
             if not self.STATE.publish_enabled:
                 logger.info(
@@ -192,7 +191,7 @@ class TimeQueue(Queue[Sample]):
         sample: Sample = self.STATE.queue.get_nowait()
         self.STATE.channel_names = sample.channel_names
         logger.info(f"Setting channel names to {self.STATE.channel_names}.")
-    
+
     def _process_queue(self, start_time: float, end_time: float) -> list[Sample]:
         regular_timestamps = np.linspace(
             start_time, end_time, self.SETTINGS.expected_publish_samples

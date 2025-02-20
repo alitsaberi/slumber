@@ -50,6 +50,13 @@ gui:
         kwargs:
           survey_config_path: ../../configs/surveys/voice_recording_test.json
           output_directory: ./data/survey_responses
+      - title: Cognitive Training
+        widget: cognitive_training
+        kwargs:
+          protocol_path: ../../configs/main_cognitive_training.yaml
+          rate: 175
+          voice: HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Speech\Voices\Tokens\TTS_MS_EN-GB_HAZEL_11.0
+          countdown_seconds: 10
   awakening:
     tasks:
       - title: Before Awakening Experience

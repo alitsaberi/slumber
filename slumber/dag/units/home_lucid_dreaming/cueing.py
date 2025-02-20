@@ -85,7 +85,7 @@ class AudioIntensityConfig(CueIntensityConfig):
 
 def deliver_auditory_cue(text: str, volume: int, engine: pyttsx3.Engine) -> None:
     old_system_volume = get_system_volume()
-    logger.debug(f"Setting system volume to {volume}" f" from {old_system_volume}")
+    logger.debug(f"Setting system volume to {volume} from {old_system_volume}")
     set_system_volume(volume)
     text2speech(text, engine=engine)
     logger.info("Auditory cue delivered")
