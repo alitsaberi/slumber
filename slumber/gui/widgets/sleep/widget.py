@@ -1,5 +1,6 @@
 from enum import Enum
 
+from loguru import logger
 from PySide6.QtCore import Signal
 from PySide6.QtWidgets import (
     QMessageBox,
@@ -49,10 +50,14 @@ class SleepPage(QWidget, Ui_SleepPage):
             QMessageBox.No,
         )
         if reply == QMessageBox.Yes:
-            self.is_asleep = True
-            self.sleep_button.hide()
-            self.awake_button.show()
-            self._update_state(State.Asleep)
+            self.go_to_sleep()
+
+    def go_to_sleep(self) -> None:
+        logger.info("Going to sleep")
+        self.is_asleep = True
+        self.sleep_button.hide()
+        self.awake_button.show()
+        self._update_state(State.Asleep)
 
     def _handle_awake(self):
         reply = QMessageBox.question(
@@ -63,6 +68,7 @@ class SleepPage(QWidget, Ui_SleepPage):
             QMessageBox.No,
         )
         if reply == QMessageBox.Yes:
+            logger.info("Waking up")
             self.is_asleep = False
             self.awake_button.hide()
             self.sleep_button.show()

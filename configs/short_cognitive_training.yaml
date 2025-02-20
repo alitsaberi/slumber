@@ -1,0 +1,23 @@
+- type: PlayAudioFile
+  file_path: ../../configs/audios/short_training/instruction_3.wav
+- type: Pause
+  duration: 60
+- type: LightCue
+  led_color: RED
+  led_intensity_increase: 5
+  on_duration: 5
+  off_duration: 5
+  repetitions: 3
+- type: Pause
+  duration: 60
+- type: SemanticAudioCue
+  text: You are dreaming
+  volume_increase: 5
+- type: Pause
+  duration: 60
+- type: VibrationCue
+  on_duration: 2
+  off_duration: 5
+  repetitions: 2
+- type: Pause
+  duration: 5
