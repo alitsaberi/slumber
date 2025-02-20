@@ -156,6 +156,18 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if callback:
             self.procedure_page.done_signal.connect(callback)
 
+    @property
+    def minimum_subjective_audio_intensity(self) -> int:
+        return self.dag.components_mapping["REM_CUEING"].settings["auditory_cueing"][
+            "intensity"
+        ]["value"]
+
+    @property
+    def minimum_subjective_light_intensity(self) -> int:
+        return self.dag.components_mapping["REM_CUEING"].settings["visual_cueing"][
+            "intensity"
+        ]["value"]
+
     def _set_minimum_subjective_audio_intensity(self, value: int) -> None:
         logger.info(f"Setting minimum subjective audio intensity to {value}")
         self.dag.components_mapping["REM_CUEING"].settings["auditory_cueing"][

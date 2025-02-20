@@ -142,7 +142,6 @@ class ZMaxDataReceiver(ez.Unit):
                     " (e.g., ZMax is off or dongle is disconnected)"
                 )
 
-
     @ez.subscriber(INPUT_STIMULATION_SIGNAL)
     async def stimulate(self, signal: ZMaxStimulationSignal) -> None:
         logger.debug(f"Stimulating {signal}")
