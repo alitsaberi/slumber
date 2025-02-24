@@ -29,6 +29,8 @@ from slumber.utils.helpers import (
     MAX_VOLUME,
     MIN_VOLUME,
     create_enum_by_name_resolver,
+    get_system_volume,
+    set_system_volume,
 )
 from slumber.utils.text2speech import text2speech
 
@@ -129,13 +131,29 @@ class Pause(Action):
 class PlayAudioFile(Action):
     type: Literal["PlayAudioFile"] = "PlayAudioFile"
     file_path: FilePath
+    volume_increase: float = Field(ge=MIN_VOLUME, le=MAX_VOLUME)
 
-    def __call__(self) -> None:
+    def __call__(self, minimum_subjective_audio_intensity: float) -> None:
+        volume = minimum_subjective_audio_intensity + self.volume_increase
+        if volume > MAX_VOLUME:
+            logger.info(
+                f"Volume increase ({self.volume_increase})"
+                f" would exceed maximum volume ({MAX_VOLUME})."
+            )
+            volume = MAX_VOLUME
+
+        old_system_volume = get_system_volume()
+        logger.debug(f"Setting system volume to {volume} from {old_system_volume}")
+        set_system_volume(volume)
+
         logger.disable("playsound3")  # Disable logging for playsound3
         try:
             playsound(self.file_path)
         finally:
             logger.enable("playsound3")  # Re-enable logging
+
+        logger.debug(f"Setting system volume to {old_system_volume} from {volume}")
+        set_system_volume(old_system_volume)
 
 
 Protocol = list[

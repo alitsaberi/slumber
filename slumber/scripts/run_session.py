@@ -90,7 +90,7 @@ def main():
 
     app = QApplication()
     window = MainWindow(condition=condition, run_dag_function=run_dag_function)
-    
+
     open_quick_start()
     window.setWindowFlag(Qt.WindowStaysOnTopHint)
     window.showFullScreen()
