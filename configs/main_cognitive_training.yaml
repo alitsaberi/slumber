@@ -1,13 +1,16 @@
 - type: PlayAudioFile
   file_path: ../../configs/audios/main_training/instruction_1.wav
+  volume_increase: 20
 - type: Pause
   duration: 60
 - type: PlayAudioFile
   file_path: ../../configs/audios/main_training/instruction_2.wav
+  volume_increase: 20
 - type: Pause
   duration: 240
 - type: PlayAudioFile
   file_path: ../../configs/audios/main_training/instruction_3.wav
+  volume_increase: 20
 - type: Pause
   duration: 60
 - type: LightCue
@@ -18,6 +21,7 @@
   repetitions: 3
 - type: PlayAudioFile
   file_path: ../../configs/audios/main_training/prompt_1.wav
+  volume_increase: 20
 - type: Pause
   duration: 60
 - type: SemanticAudioCue
@@ -25,6 +29,7 @@
   volume_increase: 15
 - type: PlayAudioFile
   file_path: ../../configs/audios/main_training/prompt_2.wav
+  volume_increase: 20
 - type: Pause
   duration: 60
 - type: VibrationCue
@@ -33,6 +38,7 @@
   repetitions: 3
 - type: PlayAudioFile
   file_path: ../../configs/audios/main_training/prompt_3.wav
+  volume_increase: 20
 - type: Pause
   duration: 60
 - type: LightCue
@@ -43,6 +49,7 @@
   repetitions: 3
 - type: PlayAudioFile
   file_path: ../../configs/audios/main_training/prompt_4.wav
+  volume_increase: 20
 - type: Pause
   duration: 60
 - type: SemanticAudioCue
@@ -50,6 +57,7 @@
   volume_increase: 10
 - type: PlayAudioFile
   file_path: ../../configs/audios/main_training/prompt_5.wav
+  volume_increase: 20
 - type: Pause
   duration: 60
 - type: VibrationCue
@@ -58,10 +66,12 @@
   repetitions: 2
 - type: PlayAudioFile
   file_path: ../../configs/audios/main_training/prompt_6.wav
+  volume_increase: 20
 - type: Pause
   duration: 5
 - type: PlayAudioFile
   file_path: ../../configs/audios/main_training/instruction_4.wav
+  volume_increase: 20
 - type: Pause
   duration: 60
 - type: LightCue

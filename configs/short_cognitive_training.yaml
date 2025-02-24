@@ -1,5 +1,6 @@
 - type: PlayAudioFile
   file_path: ../../configs/audios/short_training/instruction_3.wav
+  volume_increase: 20
 - type: Pause
   duration: 60
 - type: LightCue
