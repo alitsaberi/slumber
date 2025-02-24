@@ -81,7 +81,7 @@ class Master(ez.Unit):
         self.STATE.eye_signaling = False
         self.STATE.rem_cueing = self.SETTINGS.cueing_enabled
         self.STATE.gui_connection = self.SETTINGS.gui_connection
-        
+
     @property
     def elapsed_time(self) -> float:
         return time.time() - self.STATE.start_time
@@ -125,7 +125,7 @@ class Master(ez.Unit):
                 experiment_state=self.STATE.experiment_state,
             )
             return
-        
+
         if self.elapsed_time < self.SETTINGS.minimum_elapsed_time:
             logger.debug(
                 "Minimum elapsed time not reached. Ignoring sleep scores.",
@@ -165,7 +165,7 @@ class Master(ez.Unit):
                 experiment_state=self.STATE.experiment_state,
             )
             return
-        
+
         if self.elapsed_time < self.SETTINGS.minimum_elapsed_time:
             logger.debug(
                 "Minimum elapsed time not reached. Ignoring eye movement events.",
@@ -207,7 +207,7 @@ class Master(ez.Unit):
                 experiment_state=self.STATE.experiment_state,
             )
             return
-        
+
         if self.elapsed_time < self.SETTINGS.minimum_elapsed_time:
             logger.debug(
                 "Minimum elapsed time not reached. Ignoring arousal events.",
