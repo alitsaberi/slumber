@@ -5,6 +5,7 @@ from pathlib import Path
 
 import ezmsg.core as ez
 from loguru import logger
+from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QApplication
 
 from slumber import CONDITIONS_DIR
@@ -89,10 +90,10 @@ def main():
 
     app = QApplication()
     window = MainWindow(condition=condition, run_dag_function=run_dag_function)
-
-    window.showFullScreen()
-
+    
     open_quick_start()
+    window.setWindowFlag(Qt.WindowStaysOnTopHint)
+    window.showFullScreen()
 
     try:
         app.exec()

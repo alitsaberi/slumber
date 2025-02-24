@@ -10,7 +10,7 @@ zmax:
   retry_attempts: 3
   retry_delay: 5
   socket_timeout: 1
-  hypnodyne_suite_directory: "C:/Users/Mahdad/Desktop/ZMax"
+  hypnodyne_suite_directory: "C:/ZMax"
 
 sleep_scoring:
   labels:
