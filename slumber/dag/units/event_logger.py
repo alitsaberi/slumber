@@ -20,6 +20,7 @@ class Event(BaseModel):
 
 class Settings(PydanticSettings):
     output: Path | None = None
+    write_period: float = 0.0 # sec
 
 
 class EventLogger(MessageLogger):

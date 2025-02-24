@@ -45,6 +45,7 @@ class Settings(PydanticSettings):
         ExperimentState, BeforeValidator(create_enum_by_name_resolver(ExperimentState))
     ] = ExperimentState.AWAKE
     gui_connection: PipeConnection | None = None
+    minimum_elapsed_time: float = Field(0.0, ge=0.0)
 
 
 class State(ez.State):
@@ -80,6 +81,10 @@ class Master(ez.Unit):
         self.STATE.eye_signaling = False
         self.STATE.rem_cueing = self.SETTINGS.cueing_enabled
         self.STATE.gui_connection = self.SETTINGS.gui_connection
+        
+    @property
+    def elapsed_time(self) -> float:
+        return time.time() - self.STATE.start_time
 
     @ez.publisher(OUTPUT_LOG_EVENT)
     async def update_experiment_state(self) -> AsyncGenerator:
@@ -120,6 +125,13 @@ class Master(ez.Unit):
                 experiment_state=self.STATE.experiment_state,
             )
             return
+        
+        if self.elapsed_time < self.SETTINGS.minimum_elapsed_time:
+            logger.debug(
+                "Minimum elapsed time not reached. Ignoring sleep scores.",
+                elapsed_time=self.elapsed_time,
+            )
+            return
 
         rem_confidence = np.mean(
             scores[:, settings["sleep_scoring"]["labels"]["rem"]].array
@@ -151,6 +163,13 @@ class Master(ez.Unit):
             logger.debug(
                 "Experiment is not in sleep state. Ignoring eye movement events.",
                 experiment_state=self.STATE.experiment_state,
+            )
+            return
+        
+        if self.elapsed_time < self.SETTINGS.minimum_elapsed_time:
+            logger.debug(
+                "Minimum elapsed time not reached. Ignoring eye movement events.",
+                elapsed_time=self.elapsed_time,
             )
             return
 
@@ -186,6 +205,13 @@ class Master(ez.Unit):
             logger.debug(
                 "Experiment is not in sleep state. Ignoring arousal events.",
                 experiment_state=self.STATE.experiment_state,
+            )
+            return
+        
+        if self.elapsed_time < self.SETTINGS.minimum_elapsed_time:
+            logger.debug(
+                "Minimum elapsed time not reached. Ignoring arousal events.",
+                elapsed_time=self.elapsed_time,
             )
             return
 
