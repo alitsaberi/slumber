@@ -6,4 +6,4 @@ If this happens:
 
 - Trim **UP TO 30%** of the middle gels. 
 
-- If the issue persists, refer to the help menu to contact us for further assistance.
+- If the issue persists, contact us for further assistance.

@@ -10,22 +10,22 @@ Once you attempt to connect, there are **three possible outcomes**:
 
 1. Successfully connected and the battery is sufficient.
 
-   - When the EEG headband is successfully connected, you will see:  
+    - When the EEG headband is successfully connected, you will see:  
 
-     - A **connection confirmation message**.
+        - A **connection confirmation message**.
 
-     - The **current battery level** displayed on the screen.
+        - The **current battery level** displayed on the screen.
 
-   - If the **battery level is above 90%**, you can proceed to the next task.
+    - If the **battery level is above 90%**, you can proceed to the next task.
 
 2. Successfully connected but the battery is **not sufficient**.
 
-   - If the **battery level falls below 90%**, you will need to **charge the headband** with the charger we provided before trying again. 
+    - If the **battery level falls below 90%**, you will need to **charge the headband** with the charger we provided before trying again. 
 
-   - When the EEG headband is charging, the little LED light indicator will turn white. 
+    - When the EEG headband is charging, the little LED light indicator will turn white. 
 
-   - Consult the **help menu** for more information about the LED light indicator and charging.
+    - Consult the **help menu** for more information about the LED light indicator and charging.
 
 3. Failed to Connect.
 
-- If the connection **fails**, refer to the **Help menu** for troubleshooting.
+    - If the connection **fails**, refer to the **Help menu** for troubleshooting.

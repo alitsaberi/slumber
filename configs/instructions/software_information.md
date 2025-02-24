@@ -30,7 +30,10 @@ Below this column, there are buttons to navigate between tasks:
 
 - **Done**: This button is enabled only when all tasks in the procedure are completed. Once you click it, you will no longer be able to return to previous tasks, and you will proceed to the next step.
 
-- **Help**: Click this button on the upper right corner when: 
+On the upper right corner, you will see a **"? Help"** button.
 
-  - You are referred to in the instructions (check the **“? Help”** button for more information).
-  - You have questions about the instructions or encounter issues during the session.
+- Click this button when: 
+
+    - You are referred to the **help menu** in the instructions.
+
+    - You have questions about the instructions or encounter issues during the session.

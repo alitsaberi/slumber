@@ -1,4 +1,4 @@
-Each patch is designed for **5 to 6 uses**, but if you notice the gels losing their stickiness, it's best to **replace the patch** to maintain accurate data collection.  
+Each patch is designed for **3 uses**, but if you notice the gels losing their stickiness, it's best to **replace the patch** to maintain accurate data collection.  
 
 Steps to change the patch:
 

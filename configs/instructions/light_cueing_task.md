@@ -14,7 +14,7 @@ For the next step, first, you will see a **"Present Cue"** button on the screen.
 
 3. Close your eyes before the countdown ends and wait for 5 seconds.
 
-   - After the countdown, a light cue will be delivered. Keep your eyes closed during this process.
+    - After the countdown, a light cue will be delivered. Keep your eyes closed during this process.
 
 4. Open your eyes and respond to the question that appears on the screen.
 
@@ -24,8 +24,8 @@ For the next step, first, you will see a **"Present Cue"** button on the screen.
 
 1. **Failed to deliver** the light cue.
 
-- There might be an issue connecting to the headband. Consult the **help menu** to reconnect and reset the EEG headband.
+    - There might be an issue connecting to the headband. Consult the **help menu** to reconnect and reset the EEG headband.
 
 2. The **confirmation message does not appear**.
 
-- If you have repeated the tasks for >20 times and a confirmation message still does not appear, end the current experimental session and contact us to report this issue in the morning.
+    - If you have repeated the tasks for >20 times and a confirmation message still does not appear, end the current experimental session and contact us to report this issue in the morning.

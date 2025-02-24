@@ -6,10 +6,10 @@ If you have more scheduled sessions left, please:
 
 - Review the checklist below for your daily routine:
 
-   - Charge the EEG headband.
+    - Charge the EEG headband.
 
-   - Avoid consuming alcoholic beverages.
+    - Avoid consuming alcoholic beverages.
 
-   - Avoid consuming caffeine after 15:00.
+    - Avoid consuming caffeine after 15:00.
 
 If this was your final session, consult the **help menu** for instructions on returning the equipment.

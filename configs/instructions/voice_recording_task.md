@@ -16,6 +16,6 @@ Follow the steps below to record your voice and test whether it is captured corr
 
 5. If the issue continues, here are some options to move forward:
 
-   - Continue without voice recording and simply type your answers for open-ended questions.
+    - Continue without voice recording and simply type your answers for open-ended questions.
 
-   - End the current experimental session and contact us to report this issue in the morning.
+    - End the current experimental session and contact us to report this issue in the morning.

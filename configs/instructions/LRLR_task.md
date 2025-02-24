@@ -14,26 +14,26 @@ Once you clicked the **"End"** button, there are **three possible outcomes**:
 
 1. **LRLR eye movement** successfully recorded.
 
-   - You will see a **connection confirmation message**. 
+    - You will see a **connection confirmation message**. 
    
-   - You can proceed to the next task.  
+    - You can proceed to the next task.  
 
 2. **Failed to detect** eye movements.
 
-   - You might have performed the eye movement in a wrong way. Try repeating the task.
+    - You might have performed the eye movement in a wrong way. Try repeating the task.
 
-   - Here are some advice for performing the eye movement:
+    - Here are some advice for performing the eye movement:
 
-      - Keep your eyes relaxed and follow the LRLR movement pattern clearly.
+        - Keep your eyes relaxed and follow the LRLR movement pattern clearly.
 
-      - Perform the movement deliberately but without strain to ensure accurate detection.
+        - Perform the movement deliberately but without strain to ensure accurate detection.
 
-      - If you’re having trouble staying steady while sitting, try lying down instead.
+        - If you are having trouble staying steady while sitting, try lying down instead.
 
-   - If the issue persists after three attempts: 
+    - If the issue persists after three attempts: 
    
-      - **Check your EEG headband placement** – It may not be worn correctly. Refer to the **help menu** for proper fitting instructions.  
+        - **Check your EEG headband placement** – It may not be worn correctly. Refer to the **help menu** for proper fitting instructions. (data quality: wear headband & patch)
 
 4. **Failed to collect** data.
 
-   - **Verify the headband connection** – There may be a connectivity issue. Check the **help menu** for steps to reconnect and reset the EEG headband. 
+    - **Verify the headband connection** – There may be a connectivity issue. Check the **help menu** for steps to reconnect and reset the EEG headband. 

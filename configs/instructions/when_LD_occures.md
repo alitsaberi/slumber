@@ -12,13 +12,13 @@ In addition, during sleep, whenever you are uncertain whether you are awake or d
 
 - You can try one of these reality checks:
    
-   - **Pinch your nose and try to breathe** – If you can still breathe, you’re dreaming.
+    - **Pinch your nose and try to breathe** – If you can still breathe, you’re dreaming.
 
-   - **Breathe underwater** – If you can, you’re in a dream.
+    - **Breathe underwater** – If you can, you’re in a dream.
 
-   - **Poke a finger of one hand through the palm of the other hand** – In a dream, your finger may pass through.  
+    - **Poke a finger of one hand through the palm of the other hand** – In a dream, your finger may pass through.  
 
-   - **Check a clock** – If the time appears blurry or changes randomly, you’re in a dream.  
+    - **Check a clock** – If the time appears blurry or changes randomly, you’re in a dream.  
 
-   - **Read text** – If words on a book, magazine, or phone screen keep changing unpredictably, you’re dreaming.
+    - **Read text** – If words on a book, magazine, or phone screen keep changing unpredictably, you’re dreaming.
 
