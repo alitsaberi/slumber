@@ -100,7 +100,5 @@
   on_duration: 2
   off_duration: 5
   repetitions: 1
-- type: PlayAudioFile
-  file_path: ../../configs/audios/main_training/prompt_6.wav
 - type: Pause
   duration: 5
