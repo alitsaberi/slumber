@@ -114,7 +114,7 @@ class CollectionConfig(BaseModel):
         self, stream: str, stream_type: type[ez.InputStream] | type[ez.OutputStream]
     ) -> None:
         try:
-            component_name, stream_name = stream.split(".")
+            component_name, stream_name = stream.split("/")
         except ValueError as e:
             raise ValueError(
                 f"Invalid stream name: {stream}."
