@@ -102,6 +102,10 @@ gui:
         widget: instruction
         kwargs:
           instruction_path: ../../configs/instructions/sleep_page.md
+      - title: About Cognitive Training
+        widget: instruction
+        kwargs:
+          instruction_path: ../../configs/instructions/cognitive_training.md
       - title: Cognitive Training
         widget: cognitive_training
         kwargs:
