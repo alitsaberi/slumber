@@ -1,12 +1,9 @@
-The next step is a task assessing whether you can perceive **light cues** while keeping your eyes closed in a resting wakefulness state.
 
 **Light cues** are red lights coming from the large LED lights of the EEG headband.
 
 During the session, you may receive **light cues** while sleeping or while performing cognitive training.
 
-- If you do, respond by repeating the **LRLR eye movement**.
-
-For the next step, first, you will see a **"Present Cue"** button on the screen. Follow the steps below to complete the connection process.
+The next step is a task assessing whether you can perceive **light cues** while keeping your eyes closed in a resting wakefulness state. You will see a **"Present Cue"** button on the screen. Follow the steps below:
 
 1. Ensure that the lighting conditions in your sleep environment match those present when you are asleep.
 
@@ -24,7 +21,7 @@ For the next step, first, you will see a **"Present Cue"** button on the screen.
 
 1. **Failed to deliver** the light cue.
 
-    - There might be an issue connecting to the headband. Consult the **help menu** to reconnect and reset the EEG headband.
+    - There might be an issue connecting to the headband. Consult the help menu for more information.
 
 2. The **confirmation message does not appear**.
 

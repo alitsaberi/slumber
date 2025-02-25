@@ -1,35 +1,33 @@
-Please complete the following preparations before starting the session:
+### 1. Clean Your Forehead
 
-1. Prepare your sleep environment.
-   
-    - Make sure your sleep environment stays consistent with what you're used to - it helps your body relax and settle in.
-   
-    - Consult the **help menu** for some tips for a good sleep setup.
+- Gently wash your forehead and temples with mild soap and water to remove dirt and dead skin.
 
-2. Clean your forehead.
+- Pat dry with a soft cloth or tissue to ensure your skin is completely dry.
 
-    - Gently wash your forehead and temples with mild soap and water to clear away any dirt and dead skin.
+- **Avoid using alcohol-based cleaners** – they can be too harsh on your skin.
 
-    - Pat dry with a soft cloth or tissue to make sure your skin is completely dry.
+### 2. Clean the EEG Patch (if previously used)
 
-    - **Avoid using alcohol** - it can be too harsh on your skin.
+- Before putting on the EEG headband, clean the patch to maintain gel stickiness.
 
-3. Clean the EEG headband if you have used it before.
+- Temporarily remove the plastic film and set it aside – at the end of each experimental session, place it back onto the gels to preserve their stickiness.
 
-    - Before putting on the EEG headband, you will need to clean the patch to make sure the gels stay sticky.
-   
-    - Temporarily remove the plastic film and set it aside - at the end of each experimental session, you will need to place it back onto the gels to help maintain their stickiness.
+- Gently wipe the gels with the provided **alcohol pads** and let them dry.
 
-    - Gently Wipe the gels with the provided **alcohol pads** and let them dry.
+- **Do not use dry tissues or cloths** – they can leave lint or residue, reducing gel adhesion.
 
-    - **Avoid using dry tissues or cloths** - they can leave behind lint or residue, making the gels less sticky.
+- Each patch can be used **up to three times**. If the gels lose their stickiness sooner, replace the patch with a new one to ensure optimal data quality.
 
-    - Each patch typically lasts for about 5 to 6 uses. However, if you notice any of the gels losing their stickiness, we kindly ask you replace the patch with a new one to ensure optimal data quality.
+- Refer to the **help menu** for instructions on changing the patch.
 
-    - Consult the **help menu** for how to change the patch.
+### 3. Prepare the Laptop
 
-4. Laptop placement
+- Place the laptop on a flat, stable surface (such as a nightstand or bedside table) **within arm’s reach** for easy access.
 
-    - Keep your laptop nearby.
-   
-    - Place it on a flat, stable surface (like a nightstand or bedside table) **within arm’s reach** for easy access.
+- Ensure the laptop is plugged in.
+
+### 4. Prepare Your Sleep Environment
+
+- Keep your sleep environment consistent with your usual setup – this helps your body relax and settle in.
+
+- Refer to the **help menu** for tips on creating an optimal sleep environment.

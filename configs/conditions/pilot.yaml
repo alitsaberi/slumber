@@ -132,7 +132,7 @@ gui:
         kwargs:
           survey_config_path: ../../configs/surveys/sleep_and_mood_questionnaire.json
           output_directory: ./data/survey_responses
-      - title: Daily Routine
+      - title: Session End
         widget: instruction
         kwargs:
           instruction_path: ../../configs/instructions/post_sleep.md

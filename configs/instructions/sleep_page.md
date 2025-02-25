@@ -16,12 +16,13 @@ In the page contents, you will see:
 
     - When changing your state, you will be asked to confirm your selection.  
 
-    - If switching to **Awake**, you may need to complete certain tasks. If you accidentally changed your state and are not ready for the upcoming tasks, check the **help menu** for guidance.
+    - If switching to **Awake**, you may need to complete certain tasks.
 
 3. End Session Button  
 
-    - **"End:"** Use this when you wake up in the morning or if you decide to stop the session for any reason. 
+    - **"End Session:"** Use this when you wake up in the morning or if you decide to stop the session for any reason. 
    
     - If you end the session early, be sure to report it in the morning.  
 
     - After ending the session, you will be assigned some final tasks — please ensure that you complete them.
+    

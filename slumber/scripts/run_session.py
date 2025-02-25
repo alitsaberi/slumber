@@ -93,7 +93,7 @@ def main():
 
     open_quick_start()
     window.setWindowFlag(Qt.WindowStaysOnTopHint)
-    window.showFullScreen()
+    window.show()
 
     try:
         app.exec()

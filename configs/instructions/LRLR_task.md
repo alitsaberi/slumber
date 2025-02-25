@@ -32,8 +32,9 @@ Once you clicked the **"End"** button, there are **three possible outcomes**:
 
     - If the issue persists after three attempts: 
    
-        - **Check your EEG headband placement** – It may not be worn correctly. Refer to the **help menu** for proper fitting instructions. (data quality: wear headband & patch)
+        - **Check your EEG headband placement** – It may not be worn correctly.
+        - **Check the patch is properly attached** – It may not be attached correctly.
 
 4. **Failed to collect** data.
 
-    - **Verify the headband connection** – There may be a connectivity issue. Check the **help menu** for steps to reconnect and reset the EEG headband. 
+    - **Verify the headband connection** – There may be a connectivity issue. Consult the help menu for more information.
