@@ -1,0 +1,343 @@
+name: pilot
+
+gui:
+  help: ../../configs/help.yaml
+  pre_sleep:
+    tasks:
+      - title: Study Information And Software Introduction
+        widget: instruction
+        kwargs:
+          instruction_path: ../../configs/instructions/software_information.md
+      - title: Session Preparation
+        widget: instruction
+        kwargs:
+          instruction_path: ../../configs/instructions/session_preparation.md
+      - title: EEG Headband Setup 
+        widget: instruction
+        kwargs:
+          instruction_path: ../../configs/instructions/headband_setup.md
+      - title: EEG Headband Connection Task Introduction
+        widget: instruction
+        kwargs:
+          instruction_path: ../../configs/instructions/headband_connection.md
+      - title: EEG Headband Connection Task
+        widget: zmax_connection
+        kwargs:
+          battery_level_threshold: 10
+      - title: Put On The EEG Headband
+        widget: instruction
+        kwargs:
+          instruction_path: ../../configs/instructions/wear_headband.md
+      - title: LRLR Eye Movements
+        widget: instruction
+        kwargs:
+          instruction_path: ../../configs/instructions/eye_movement.md
+      - title: When Lucidity Occurs In Dreams
+        widget: instruction
+        kwargs:
+          instruction_path: ../../configs/instructions/when_LD_occures.md
+      - title: LRLR Eye Movements Test Introduction
+        widget: instruction
+        kwargs:
+          instruction_path: ../../configs/instructions/LRLR_task.md
+      - title: Eye Movement Detection Test
+        widget: eye_test
+        kwargs:
+          accepted_eye_signals: [LRL, RLR]
+          difference_threshold: 280
+          max_test_duration: 30
+      - title: Light Cueing Calibration Introduction
+        widget: instruction
+        kwargs:
+          instruction_path: ../../configs/instructions/light_cueing_task.md
+      - title: Light Cue Calibration
+        widget: light_cue_calibration
+        kwargs:
+          min: 5
+          max: 100
+          increment: 5
+          decrement: 2
+          led_color: RED
+          repetitions: 3
+          on_duration: 5
+          off_duration: 5
+          alternate_eyes: false
+          countdown_seconds: 5
+      - title: Audio Cueing Calibration Introduction
+        widget: instruction
+        kwargs:
+          instruction_path: ../../configs/instructions/audio_cueing_task.md
+      - title: Audio Cue Calibration
+        widget: audio_cue_calibration
+        kwargs:
+          min: 5
+          max: 100
+          increment: 5
+          decrement: 2
+          countdown_seconds: 10
+          rate: 200
+          text: You are dreaming
+          voice: HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Speech\Voices\Tokens\TTS_MS_EN-GB_HAZEL_11.0
+      - title: Tactile Cue Calibration Introduction
+        widget: instruction
+        kwargs:
+          instruction_path: ../../configs/instructions/tactile_cueing.md
+      - title: Tactile Cue Calibration
+        widget: vibration_cue_calibration
+        kwargs:
+          on_duration: 2
+          off_duration: 5
+          repetitions: 2
+          countdown_seconds: 5
+      - title: Voice Recording Assessment Introduction
+        widget: instruction
+        kwargs:
+          instruction_path: ../../configs/instructions/voice_recording_task.md
+      - title: Voice Recording Assessment
+        widget: survey
+        kwargs:
+          survey_config_path: ../../configs/surveys/voice_recording_test.json
+          output_directory: ./data/survey_responses
+      - title: Sleep Page
+        widget: instruction
+        kwargs:
+          instruction_path: ../../configs/instructions/sleep_page.md
+      - title: About Cognitive Training
+        widget: instruction
+        kwargs:
+          instruction_path: ../../configs/instructions/cognitive_training.md
+      - title: Cognitive Training
+        widget: cognitive_training
+        kwargs:
+          protocol_path: ../../configs/test_cognitive_training.yaml
+          rate: 175
+          voice: HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Speech\Voices\Tokens\TTS_MS_EN-GB_HAZEL_11.0
+          countdown_seconds: 10
+  awakening:
+    tasks:
+      - title: Before Awakening Experience
+        widget: survey
+        kwargs:
+          survey_config_path: ../../configs/surveys/awakening_questionnaire.json
+          output_directory: ./data/survey_responses
+  post_sleep:
+    tasks:
+      - title: Session End
+        widget: instruction
+        kwargs:
+          instruction_path: ../../configs/instructions/post_sleep.md
+
+dag:
+  components:
+    - name: ZMAX
+      unit: ZMaxDataReceiver
+      settings:
+        zmax:
+          socket_timeout: 1
+        data_collection_enabled: true
+        data_collection_enabled_check_interval: 5.0
+
+    - name: ZMAX_STORAGE_QUEUE
+      unit: CountQueue
+      settings:
+        max_size: 5120
+        leaky: False
+        log_queue_size_interval: 5
+        publish_count: 2560
+
+    - name: ZMAX_SAMPLE_RATE_REGULATOR
+      unit: TimeQueue
+      settings:
+        max_size: 5120
+        leaky: True
+        log_queue_size_interval: 5
+        publish_interval: 10
+        publish_enabled: true
+        publish_enabled_check_interval: 5.0
+        sample_rate: 256
+        gap_threshold: 1.0
+        timestamp_margin: 1.0
+
+    - name: ZMAX_STORAGE
+      unit: HDF5Storage
+      settings:
+        file_path: ./data/storage.h5
+        group_name: "zmax_raw"
+        flush_after: 6
+
+    - name: PREPROCESS
+      unit: Transform
+      settings:
+        transforms:
+          - class_name: ArraySelector
+            kwargs:
+              channels: [EEG_LEFT, EEG_RIGHT]
+          - class_name: Resample
+            kwargs:
+              new_sample_rate: 128
+
+    - name: ZMAX_PREPROCESSED_STORAGE
+      unit: HDF5Storage
+      settings:
+        file_path: ./data/storage.h5
+        group_name: "zmax_preprocessed"
+        flush_after: 6
+
+    - name: SLEEP_SCORING_ROLLING_BUFFER
+      unit: RollingBuffer
+      settings:
+        size: 105
+
+    - name: SLEEP_SCORING_PREPROCESS
+      unit: Transform
+      settings:
+        transforms:
+          - class_name: FIRFilter
+            kwargs:
+              low_cutoff: 0.3
+              high_cutoff: 30.0
+
+    - name: SLEEP_SCORING
+      unit: SleepScoring
+      settings:
+        model:
+          model_dir: ../../configs/models/utime_EEG_10
+          n_periods: 105
+          n_samples_per_prediction: 128
+        channel_groups: [[EEG_LEFT], [EEG_RIGHT]]
+        arg_max: false
+
+    - name: AROUSAL_DETECTION_SCORES_SELECTOR
+      unit: Transform
+      settings:
+        transforms:
+          - class_name: ArraySelector
+            kwargs:
+              start_index: -30 # 30 seconds
+
+    - name: MASTER_SCORES_SELECTOR
+      unit: Transform
+      settings:
+        transforms:
+          - class_name: ArraySelector
+            kwargs:
+              start_index: -60 # 60 seconds
+
+    - name: EYE_MOVEMENT_DETECTION_ROLLING_BUFFER
+      unit: RollingBuffer
+      settings:
+        size: 3
+
+    - name: EYE_MOVEMENT_DETECTION
+      unit: EyeMovementDetection
+      settings:
+        left_eeg_label: EEG_LEFT
+        right_eeg_label: EEG_RIGHT
+        difference_threshold: 280
+
+    - name: AROUSAL_DETECTION
+      unit: ArousalDetection
+      settings:
+        wake_n1_threshold: 0.4
+
+    - name: MASTER
+      unit: Master
+      settings:
+        wake_up_signal:
+          vibration: true
+          led_color: "OFF"
+          on_duration: 5
+          off_duration: 5
+          repetitions: 3
+        cueing_enabled: true
+        rem_confidence_threshold: 0.8
+        accepted_eye_signals: [LRL, RLR]
+        wake_up_signal_interval: 4
+        experiment_state: AWAKE
+        minimum_elapsed_time: 14400 # 4 hours
+
+    - name: REM_CUEING
+      unit: Cueing
+      settings:
+        visual_cueing:
+          led_color: RED
+          repetitions: 3
+          on_duration: 5
+          off_duration: 5
+          intensity:
+            value: 5 # will be replaced by the code after calibration
+            min: 1
+            max: 100
+            increment: 5
+            decrement: 5
+        tactile_cueing:
+          on_duration: 2
+          off_duration: 5
+          intensity:
+            value: 1
+            min: 1
+            max: 3
+            increment: 1
+            decrement: 1
+        auditory_cueing:
+          text: You are dreaming
+          rate: 175
+          voice: HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Speech\Voices\Tokens\TTS_MS_EN-GB_HAZEL_11.0
+          intensity:
+            value: 5
+            min: 0
+            max: 100
+            increment: 5
+            decrement: 5
+        enabled: false
+        increase_intensity: false
+        enabled_check_interval: 5.0
+        cueing_interval: 20
+
+    - name: SLEEP_SCORING_STORAGE
+      unit: HDF5Storage
+      settings:
+        file_path: ./data/storage.h5
+        group_name: "sleep_scoring"
+        flush_after: 6
+
+    - name: EVENT_LOGGER
+      unit: EventLogger
+      settings:
+        output: ./data/events.jsonl
+
+  connections:
+    - [ZMAX/OUTPUT_SAMPLE, ZMAX_STORAGE_QUEUE/INPUT]
+    - [ZMAX/OUTPUT_SAMPLE, ZMAX_SAMPLE_RATE_REGULATOR/INPUT]
+    - [ZMAX_STORAGE_QUEUE/OUTPUT, ZMAX_STORAGE/INPUT]
+    - [ZMAX_SAMPLE_RATE_REGULATOR/OUTPUT, PREPROCESS/INPUT]
+    - [PREPROCESS/OUTPUT, ZMAX_PREPROCESSED_STORAGE/INPUT]
+    - [PREPROCESS/OUTPUT, SLEEP_SCORING_ROLLING_BUFFER/INPUT]
+    - [SLEEP_SCORING_ROLLING_BUFFER/OUTPUT, SLEEP_SCORING_PREPROCESS/INPUT]
+    - [SLEEP_SCORING_PREPROCESS/OUTPUT, SLEEP_SCORING/INPUT]
+    - [PREPROCESS/OUTPUT, EYE_MOVEMENT_DETECTION_ROLLING_BUFFER/INPUT]
+    - [
+        EYE_MOVEMENT_DETECTION_ROLLING_BUFFER/OUTPUT,
+        EYE_MOVEMENT_DETECTION/INPUT,
+      ]
+    - [SLEEP_SCORING/OUTPUT, AROUSAL_DETECTION_SCORES_SELECTOR/INPUT]
+    - [AROUSAL_DETECTION_SCORES_SELECTOR/OUTPUT, AROUSAL_DETECTION/INPUT]
+    - [SLEEP_SCORING/OUTPUT, MASTER_SCORES_SELECTOR/INPUT]
+    - [MASTER_SCORES_SELECTOR/OUTPUT, MASTER/INPUT_SLEEP_SCORES]
+    - [EYE_MOVEMENT_DETECTION/OUTPUT, MASTER/INPUT_EYE_MOVEMENT_EVENTS]
+    - [AROUSAL_DETECTION/OUTPUT, MASTER/INPUT_AROUSAL_EVENTS]
+    - [MASTER/OUTPUT_CUEING_ENABLE_SIGNAL, REM_CUEING/INPUT_ENABLE_SIGNAL]
+    - [
+        MASTER/OUTPUT_CUEING_ENABLE_INCREASE_INTENSITY_SIGNAL,
+        REM_CUEING/INPUT_ENABLE_INCREASE_INTENSITY_SIGNAL,
+      ]
+    - [
+        MASTER/OUTPUT_CUEING_DECREASE_INTENSITY_SIGNAL,
+        REM_CUEING/INPUT_ADJUST_INTENSITY_SIGNAL,
+      ]
+    - [REM_CUEING/OUTPUT_ZMAX_STIMULATION_SIGNAL, ZMAX/INPUT_STIMULATION_SIGNAL]
+    - [MASTER_SCORES_SELECTOR/OUTPUT, SLEEP_SCORING_STORAGE/INPUT]
+    - [MASTER/OUTPUT_WAKE_UP_SIGNAL, ZMAX/INPUT_STIMULATION_SIGNAL]
+    - [MASTER/OUTPUT_LOG_EVENT, EVENT_LOGGER/INPUT_MESSAGE]
+    - [REM_CUEING/OUTPUT_LOG_EVENT, EVENT_LOGGER/INPUT_MESSAGE]
+    
