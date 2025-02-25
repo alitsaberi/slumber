@@ -12,12 +12,6 @@ Describe what it does, the problem it solves, and why it’s useful.
 - [Prerequisites](#prerequisites)
 - [Installation](#installation)
 - [Usage](#usage)
-- [Add a Procedure Task](#add-a-procedure-task)
-   - [Running the Script](#running-the-script)
-   - [Files Created](#files-created)
-   - [YAML Configuration Update](#yaml-configuration-update)
-   - [How is the added task work?](#how-is-the-added-task-work)
-   - [How to adjust the UI](#how-to-adjust-the-ui)
 - [Configuration](#configuration)
 - [Testing](#testing)
 - [Deployment](#deployment)
@@ -28,28 +22,12 @@ Describe what it does, the problem it solves, and why it’s useful.
 ## Prerequisites
 
 - Python 3.10
+- Windows operating system
 
 ## Installation
 
-1. Clone the repository
-   ```bash
-   git clone https://gitlab-sim.informatik.uni-stuttgart.de/morgansl/slumber.git
-   ```
+1. Create a virtual environment and activate it
 
-2. Navigate to the project directory
-   ```bash
-   cd slumber
-   ```
-
-3. Create a virtual environment and activate it
-
-   **macOS & Linux**
-   ```
-   python -m venv $VENV_PATH
-   source $VENV_PATH/bin/activate 
-   ```
-
-   **Windows (Command Prompt)**
    ```
    python -m venv %VENV_PATH%
    %VENV_PATH%\Scripts\activate
@@ -75,7 +53,7 @@ Explain how to run or use your application. Provide examples and common use case
 After installing dependencies, you can start the application with:
 
 ```bash
-poetry run slumber
+poetry run slumber <condition-name>
 ```
 
 ## Add a Procedure Task
