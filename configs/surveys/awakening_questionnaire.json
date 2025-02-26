@@ -33,19 +33,19 @@
           "title": "Please describe your experience in as much detail as possible:",
           "elements": [
             {
-              "type": "comment",
+              "type": "voicetext",
               "name": "question2",
               "title": "What did you experience? What were your feelings, sensations, or thoughts during the experience? Mention any sensory experiences you had (light, colors, sounds, tactile). If present, describe locations, objects, colors or characters.",
               "isRequired": true
             },
             {
-              "type": "comment",
+              "type": "voicetext",
               "name": "question3",
               "title": "Reflect on whether you were aware that you were dreaming (lucid), and if so, describe how and when this awareness began and ended, and the process of realization.",
               "isRequired": true
             },
             {
-              "type": "comment",
+              "type": "voicetext",
               "name": "question4",
               "title": "How long did this experience seem to last (e.g., seconds, minutes)? Please clarify the timing of different events or phases within this experience.",
               "isRequired": true
@@ -74,7 +74,7 @@
           ]
         },
         {
-          "type": "comment",
+          "type": "voicetext",
           "name": "question6",
           "visibleIf": "{question5} = 'Item 1' and {question1} <> 'Item 3'",
           "title": "Please describe how (e.g., complete or not) and at what specific moment you signaled with your eyes.",
@@ -210,14 +210,14 @@
           ]
         },
         {
-          "type": "comment",
+          "type": "voicetext",
           "name": "question13",
           "visibleIf": "{question11} = 'Item 1' and {question1} <> 'Item 3'",
           "title": "Describe the cues, how many times you noticed them, and how you experienced them.",
           "isRequired": true
         },
         {
-          "type": "comment",
+          "type": "voicetext",
           "name": "question14",
           "visibleIf": "{question11} = 'Item 1' and {question1} <> 'Item 3'",
           "title": "Is there anything else you'd like to add about this experience? Is there anything else you'd like to say?"
