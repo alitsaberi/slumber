@@ -1,5 +1,5 @@
 - type: PlayAudioFile
-  file_path: ../../configs/audios/main_training/instruction_1.wav
+  file_path: ../../configs/audios/short_training/instruction_3.wav
   volume_increase: 20
 - type: Pause
   duration: 5
