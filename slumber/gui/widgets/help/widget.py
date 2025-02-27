@@ -33,7 +33,11 @@ class Item(BaseModel):
     @computed_field
     @property
     def html_content(self) -> str:
-        return markdown.markdown(self.markdown_content)
+        return markdown.markdown(
+            self.markdown_content,
+            extensions=["extra", "nl2br", "sane_lists"],
+            output_format="html5",
+        )
 
 
 class HelpPage(QWidget, Ui_HelpPage):
@@ -58,7 +62,6 @@ class HelpPage(QWidget, Ui_HelpPage):
     def _generate_html(self) -> None:
         env = Environment(loader=FileSystemLoader(ASSETS_DIR))
         template = env.get_template(HTML_FILE_NAME)
-        rendered_html = template.render(faq_items=self.config)
         css_content = CSS_FILE_PATH.read_text(encoding="utf-8")
         rendered_html = template.render(faq_items=self.config, css=css_content)
         logger.debug(f"Rendered HTML: {rendered_html}")
