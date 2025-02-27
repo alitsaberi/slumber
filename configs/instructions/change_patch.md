@@ -9,13 +9,3 @@ Steps to change the patch:
 3. **Attach the patch** – Line up the snaps and press them together until you hear **4 distinct clicks**. No need to worry about the direction. 
 
 4. **Double-check the attachment** – Give the patch a **gentle tug** to ensure all four snaps are securely in place. If any snap is loose, reattach it before use.
-
-Watch the video below from **0:10 to 1:40** for a demonstration.
-
-<iframe width="560" height="315" 
-        src="https://www.youtube.com/embed/TRJcIeSam28?si=GqUzpNKyhvF2rIvF&rel=0" 
-        title="YouTube video player" 
-        frameborder="0" 
-        allow="accelerometer; encrypted-media; gyroscope;" 
-        referrerpolicy="strict-origin-when-cross-origin">
-</iframe>

@@ -35,7 +35,11 @@ class EmptyWebPage(TaskPage, Ui_EmptyWebPage):
 
     def _load_markdown_content(self) -> None:
         markdown_content = self.instruction_path.read_text(encoding="utf-8")
-        html_content = markdown.markdown(markdown_content)
+        html_content = markdown.markdown(
+            markdown_content,
+            extensions=["extra", "nl2br", "sane_lists"],
+            output_format="html5",
+        )
         logger.debug(f"Markdown content: {html_content}")
         css_content = CSS_FILE_PATH.read_text(encoding="utf-8")
         template = Template(HTML_FILE_PATH.read_text(encoding="utf-8"))
