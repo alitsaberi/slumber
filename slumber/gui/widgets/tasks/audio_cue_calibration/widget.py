@@ -1,7 +1,8 @@
 from enum import Enum, auto
 
+import pyttsx3
 from loguru import logger
-from PySide6.QtCore import QTimer
+from PySide6.QtCore import QThread, QTimer, Signal
 from PySide6.QtWidgets import QMessageBox, QPushButton, QWidget
 
 from slumber.dag.units.home_lucid_dreaming.cueing import (
@@ -72,6 +73,32 @@ def set_button_enabled(button: QPushButton, enabled: bool) -> None:
     button.setStyleSheet(style.value)
 
 
+class CueDeliveryThread(QThread):
+    cue_delivered = Signal(bool)
+
+    def __init__(
+        self,
+        cue_intensity_config: CueIntensityConfig,
+        text: str,
+        engine: pyttsx3.Engine,
+    ):
+        super().__init__()
+        self.cue_intensity_config = cue_intensity_config
+        self.text = text
+        self.engine = engine
+
+    def run(self) -> None:
+        logger.info(f"Delivering cue: {self.cue_intensity_config}")
+        try:
+            deliver_auditory_cue(
+                self.text, self.cue_intensity_config.value, self.engine
+            )
+            self.cue_delivered.emit(True)
+        except Exception as e:
+            logger.error(f"Error delivering audio cue: {e}")
+            self.cue_delivered.emit(False)
+
+
 class AudioCueCalibrationPage(TaskPage, Ui_AudioCueCalibrationPage):
     def __init__(
         self,
@@ -89,25 +116,26 @@ class AudioCueCalibrationPage(TaskPage, Ui_AudioCueCalibrationPage):
     ) -> None:
         super().__init__(index, title, parent=parent)
 
-        self.cue_intensity_config = CueIntensityConfig(
-            value=min,
-            min=min,
-            max=max,
-            increment=increment,
-            decrement=decrement,
+        self.cue_thread = CueDeliveryThread(
+            cue_intensity_config=CueIntensityConfig(
+                value=min,
+                min=min,
+                max=max,
+                increment=increment,
+                decrement=decrement,
+            ),
+            text=text,
+            engine=init_text2speech_engine(
+                rate=rate,
+                volume=MAX_VOLUME,
+                voice=voice,
+            ),
         )
 
-        self.engine = init_text2speech_engine(
-            rate=rate,
-            volume=MAX_VOLUME,
-            voice=voice,
-        )
-        self.text = text
         self.phase = Phase.INCREASING
         self.countdown_seconds = countdown_seconds
         self.timer = QTimer()
         self.timer.setInterval(1000)
-        self.timer.timeout.connect(self._update_countdown)
 
         self._init_status()
         self._connect_signals()
@@ -119,6 +147,8 @@ class AudioCueCalibrationPage(TaskPage, Ui_AudioCueCalibrationPage):
 
     def _connect_signals(self) -> None:
         self.cue_button.clicked.connect(self._on_cue_button_click)
+        self.timer.timeout.connect(self._update_countdown)
+        self.cue_thread.cue_delivered.connect(self._handle_cue_delivery)
 
     def _update_status(self, status: Enum) -> None:
         logger.info(f"Updating status to {status}")
@@ -142,16 +172,16 @@ class AudioCueCalibrationPage(TaskPage, Ui_AudioCueCalibrationPage):
             self._deliver_cue()
 
     def _deliver_cue(self) -> None:
-        logger.info(f"Delivering cue: {self.cue_intensity_config}")
-        try:
-            deliver_auditory_cue(
-                self.text, self.cue_intensity_config.value, self.engine
-            )
+        logger.info("Starting cue delivery thread")
+        self.cue_thread.start()
+
+    def _handle_cue_delivery(self, success: bool) -> None:
+        if success:
             self._update_status(Status.CUED)
             self._show_perception_question()
-        except Exception as e:
-            logger.error(f"Error delivering audio cue: {e}")
+        else:
             self._update_status(Status.FAILURE)
+            set_button_enabled(self.cue_button, True)
 
     def _show_perception_question(self):
         logger.info("Showing perception question")
@@ -168,14 +198,16 @@ class AudioCueCalibrationPage(TaskPage, Ui_AudioCueCalibrationPage):
 
         if self.phase == Phase.DECREASING and (
             reply == QMessageBox.No
-            or self.cue_intensity_config.value == self.cue_intensity_config.min
+            or self.cue_thread.cue_intensity_config.value
+            == self.cue_thread.cue_intensity_config.min
         ):
             self._finish_calibration()
             return
 
         if self.phase == Phase.INCREASING and (
             reply == QMessageBox.Yes
-            or self.cue_intensity_config.value == self.cue_intensity_config.max
+            or self.cue_thread.cue_intensity_config.value
+            == self.cue_thread.cue_intensity_config.max
         ):
             self.phase = Phase.DECREASING
 
@@ -184,11 +216,19 @@ class AudioCueCalibrationPage(TaskPage, Ui_AudioCueCalibrationPage):
 
     def _adjust_intensity(self, increase: bool) -> None:
         logger.info(f"Adjusting intensity: {increase}")
-        self.cue_intensity_config.adjust(increase)
+        self.cue_thread.cue_intensity_config.adjust(increase)
 
     def _finish_calibration(self) -> None:
         logger.info("Finishing calibration")
         self._update_status(Status.SUCCESS)
-        self.engine.stop()
-        self.window().audio_cue_calibrated.emit(self.cue_intensity_config.value)
+        self.window().audio_cue_calibrated.emit(
+            self.cue_thread.cue_intensity_config.value
+        )
         self.done()
+
+    def cleanup(self):
+        logger.info("Cleaning up...")
+        self.cue_thread.engine.stop()
+        if self.cue_thread.isRunning():
+            self.cue_thread.quit()
+            self.cue_thread.wait()

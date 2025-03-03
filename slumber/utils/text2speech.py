@@ -73,6 +73,7 @@ def text2speech(text: str, engine: pyttsx3.Engine | None = None) -> None:
         text2speech("Hello, this is a test message", engine=engine)
         ```
     """
+    logger.debug(f"Text to speech: {text}")
     engine = engine or init_text2speech_engine()
     engine.say(text)
     engine.runAndWait()

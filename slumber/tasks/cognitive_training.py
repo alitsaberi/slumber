@@ -6,7 +6,6 @@ from typing import Annotated, Literal
 from loguru import logger
 from playsound3 import playsound
 from pydantic import (
-    AfterValidator,
     BaseModel,
     BeforeValidator,
     ConfigDict,
@@ -23,7 +22,6 @@ from slumber.sources.zmax import (
     STIMULATION_MIN_DURATION,
     LEDColor,
     ZMax,
-    is_connected,
 )
 from slumber.utils.helpers import (
     MAX_VOLUME,
@@ -165,7 +163,7 @@ Protocol = list[
 
 
 class CognitiveTrainingConfig(BaseModel):
-    zmax: Annotated[ZMax, AfterValidator(is_connected)]
+    zmax: ZMax
     text2speech_engine: Engine
     min_subjective_light_intensity: int = Field(
         ge=LED_MIN_INTENSITY, le=LED_MAX_INTENSITY
