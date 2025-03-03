@@ -53,7 +53,7 @@ gui:
       - title: Light Cue Calibration
         widget: light_cue_calibration
         kwargs:
-          min: 5
+          min: 1
           max: 100
           increment: 5
           decrement: 2
@@ -70,7 +70,7 @@ gui:
       - title: Audio Cue Calibration
         widget: audio_cue_calibration
         kwargs:
-          min: 5
+          min: 1
           max: 100
           increment: 5
           decrement: 2
