@@ -170,13 +170,19 @@ class LightCueCalibrationPage(TaskPage, Ui_LightCueCalibrationPage):
             f"Perception question reply: {'yes' if reply == QMessageBox.Yes else 'no'}"
         )
 
-        if self.phase == Phase.DECREASING and reply == QMessageBox.No:
+        if self.phase == Phase.DECREASING and (
+            reply == QMessageBox.No
+            or self.cue_intensity_config.value == self.cue_intensity_config.min
+        ):
             self._finish_calibration()
             return
 
-        if self.phase == Phase.INCREASING and reply == QMessageBox.Yes:
+        if self.phase == Phase.INCREASING and (
+            reply == QMessageBox.Yes
+            or self.cue_intensity_config.value == self.cue_intensity_config.max
+        ):
             self.phase = Phase.DECREASING
-
+            
         self._adjust_intensity(increase=(self.phase == Phase.INCREASING))
         self._init_status()
 
