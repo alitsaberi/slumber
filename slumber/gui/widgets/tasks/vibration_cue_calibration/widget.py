@@ -1,7 +1,7 @@
 from enum import Enum
 
 from loguru import logger
-from PySide6.QtCore import QTimer
+from PySide6.QtCore import QThread, QTimer, Signal
 from PySide6.QtWidgets import QMessageBox, QPushButton, QWidget
 
 from slumber.dag.units.zmax import ZMaxStimulationSignal
@@ -64,6 +64,25 @@ def set_button_enabled(button: QPushButton, enabled: bool) -> None:
     button.setStyleSheet(style.value)
 
 
+class CueDeliveryThread(QThread):
+    cue_delivered = Signal(bool)
+
+    def __init__(self, stimulation_signal: ZMaxStimulationSignal):
+        super().__init__()
+        self.stimulation_signal = stimulation_signal
+        self.zmax = ZMax()
+
+    def run(self) -> None:
+        logger.info(f"Delivering cue: {self.stimulation_signal}")
+        try:
+            self.zmax.connect()
+            self.zmax.stimulate(**self.stimulation_signal.model_dump())
+            self.cue_delivered.emit(True)
+        except Exception as e:
+            logger.error(f"Error delivering light cue: {e}")
+            self.cue_delivered.emit(False)
+
+
 class VibrationCueCalibrationPage(TaskPage, Ui_VibrationCueCalibrationPage):
     def __init__(
         self,
@@ -77,19 +96,19 @@ class VibrationCueCalibrationPage(TaskPage, Ui_VibrationCueCalibrationPage):
     ) -> None:
         super().__init__(index, title, parent=parent)
 
-        self.stimulation_signal = ZMaxStimulationSignal(
-            vibration=True,
-            led_color=LEDColor.OFF,
-            repetitions=repetitions,
-            on_duration=on_duration,
-            off_duration=off_duration,
+        self.cue_thread = CueDeliveryThread(
+            ZMaxStimulationSignal(
+                vibration=True,
+                led_color=LEDColor.OFF,
+                repetitions=repetitions,
+                on_duration=on_duration,
+                off_duration=off_duration,
+            )
         )
 
         self.countdown_seconds = countdown_seconds
         self.timer = QTimer()
         self.timer.setInterval(1000)
-        self.timer.timeout.connect(self._update_countdown)
-        self.zmax = ZMax()
 
         self._init_status()
         self._connect_signals()
@@ -101,6 +120,8 @@ class VibrationCueCalibrationPage(TaskPage, Ui_VibrationCueCalibrationPage):
 
     def _connect_signals(self) -> None:
         self.cue_button.clicked.connect(self._on_cue_button_click)
+        self.timer.timeout.connect(self._update_countdown)
+        self.cue_thread.cue_delivered.connect(self._handle_cue_delivery)
 
     def _update_status(self, status: Enum) -> None:
         logger.info(f"Updating status to {status}")
@@ -124,16 +145,16 @@ class VibrationCueCalibrationPage(TaskPage, Ui_VibrationCueCalibrationPage):
             self._deliver_cue()
 
     def _deliver_cue(self) -> None:
-        logger.info(f"Delivering cue: {self.stimulation_signal}")
-        try:
-            self.zmax.connect()
-            self.zmax.stimulate(**self.stimulation_signal.model_dump())
-            logger.info("Cue delivered", stimulation_signal=self.stimulation_signal)
+        logger.info("Starting cue delivery thread")
+        self.cue_thread.start()
+
+    def _handle_cue_delivery(self, success: bool) -> None:
+        if success:
             self._update_status(Status.CUED)
             self._show_perception_question()
-        except Exception as e:
-            logger.error(f"Error delivering light cue: {e}")
+        else:
             self._update_status(Status.FAILURE)
+            set_button_enabled(self.cue_button, True)
 
     def _show_perception_question(self):
         logger.info("Showing perception question")
@@ -157,5 +178,11 @@ class VibrationCueCalibrationPage(TaskPage, Ui_VibrationCueCalibrationPage):
     def _finish_calibration(self) -> None:
         logger.info("Finishing calibration")
         self._update_status(Status.SUCCESS)
-        self.zmax.disconnect()
         self.done()
+
+    def cleanup(self):
+        logger.info("Cleaning up...")
+        self.cue_thread.zmax.disconnect()
+        if self.cue_thread.isRunning():
+            self.cue_thread.quit()
+            self.cue_thread.wait()
