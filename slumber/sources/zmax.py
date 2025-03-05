@@ -1,4 +1,5 @@
 import socket
+import time
 import types
 from collections.abc import Callable
 from dataclasses import dataclass
@@ -108,7 +109,50 @@ def _dec2hex(decimal: int, pad: int = 2) -> str:
     return format(decimal, f"0{pad}x").upper()
 
 
-def open_quick_start() -> Popen:
+def verify_hypnodyne_processes(timeout: int = 30) -> bool:
+    start_time = time.time()
+    while time.time() - start_time < timeout:
+        running_processes = {
+            proc.info["name"]
+            for proc in psutil.process_iter(["name"])
+            if proc.info["name"] in HYPNODYNE_PROCESSES
+        }
+
+        if running_processes == set(HYPNODYNE_PROCESSES):
+            logger.info("All Hypnodyne processes running")
+            return True
+
+        sleep(1)
+
+    missing = set(HYPNODYNE_PROCESSES) - running_processes
+    logger.error(f"Missing Hypnodyne processes: {missing}")
+    return False
+
+
+def close_all_hypnodyne_processes():
+    for process_name in HYPNODYNE_PROCESSES:
+        while True:
+            processes = [
+                proc
+                for proc in psutil.process_iter(["name"])
+                if proc.info["name"] == process_name
+            ]
+            if not processes:
+                break
+
+            for proc in processes:
+                try:
+                    proc.terminate()
+                    proc.wait(settings["process_termination_timeout"])
+                    logger.info(f"Terminated {process_name} with PID {proc.pid}")
+                except psutil.TimeoutExpired:
+                    proc.kill()
+                    logger.warning(f"Force killed {process_name} with PID {proc.pid}")
+                except psutil.NoSuchProcess:
+                    pass
+
+
+def open_quick_start(max_retries: int = 3, retry_delay: float = 2.0) -> Popen:
     hypnodyne_suite_directory = Path(DEFAULTS["hypnodyne_suite_directory"])
     quick_start_path = hypnodyne_suite_directory / QUICKSTART_APP_NAME
 
@@ -117,20 +161,31 @@ def open_quick_start() -> Popen:
             f"QuickStart executable not found at {quick_start_path}"
         )
 
-    close_all_hypnodyne_processes()
+    for attempt in range(max_retries):
+        try:
+            close_all_hypnodyne_processes()
 
-    try:
-        process = Popen(
-            [str(quick_start_path)],
-            cwd=hypnodyne_suite_directory,
-        )
-        logger.info("Hypnodyne QuickStart started", pid=process.pid)
-        return process
-    except Exception as e:
-        raise RuntimeError(f"Failed to start QuickStart: {e}") from e
+            process = Popen(
+                [str(quick_start_path)],
+                cwd=hypnodyne_suite_directory,
+            )
 
+            if verify_hypnodyne_processes():
+                logger.info(
+                    "Hypnodyne QuickStart started successfully", pid=process.pid
+                )
+                return process
 
-def close_all_hypnodyne_processes():
+            raise RuntimeError("Failed to start all required Hypnodyne processes")
+
+        except Exception as e:
+            logger.warning(f"Attempt {attempt + 1}/{max_retries} failed: {e}")
+            if attempt < max_retries - 1:
+                sleep(retry_delay)
+            else:
+                raise RuntimeError(
+                    f"Failed to start QuickStart after {max_retries} attempts: {e}"
+                ) from e
     for proc in psutil.process_iter(["name"]):
         if proc.info["name"] in HYPNODYNE_PROCESSES:
             proc.terminate()
