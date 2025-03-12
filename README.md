@@ -82,6 +82,11 @@ If you encounter any issues or bugs, please report them using the GitHub issue t
 
 ## License
 
+This project is licensed under a **Modified GPL-3.0 License (Non-Commercial)**.  
+You may use, modify, and distribute this software **for non-commercial purposes only**.  
+For commercial use, please contact the author for permission.  
+See the [LICENSE](./LICENSE) file for full details.
+
 ## Contact
 
 <!--
