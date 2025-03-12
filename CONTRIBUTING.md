@@ -1,45 +1,32 @@
 # Contributing to the Project
-This document outlines the process for contributing to the project, including our Git Flow and testing guidelines.
+This document outlines the process for contributing to the project, including our development and testing guidelines.
 
 ## Table of Contents
 
-1. [Setup](#setup) 
-2. [Git Flow](#git-flow)
+1. [Git flow](#git-flow)
+2. [Development](#development)
 3. [Testing](#testing)
 
-## Setup
-### Requirements
-- Python 3.10
-### Installation
-1. Create a virtual environment and activate it
-```
-python -m venv $VENV_PATH
-source $VENV_PATH/bin/activate
-```
-2. Install [Poetry](https://python-poetry.org/docs/#installing-manually)
-```
-pip install -U pip setuptools
-pip install poetry
-```
-3. Install dependencies
-```
-poetry install
-```
-4. Install pre-commit hooks
-```
-pre-commit install
-```
-
-## Git Flow
+## Git flow
 
 This project uses Git Flow for version control. The main branches are:
 
-- **main**: Stable, production-ready code.
 - **develop**: Ongoing development.
-- **feature/<feature-name>**: Branches for new features.
-- **bugfix/<issue-description>**: Branches for bug fixes.
+- **feature/\<feature-name\>**: Branches for new features.
+- **bugfix/\<issue-description\>**: Branches for bug fixes.
 
-### Development
+## Development
+
+* **Setting Up**  
+    * Ensure to install test dependencies:
+    ```bash
+    poetry install --with dev
+    ```
+
+    * Install pre-commit hooks:
+    ```bash
+    poetry run pre-commit install
+    ```
 
 * **Creating a feature branch**  
     * Start by pulling the latest changes from the `develop` branch.
@@ -62,23 +49,22 @@ This project uses Git Flow for version control. The main branches are:
     ```
     git push origin feature/<feature-name>
     ```
-    * Create a Merge Request (MR) from the feature branch to `develop` in GitLab for review.  
-    * After approval, merge the MR into `develop`.
+    * Create a Pull Request (PR) from the feature branch to `develop` for review.  
+    * After approval, merge the PR into `develop`.
 
 ### Tips
 
 * Use descriptive commit messages.  
 * Frequently pull changes from the develop branch into your feature branches to minimize merge conflicts.  
 
-#### Merge Requests
+#### Pull Requests
 
-* Ensure the MR title and description are clear and descriptive.  
-* Ensure the CI/CD pipeline passes successfully.  
-* Assign the MR to the appropriate reviewer.  
-* The reviewer should review the MR and provide feedback. After the review, the reviewer should approve the MR or request changes.  
-* Address any feedback or comments in the MR.  
-  * If changes are required, make the necessary updates in the feature branch. For each review, commit the changes and push them to the feature branch with message like: "Review \<review-number\>“  
-* When merging an MR, squash the commits into a single commit with a meaningful message.
+* Ensure the PR title and description are clear and descriptive.  
+* Assign the PR to the appropriate reviewer.  
+* The reviewer should review the PR and provide feedback. After the review, the reviewer should approve the PR or request changes.  
+* Address any feedback or comments in the PR.  
+  * If changes are required, make the necessary updates in the branch. For each review, commit the changes and push them to the branch with message like: "Review \<review-number\>“  
+* When merging an PR, squash the commits into a single commit with a meaningful message.
 
 ## Testing
 
@@ -99,7 +85,6 @@ Testing is a crucial part of the development process. This project uses `pytest`
         * Write tests that cover various scenarios, including edge cases and corner cases.
         * Ensure your tests are isolated and do not depend on each other.
         * Use fixtures to set up any necessary state before tests run.
-        * Use AI tools like GitHub Copilot to assist in writing tests.
 
     * **Example Test Function**  
         ```python
