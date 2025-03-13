@@ -85,7 +85,7 @@ class CueDeliveryThread(QThread):
             self.zmax.stimulate(**self.stimulation_signal.model_dump())
             self.cue_delivered.emit(True)
         except Exception as e:
-            logger.error(f"Error delivering light cue: {e}")
+            logger.exception(f"Error delivering light cue: {e}")
             self.cue_delivered.emit(False)
 
 

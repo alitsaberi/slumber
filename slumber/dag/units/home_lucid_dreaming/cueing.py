@@ -25,10 +25,9 @@ from slumber.sources.zmax import (
     STIMULATION_MIN_REPETITIONS,
     LEDColor,
 )
+from slumber.utils.audio import temporary_volume
 from slumber.utils.helpers import (
     create_enum_by_name_resolver,
-    get_system_volume,
-    set_system_volume,
 )
 from slumber.utils.text2speech import (
     MAX_VOLUME,
@@ -84,13 +83,10 @@ class AudioIntensityConfig(CueIntensityConfig):
 
 
 def deliver_auditory_cue(text: str, volume: int, engine: pyttsx3.Engine) -> None:
-    old_system_volume = get_system_volume()
-    logger.debug(f"Setting system volume to {volume} from {old_system_volume}")
-    set_system_volume(volume)
-    text2speech(text, engine=engine)
+    with temporary_volume(volume):
+        text2speech(text, engine=engine)
+
     logger.info("Auditory cue delivered")
-    logger.debug(f"Setting system volume to {old_system_volume} from {volume}")
-    set_system_volume(old_system_volume)
 
 
 class TactileCueingConfig(BaseModel):
@@ -175,7 +171,7 @@ class Cueing(ez.Unit):
         try:
             self.STATE.audio_intensity.engine.stop()
         except AttributeError as e:
-            logger.error(e)
+            logger.debug(e)
             pass
 
     @ez.subscriber(INPUT_ENABLE_SIGNAL)

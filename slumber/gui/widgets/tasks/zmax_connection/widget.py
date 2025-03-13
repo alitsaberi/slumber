@@ -102,7 +102,7 @@ class ZMaxConnectionPage(TaskPage, Ui_ZMaxConnectionPage):
                 battery_percentage = voltage_to_percentage(battery_voltage)
                 self._check_battery_level(battery_percentage)
         except Exception as e:
-            logger.error(f"Battery check error: {e}")
+            logger.exception(f"Battery check error: {e}")
             self._handle_failed_connection()
 
     def _handle_failed_connection(self) -> None:

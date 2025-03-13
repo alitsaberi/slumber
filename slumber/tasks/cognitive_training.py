@@ -4,7 +4,6 @@ from time import sleep
 from typing import Annotated, Literal
 
 from loguru import logger
-from playsound3 import playsound
 from pydantic import (
     BaseModel,
     BeforeValidator,
@@ -23,12 +22,14 @@ from slumber.sources.zmax import (
     LEDColor,
     ZMax,
 )
-from slumber.utils.helpers import (
+from slumber.utils.audio import (
     MAX_VOLUME,
     MIN_VOLUME,
+    play_sound,
+    temporary_volume,
+)
+from slumber.utils.helpers import (
     create_enum_by_name_resolver,
-    get_system_volume,
-    set_system_volume,
 )
 from slumber.utils.text2speech import text2speech
 
@@ -140,18 +141,9 @@ class PlayAudioFile(Action):
             )
             volume = MAX_VOLUME
 
-        old_system_volume = get_system_volume()
-        logger.debug(f"Setting system volume to {volume} from {old_system_volume}")
-        set_system_volume(volume)
-
-        logger.disable("playsound3")  # Disable logging for playsound3
-        try:
-            playsound(self.file_path)
-        finally:
-            logger.enable("playsound3")  # Re-enable logging
-
-        logger.debug(f"Setting system volume to {old_system_volume} from {volume}")
-        set_system_volume(old_system_volume)
+        with temporary_volume(volume):
+            logger.info(f"Playing audio file {self.file_path}")
+            play_sound(self.file_path)
 
 
 Protocol = list[
