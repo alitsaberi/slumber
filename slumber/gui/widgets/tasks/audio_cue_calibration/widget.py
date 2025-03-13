@@ -95,7 +95,7 @@ class CueDeliveryThread(QThread):
             )
             self.cue_delivered.emit(True)
         except Exception as e:
-            logger.error(f"Error delivering audio cue: {e}")
+            logger.exception(f"Error delivering audio cue: {e}")
             self.cue_delivered.emit(False)
 
 

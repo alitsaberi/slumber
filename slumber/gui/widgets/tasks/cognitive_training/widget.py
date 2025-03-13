@@ -88,7 +88,7 @@ class TrainingThread(QThread):
             )
             self.training_completed.emit(True)
         except Exception as e:
-            logger.error(f"Error during training: {e}")
+            logger.exception(f"Error during training: {e}")
             self.training_completed.emit(False)
 
 

@@ -1,7 +1,6 @@
 import inspect
 import pkgutil
 from collections.abc import Callable
-from ctypes import POINTER, cast
 from enum import Enum
 from importlib import import_module
 from pathlib import Path
@@ -9,12 +8,7 @@ from types import ModuleType
 from typing import Any, TypeVar
 
 import yaml
-from comtypes import CLSCTX_ALL
 from loguru import logger
-from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
-
-MIN_VOLUME = 0
-MAX_VOLUME = 100
 
 T = TypeVar("T", bound=type)
 
@@ -115,22 +109,3 @@ def create_class_by_name_resolver(
         raise ValueError(f"No class named '{v}' found in modules {modules}")
 
     return resolve
-
-
-def get_system_volume() -> int:
-    devices = AudioUtilities.GetSpeakers()
-    interface = devices.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
-    volume = cast(interface, POINTER(IAudioEndpointVolume))
-    return int(volume.GetMasterVolumeLevelScalar() * MAX_VOLUME)
-
-
-def set_system_volume(volume_level: int) -> None:
-    if volume_level < MIN_VOLUME or volume_level > MAX_VOLUME:
-        raise ValueError(f"Volume level must be between {MIN_VOLUME} and {MAX_VOLUME}.")
-
-    devices = AudioUtilities.GetSpeakers()
-    interface = devices.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
-    volume = cast(interface, POINTER(IAudioEndpointVolume))
-
-    # Set volume level (0.0 to 1.0)
-    volume.SetMasterVolumeLevelScalar(volume_level / MAX_VOLUME, None)
