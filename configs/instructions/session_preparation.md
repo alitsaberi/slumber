@@ -8,7 +8,7 @@
 
 ### 2. Clean the EEG Patch
 
-### 2.1 If previously used
+### 2.1 If it is not the first use
 
 - Before putting on the EEG headband, clean the patch to maintain gel stickiness.
 
@@ -22,21 +22,17 @@
 
 ### 2.2 If it is the first use
 
-- Reomve the plastic film
+- Gently pull the old patch off the EEG headband, and take a fresh patch.
+
+- To apply the fresh patch to the headband, line up the snaps and press them together until you hear **4 distinct clicks**. No need to worry about the direction. 
+
+- Give the patch a **gentle tug** to ensure all four snaps are securely in place. If any snap is loose, reattach it before use.
+
+- Reomve the plastic film.
 
 - Remove the white stickers that cover the areas other than the gels. 
 
 - You can throw away the white stickers, but make sure to keep the plastic film in a safe place — you’ll need it later to protect the gels. 
-
-### 2.3 If you need to change the patch
-
-1. **Remove the old patch** – Gently pull it off the EEG headband. 
-
-2. **Prepare the new patch** – Take a fresh patch and carefully remove the plastic film. Keep the film in a safe place — you’ll need it later to protect the gels.  
-
-3. **Attach the patch** – Line up the snaps and press them together until you hear **4 distinct clicks**. No need to worry about the direction. 
-
-4. **Double-check the attachment** – Give the patch a **gentle tug** to ensure all four snaps are securely in place. If any snap is loose, reattach it before use.
 
 ### 3. Prepare the Laptop
 
