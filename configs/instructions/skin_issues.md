@@ -1,0 +1,1 @@
+If you experience any signs of a skin reaction — such as itching, redness, swelling, burning sensation, or rash — after using the patch and EEG headband, please stop using the device immediately, stop the session and contact us in the morning.

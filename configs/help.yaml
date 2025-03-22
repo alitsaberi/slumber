@@ -26,3 +26,5 @@
   instruction_path: ../../configs/instructions/end_session.md
 - question: How to restart the laptop?
   instruction_path: ../../configs/instructions/laptop_restart.md
+- question: What if I have skin issues after using the EEG headband?
+  instruction_path: ../../configs/instructions/skin_issues.mds
