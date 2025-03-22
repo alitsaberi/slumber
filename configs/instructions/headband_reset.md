@@ -20,9 +20,9 @@ Follow the steps below to reset the EEG headband:
 
     - This hole resembles the **eject hole** on an iPhone SIM card tray.  
 
-2. **Insert a small, pointed object** into the hole and press gently.  
+2. **Insert the Sim card needle** into the hole and press gently.  
 
-    - Suitable tools include a **needle, toothpick, or SIM eject pin**.  
+    - If you happen to lose the Sim card needle, you may replace it with a small, pointed object. Suitable tools include a **needle, toothpick, or SIM eject pin**. However, please take care to keep the provided tools safe to avoid loss.
 
 3. **Verify the reset was successful** by checking the LED light:  
 

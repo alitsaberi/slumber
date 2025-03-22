@@ -17,12 +17,14 @@ The next step is a task assessing whether you can perceive **light cues** while 
 
 5. Repeat this process until a **confirmation message** appears and then you can proceed to the next task.
 
-**Two other possible outcomes** may appear:  
+### Two Other Possible Outcomes:  
 
 1. **Failed to deliver** the light cue.
 
-    - There might be an issue connecting to the headband. Consult the help menu for more information.
+    - There might be an issue connecting to the headband. Consult the **help menu** for instructions on checking the connectivity of the EEG headband.
 
-2. The **confirmation message does not appear**.
+2. The **confirmation message does not appear** after repeating the tasks more than 20 times.
 
-    - If you have repeated the tasks for >20 times and a confirmation message still does not appear, end the current experimental session and contact us to report this issue in the morning.
+    - End the current experimental session.
+    
+    - Contact us to report this issue in the morning: luciddreamingathome@donders.ru.nl

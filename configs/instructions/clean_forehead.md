@@ -1,4 +1,4 @@
-1. Gently wash your forehead and temples with mild soap and water to clear away any dirt and dead skin.
+1. Gently wash your forehead and temples with mild soap (or your regular facial cleanser) and water to clear away any dirt and dead skin.
 
 2. Pat dry with a soft cloth or tissue to make sure your skin is completely dry.
 

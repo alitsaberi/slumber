@@ -18,7 +18,7 @@
 
 - **Do not use dry tissues or cloths** – they can leave lint or residue, reducing gel adhesion.
 
-- Each patch can be used **up to three times**. If the gels lose their stickiness sooner, follow the steps in **2.3 If you need to change the patch** below to change the patch with a new one to ensure optimal data quality.
+- Each patch can be used **up to three times**. If the gels lose their stickiness sooner, follow the steps below to change the patch with a new one to ensure optimal data quality.
 
 ### 2.2 If it is the first use
 
@@ -28,9 +28,9 @@
 
 - Give the patch a **gentle tug** to ensure all four snaps are securely in place. If any snap is loose, reattach it before use.
 
-- Reomve the plastic film.
+- Carefully peel off the plastic film.
 
-- Remove the white stickers that cover the areas other than the gels. 
+- Carefully peel off the white stickers that cover the areas other than the gels. 
 
 - You can throw away the white stickers, but make sure to keep the plastic film in a safe place — you’ll need it later to protect the gels. 
 

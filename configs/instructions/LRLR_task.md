@@ -6,11 +6,11 @@ First, you will see a **"Start"** button on the screen. Follow the steps below t
 
 2. Click the **“Start”** button to indicate you are ready to perform the eye movement.
 
-3. Perform the **LRLR eye movement** with eyes closed and relaxed while maintaining steadiness.
+3. Perform the **LRLR eye movement** with **eyes closed** and relaxe while maintaining steadiness.
 
 4. Click the **“End”** button.
 
-Once you clicked the **"End"** button, there are **three possible outcomes**:  
+### Three Possible Outcomes:  
 
 1. **LRLR eye movement** successfully recorded.
 
@@ -33,8 +33,11 @@ Once you clicked the **"End"** button, there are **three possible outcomes**:
     - If the issue persists after three attempts: 
    
         - **Check your EEG headband placement** – It may not be worn correctly.
+
         - **Check the patch is properly attached** – It may not be attached correctly.
+
+        - End the session and contact us in the morning: luciddreamingathome@donders.ru.nl
 
 4. **Failed to collect** data.
 
-    - **Verify the headband connection** – There may be a connectivity issue. Consult the help menu for more information.
+    - **Verify the headband connection** – There may be a connectivity issue. Consult the **help menu** for more information.

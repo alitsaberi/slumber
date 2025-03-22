@@ -2,15 +2,19 @@ At the end of the experiment, please return all the equipment provided.
 
 Below is a checklist for returning items:
 
-- **EEG headband**
+- 1 **Bag**
 
-- **Laptop**  
+- 1 **EEG headband**
 
-- **Charger for the EEG headband**  
+- 1 **Laptop**  
 
-- **Charger for the laptop** 
+- 1 **Charger for the EEG headband**  
 
-- **Dongle** (EEG headband receiver)  
+- 1 **Charger for the laptop** 
+
+- 1 **Dongle** (EEG headband receiver)  
+
+- 1 **adaptor cable**
 
 - **Unused EEG headband patches**  
 

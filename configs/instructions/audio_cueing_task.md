@@ -1,4 +1,3 @@
-### Auditory Cues
 
 **Auditory cues** are semantic audio played from the laptop speakers.
 
@@ -21,9 +20,10 @@ The next step is a task assessing whether you can perceive **auditory cues**. Yo
 
 1. **Failed to deliver** the auditory cue.
 
-2. The **confirmation message does not appear**.
+2. The **confirmation message does not appear** after repeating the tasks more than 20 times.
 
-     - If you have repeated the tasks more than 20 times and a confirmation message still does not appear, follow these steps:
+- If you encounter either of the above issues, follow these steps:
 
-         - End the current experimental session.
-         - Contact us to report this issue in the morning.
+    - End the current experimental session.
+    
+    - Contact us to report this issue in the morning: luciddreamingathome@donders.ru.nl 

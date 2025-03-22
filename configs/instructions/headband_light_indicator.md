@@ -33,3 +33,4 @@ Below are the possible patterns from the two large LED light indicators at the b
 2. **No Light**  
 
     - The EEG headband is connected to the software.  
+    
