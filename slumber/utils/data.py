@@ -2,9 +2,11 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 from datetime import timedelta
 from functools import cached_property
+from pathlib import Path
 from typing import Any
 
 import numpy as np
+from loguru import logger
 
 from slumber.utils.time import timestamp_to_datetime
 
@@ -72,6 +74,17 @@ class ArrayBase:
     def channel_index_map(self) -> dict[str, int]:
         """Returns a mapping from channel name to index"""
         return {name: idx for idx, name in enumerate(self.channel_names)}
+
+    def to_csv(self, path: Path) -> None:
+        """Saves data to a CSV file"""
+
+        if path.exists():
+            logger.warning(f"File {path} already exists, overwriting")
+
+        with open(path, "w") as f:
+            f.write(",".join(self.channel_names) + "\n")
+            for row in self.array:
+                f.write(",".join(map(str, row)) + "\n")
 
 
 @dataclass
