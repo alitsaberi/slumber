@@ -1,6 +1,6 @@
 import typing
 from multiprocessing import Pipe, Process
-from multiprocessing.connection import PipeConnection
+from multiprocessing.connection import Connection
 
 from loguru import logger
 from PySide6.QtCore import Signal
@@ -51,7 +51,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.set_procedure(self.pre_sleep_procedure, self._on_pre_sleep_procedure_done)
         self.state: State | None = None
         self.dag_process: Process | None = None
-        self.dag_connection: PipeConnection | None = None
+        self.dag_connection: Connection | None = None
 
         self.settings_button.setVisible(False)
 
@@ -130,7 +130,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         else:
             self.dag_connection.send(ExperimentState.ASLEEP)
 
-    def _setup_dag_process(self) -> tuple[Process, PipeConnection]:
+    def _setup_dag_process(self) -> tuple[Process, Connection]:
         parent_connection, child_connection = Pipe()
         self.dag.components_mapping["MASTER"].settings["gui_connection"] = (
             child_connection

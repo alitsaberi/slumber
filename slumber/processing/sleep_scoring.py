@@ -52,9 +52,17 @@ class UTimeModel:
         self._weight_file_name = weight_file_name
         self._n_periods = n_periods
         self._n_samples_per_prediction = n_samples_per_prediction
+        self._model = None
+        self._hyperparameters = None
         self._dataset = None
-        self._hyperparameters = self._load_hyperparameters()
-        self._model = self._load_model()
+        self.load()
+
+    def __repr__(self) -> str:
+        return (
+            f"UTimeModel(model_dir={self._model_dir},"
+            f" input_shape={self.input_shape},"
+            f" n_samples_per_prediction={self.n_samples_per_prediction})"
+        )
 
     @property
     def name(self) -> str:
@@ -88,6 +96,11 @@ class UTimeModel:
     def n_periods(self) -> int:
         return self.input_shape[0]
 
+    @n_periods.setter
+    def n_periods(self, value: int) -> None:
+        self._n_periods = value
+        self.load()
+
     @property
     def n_samples_per_period(self) -> int:
         return self.input_shape[1]
@@ -110,6 +123,11 @@ class UTimeModel:
             inverse_stage_mapping[i]
             for i in range(self.hyperparameters["build"]["n_classes"])
         ]
+
+    def load(self) -> None:
+        self._hyperparameters = self._load_hyperparameters()
+        self._model = self._load_model()
+        logger.debug(f"Loading model {self!r}")
 
     def _load_hyperparameters(self) -> YAMLHParams:
         """
@@ -197,6 +215,11 @@ class UTimeModel:
         Prepares the data for prediction.
         """
 
+        if self._hyperparameters is None:
+            raise ValueError(
+                "Model not loaded. Please call load() before preparing data."
+            )
+
         data = copy.deepcopy(data)
 
         if (n_samples_dropped := data.length % self.n_samples_per_period) != 0:
@@ -250,6 +273,9 @@ class UTimeModel:
                                               is the sum of the predictions
                                               for each group.
         """
+
+        if self.model is None:
+            raise ValueError("Model not loaded. Please call load() before predicting.")
 
         self._assert_channel_groups(channel_groups)
 

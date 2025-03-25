@@ -2,7 +2,7 @@ import asyncio
 import time
 from collections.abc import AsyncGenerator
 from enum import Enum
-from multiprocessing.connection import PipeConnection
+from multiprocessing.connection import Connection
 from typing import Annotated
 
 import ezmsg.core as ez
@@ -44,7 +44,7 @@ class Settings(PydanticSettings):
     experiment_state: Annotated[
         ExperimentState, BeforeValidator(create_enum_by_name_resolver(ExperimentState))
     ] = ExperimentState.AWAKE
-    gui_connection: PipeConnection | None = None
+    gui_connection: Connection | None = None
     minimum_elapsed_time: float = Field(0.0, ge=0.0)
 
 
@@ -55,7 +55,7 @@ class State(ez.State):
     aroused: bool
     eye_signaling: bool
     rem_cueing: bool
-    gui_connection: PipeConnection
+    gui_connection: Connection
 
 
 class Master(ez.Unit):
