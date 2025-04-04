@@ -13,9 +13,9 @@ The next step is a task assessing whether you can perceive **tactile cues**. You
 
 2. Respond to the question that appears on the screen.
 
-3. Repeat this process until a **confirmation message** appears, and then you can proceed to the next task.
-     
-     - The **confirmation message** may appear on the first attempt.
+3. The **confirmation message** should appear on the first attempt and then you can proceed to the next task.
+
+     - If it does not appear, try to repeat the process again.
 
 ### Two Other Possible Outcomes:
 
@@ -23,7 +23,7 @@ The next step is a task assessing whether you can perceive **tactile cues**. You
      
      - There might be an issue connecting to the headband. Consult the **help menu** for instructions on checking the connectivity of the EEG headband.
 
-2. The **confirmation message does not appear** after repeating the tasks more than 20 times.
+2. The **confirmation message does not appear** after repeating the tasks more than 10 times.
 
     - End the current experimental session.
     

@@ -1,6 +1,6 @@
 During the session, you may need to complete a series of tasks.
 
-These tasks can be as simple as reading instructions or filling out questionnaires. You can see an overview of the tasks in the column on the **right side** of the screen.
+These tasks can be as simple as reading instructions, interacting with the software, or filling out questionnaires. You can see an overview of the tasks in the column on the **right side** of the screen.
 
 Below this column, there are buttons to navigate between tasks:
 

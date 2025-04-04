@@ -6,7 +6,7 @@ First, you will see a **"Start"** button on the screen. Follow the steps below t
 
 2. Click the **“Start”** button to indicate you are ready to perform the eye movement.
 
-3. Perform the **LRLR eye movement** with **eyes closed** and relaxe while maintaining steadiness.
+3. Perform the **LRLR eye movement** with **eyes closed** and relaxed while maintaining steadiness.
 
 4. Click the **“End”** button.
 

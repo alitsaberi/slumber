@@ -16,6 +16,8 @@
 
 - Gently wipe the gels with the provided **alcohol pads** and let them dry.
 
+    ![Patch diagram](../images/alcohol_pads.jpeg)
+
 - **Do not use dry tissues or cloths** – they can leave lint or residue, reducing gel adhesion.
 
 - Each patch can be used **up to three times**. If the gels lose their stickiness sooner, follow the steps below to change the patch with a new one to ensure optimal data quality.
@@ -33,6 +35,8 @@
 - Carefully peel off the white stickers that cover the areas other than the gels. 
 
 - You can throw away the white stickers, but make sure to keep the plastic film in a safe place — you’ll need it later to protect the gels. 
+
+    ![Patch diagram](../images/patches.jpeg)
 
 ### 3. Prepare the Laptop
 

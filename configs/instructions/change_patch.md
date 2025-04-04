@@ -16,6 +16,8 @@ Steps to change the patch:
     
     - Throw away the white stickers, but keep the film in a safe place — you’ll need it later to protect the gels.  
 
+    ![Patch diagram](../images/patches.jpeg)
+
 3. **Attach the patch** 
 
     - Line up the snaps and press them together until you hear **4 distinct clicks**. No need to worry about the direction. 

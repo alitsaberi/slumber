@@ -17,10 +17,14 @@ Below are the possible patterns you may see from the small LED light on the EEG 
     - The EEG headband is not charging.  
 
 4. **White + Solid (Not Blinking)**  
-    - The EEG headband is charging.  
+    - The EEG headband is charging. 
+
+        ![Patch diagram](../images/white_light.jpeg)
 
 5. **No Light**  
     - The battery is dead.  
+
+        ![Patch diagram](../images/no_battery_light.jpeg)
 
 ### Large LED Light Indicators  
 
@@ -28,7 +32,9 @@ Below are the possible patterns from the two large LED light indicators at the b
 
 1. **Blue + Blinking**
 
-    - The EEG headband is not connected to the software.  
+    - The EEG headband is not connected to the software. 
+
+    ![Patch diagram](../images/two_large_lights.jpeg)
 
 2. **No Light**  
 

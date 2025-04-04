@@ -14,7 +14,7 @@
 
 - Attach the side gels to your temples.
 
-- Ensure they are slightly higher than the middle gels, rather than perfectly horizontal.
+- Ensure they are slightly lower than the middle gels, rather than perfectly horizontal.
 
 - Make sure you don't have **hair on your temples or forehead that prevents full contact** between the gels and your skin.
 

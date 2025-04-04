@@ -21,8 +21,12 @@ To charge the EEG headband, follow these steps:
 4. **Check the charging status:**  
     
     - When charging, the small LED light on the headband will turn **solid white**.  
+
+    ![Patch diagram](../images/white_light.jpeg)
     
     - If there is no light, ensure the connections are secure.  
+
+    ![Patch diagram](../images/no_battery_light.jpeg)
 
 5. **Charging time:**  
    
@@ -31,6 +35,8 @@ To charge the EEG headband, follow these steps:
 6. **When charging is complete:**   
     
     - Unplug the charger and disconnect the charging cable from the headband. 
+
+    ![Patch diagram](../images/charger.jpeg)
 
 7. **Reset the EEG headband:**
     

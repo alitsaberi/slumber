@@ -24,8 +24,15 @@ Follow the steps below to reset the EEG headband:
 
     - If you happen to lose the Sim card needle, you may replace it with a small, pointed object. Suitable tools include a **needle, toothpick, or SIM eject pin**. However, please take care to keep the provided tools safe to avoid loss.
 
+    ![Patch diagram](../images/needle.jpeg)
+    
+    ![Patch diagram](../images/reset.jpeg)
+
 3. **Verify the reset was successful** by checking the LED light:  
 
     - If the headband is **OFF**, the LED should blink **slowly in blue**.  
    
     - If the headband is **ON**, the LED should remain **solid blue** (no blinking).
+
+    ![Patch diagram](../images/little_blue_light.jpeg)
+   

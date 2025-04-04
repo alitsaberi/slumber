@@ -8,6 +8,8 @@ Before putting on the EEG headband, you will need to clean the patch to make sur
 
     - **Avoid using dry tissues or cloths** - they can leave behind lint or residue, making the gels less sticky.
 
+    ![Patch diagram](../images/alcohol_pads.jpeg)
+
 Each patch typically lasts for about 3 uses. However, if you notice any of the gels losing their stickiness, we kindly ask you replace the patch with a new one to ensure optimal data quality.
 
 - Consult the **help menu** for how to change the patch.
