@@ -10,7 +10,7 @@ from PySide6.QtWidgets import QApplication
 
 from slumber import CONDITIONS_DIR
 from slumber.gui.main_window import MainWindow
-from slumber.models.condition import Condition
+from slumber.models.condition import ConditionConfig
 from slumber.models.dag import CollectionConfig
 from slumber.sources.zmax import close_all_hypnodyne_processes, open_quick_start
 from slumber.utils.helpers import load_yaml
@@ -31,12 +31,12 @@ def run_dag(logs_dir: Path, dag_config: CollectionConfig) -> None:
     ez.run(**dag_config.configure())
 
 
-def _get_condition(config_name: str) -> Condition:
+def _get_condition(config_name: str) -> ConditionConfig:
     config_file = CONDITIONS_DIR / f"{config_name}.{CONDITION_CONFIG_FILE_EXTENSION}"
     if not config_file.exists():
         raise FileNotFoundError(f"Condition config file {config_file} does not exist.")
 
-    return Condition.model_validate(load_yaml(config_file))
+    return ConditionConfig.model_validate(load_yaml(config_file))
 
 
 def _create_run_subdirectories(run_directory: Path) -> None:
