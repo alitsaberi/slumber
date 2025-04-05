@@ -20,6 +20,10 @@ jinja2 = "^3.1.5"
 markdown = "^3.7"
 pycaw = "^20240210"
 logtail-python = {version = "^0.3.3", optional = true}
+sqlmodel = "^0.0.24"
+python-dotenv = "^1.1.0"
+psycopg2-binary = "^2.9.10"
+sqlalchemy = "^2.0.40"
 
 [tool.poetry.group.sleep_scoring.dependencies]
 tensorflow-io-gcs-filesystem = {version = "~0.31", markers = "sys_platform != 'darwin'"}

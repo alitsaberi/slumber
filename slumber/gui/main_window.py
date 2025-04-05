@@ -16,7 +16,7 @@ from slumber.gui.widgets.help.widget import HelpPage
 from slumber.gui.widgets.home.widget import HomePage
 from slumber.gui.widgets.procedure.widget import ProcedurePage
 from slumber.gui.widgets.sleep.widget import SleepPage, State
-from slumber.models.condition import Condition
+from slumber.models.condition import ConditionConfig
 from slumber.models.dag import CollectionConfig
 from slumber.models.gui import Procedure
 
@@ -33,7 +33,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def __init__(
         self,
-        condition: Condition,
+        condition: ConditionConfig,
         run_dag_function: typing.Callable[[CollectionConfig], None],
     ):
         super().__init__()
