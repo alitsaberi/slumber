@@ -1,13 +1,17 @@
 import logging.config
+import os
 import sys
 from enum import Enum
 from pathlib import Path
 from typing import Any
 
+from dotenv import load_dotenv
 from logtail import LogtailHandler
 from loguru import logger
 
 from slumber import settings
+
+load_dotenv()
 
 
 class HandlerType(Enum):
@@ -45,8 +49,10 @@ def setup_logging(log_file: Path, config: dict[str, Any] = settings["logging"]) 
                 sink = sys.stdout
             case HandlerType.LOGTAIL:
                 sink = LogtailHandler(
-                    source_token=handler_config.pop("source_token"),
-                    host=handler_config.pop("host"),
+                    source_token=handler_config.pop(
+                        "source_token", os.getenv("LOGTAIL_TOKEN")
+                    ),
+                    host=handler_config.pop("host", os.getenv("LOGTAIL_HOST")),
                 )
             case HandlerType.FILE:
                 sink = log_file
