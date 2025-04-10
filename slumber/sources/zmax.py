@@ -1,3 +1,4 @@
+import os
 import socket
 import time
 import types
@@ -10,9 +11,12 @@ from time import sleep
 
 import numpy as np
 import psutil
+from dotenv import load_dotenv
 from loguru import logger
 
 from slumber import settings
+
+load_dotenv()
 
 
 class DongleStatus(Enum):
@@ -43,6 +47,9 @@ MAX_VOLTAGE = 4.24
 
 
 DEFAULTS = settings["zmax"]
+DEFAULTS["hypnodyne_suite_directory"] = DEFAULTS.get(
+    "hypnodyne_suite_directory", os.getenv("HYPNODYNE_SUITE_DIRECTORY")
+)
 QUICKSTART_APP_NAME = "QuickStart.exe"
 HYPNODYNE_PROCESSES = ["HDServiceGUI.exe", "HDRecorder.exe", "HDServer.exe"]
 
