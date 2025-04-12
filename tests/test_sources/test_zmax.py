@@ -4,7 +4,7 @@ from unittest.mock import patch
 import numpy as np
 import pytest
 
-from slumber.sources.zmax import _EXPECTED_DATA_LENGTH, DataType, ZMax
+from slumber.sources.zmax import EXPECTED_DATA_LENGTH, DataType, ZMax
 
 
 @pytest.fixture
@@ -88,7 +88,7 @@ def test_zmax_read(zmax_device, caplog):
     invalid_length_line = (b"D", b".", b"0", b"1", b"0", b"2", b"0", b"3", b"\n")
     valid_line = (
         (b"D", b".", b"0", b"1")
-        + tuple(b"1" for _ in range(_EXPECTED_DATA_LENGTH - 2))
+        + tuple(b"1" for _ in range(EXPECTED_DATA_LENGTH - 2))
         + (b"\n",)
     )
     zmax_device._socket.recv.side_effect = (

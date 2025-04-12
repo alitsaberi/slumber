@@ -50,6 +50,7 @@ slumber = "slumber.scripts.run_session:main"
 create_task = "slumber.scripts.create_task:main"
 compile_ui_files = "slumber.scripts.compile_ui_files:main"
 score_zmax = "slumber.scripts.score_zmax:main"
+detect_eye_movement = "slumber.scripts.detect_eye_movement:main"
 
 [build-system]
 requires = ["poetry-core"]

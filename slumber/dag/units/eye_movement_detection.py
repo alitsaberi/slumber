@@ -17,6 +17,7 @@ class Settings(PydanticSettings):
     left_eeg_label: str
     right_eeg_label: str
     difference_threshold: float = Field(DEFAULTS["difference_threshold"], gt=0)
+    amplitude_threshold: float = Field(DEFAULTS["amplitude_threshold"], gt=0)
     min_same_event_gap: float = Field(DEFAULTS["min_same_event_gap"], gt=0)
     max_sequence_gap: float = Field(DEFAULTS["max_sequence_gap"], gt=0)
     low_cutoff: float = Field(DEFAULTS["low_cutoff"], gt=0)
