@@ -1,14 +1,13 @@
 import argparse
 from pathlib import Path
 
-import mne
 import numpy as np
 from loguru import logger
 
 from slumber import MODELS_DIR
 from slumber.processing.sleep_scoring import UTimeModel, score
 from slumber.processing.transforms import FIRFilter
-from slumber.sources.zmax import SAMPLE_RATE
+from slumber.sources.zmax.utils import load_data
 from slumber.utils.data import Data
 
 EEG_CHANNELS: list[str] = ["EEG L", "EEG R"]
@@ -51,22 +50,6 @@ def _get_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def _read_raw_data(data_dir: Path, data_type: str) -> mne.io.Raw:
-    logger.info(f"Extracting {data_type}")
-    data_type_file = data_dir / f"{data_type}.{FILE_EXTENSION}"
-    raw = mne.io.read_raw_edf(data_type_file, preload=False)
-    return raw.get_data().squeeze()
-
-
-def _load_data(data_dir: Path) -> Data:
-    array = np.column_stack(
-        [_read_raw_data(data_dir, data_type) for data_type in EEG_CHANNELS]
-    )
-    data = Data(array, sample_rate=SAMPLE_RATE, channel_names=EEG_CHANNELS)
-    logger.debug(f"Loaded data: {data}")
-    return data
-
-
 def _resample_predictions(predictions: Data, epoch_duration: int) -> Data:
     logger.info(f"Resampling predictions to {epoch_duration}-second epochs")
     periods_to_aggregate = int(epoch_duration * predictions.sample_rate)
@@ -89,7 +72,7 @@ def main() -> None:
     args = _get_parser().parse_args()
 
     logger.info(f"Loading data from {args.data_dir}")
-    data = _load_data(args.data_dir)
+    data = load_data(args.data_dir, data_types=EEG_CHANNELS)
 
     if not args.no_filter:
         logger.info(

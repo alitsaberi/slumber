@@ -47,6 +47,7 @@ lr_eye_movement:
   left_label: L
   right_label: R
   difference_threshold: 280
+  amplitude_threshold: 100
   min_same_event_gap: 0.5
   max_sequence_gap: 1.5
   low_cutoff: 0.3

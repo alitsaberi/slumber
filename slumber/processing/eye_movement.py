@@ -16,6 +16,7 @@ def detect_lr_eye_movements(
     left_eeg_label: str,
     right_eeg_label: str,
     difference_threshold: float = DEFAULTS["difference_threshold"],
+    amplitude_threshold: float = DEFAULTS["amplitude_threshold"],
     min_same_event_gap: float = DEFAULTS["min_same_event_gap"],
     max_sequence_gap: float = DEFAULTS["max_sequence_gap"],
     low_cutoff: float = DEFAULTS["low_cutoff"],
@@ -28,7 +29,8 @@ def detect_lr_eye_movements(
         data: Data object containing EEG data.
         left_eeg_label: Label for the left EEG channel.
         right_eeg_label: Label for the right EEG channel.
-        difference_threshold: Threshold for detecting eye movements.
+        difference_threshold: Threshold for detecting peaks in the difference signal.
+        amplitude_threshold: Threshold for filtering peaks based on opposite polarity.
         min_same_event_gap:
             Minimum gap between neighboring peaks in the same direction.
         max_sequence_gap:
@@ -43,8 +45,12 @@ def detect_lr_eye_movements(
         The labels are strings alternating between "L" and "R", for example "LRLR".
     """
     data = FIRFilter()(data, low_cutoff=low_cutoff, high_cutoff=high_cutoff)
+
+    left_data = data[:, left_eeg_label]
+    right_data = data[:, right_eeg_label]
+
     difference_data = Data(
-        array=data[:, left_eeg_label].array - data[:, right_eeg_label].array,
+        array=left_data.array - right_data.array,
         sample_rate=data.sample_rate,
         timestamps=data.timestamps,
     )  # TODO: Add subtraction operation to Data
@@ -56,7 +62,12 @@ def detect_lr_eye_movements(
     )
 
     movement_events = _detect_movement_events(
-        difference_data, difference_threshold, min_same_event_gap
+        difference_data,
+        left_data,
+        right_data,
+        difference_threshold,
+        amplitude_threshold,
+        min_same_event_gap,
     )
     sequences = _build_sequences(movement_events, max_sequence_gap)
 
@@ -64,22 +75,52 @@ def detect_lr_eye_movements(
 
 
 def _detect_movement_events(
-    data: Data, threshold: float, min_same_event_gap: float
+    difference_data: Data,
+    left_data: Data,
+    right_data: Data,
+    difference_threshold: float,
+    amplitude_threshold: float,
+    min_same_event_gap: float,
 ) -> list[Event]:
     """
     Returns an ordered list of MovementEvent objects
-    representing detected eye movements.
+    representing detected eye movements with opposite polarity check.
     """
     detect_peaks = partial(
         find_peaks,
-        height=threshold,
-        distance=min_same_event_gap * data.sample_rate,
+        height=difference_threshold,
+        distance=min_same_event_gap * difference_data.sample_rate,
     )
-    peaks, _ = detect_peaks(data.array.squeeze())
-    valleys, _ = detect_peaks(-data.array.squeeze())
+    peaks, _ = detect_peaks(difference_data.array.squeeze())
+    valleys, _ = detect_peaks(-difference_data.array.squeeze())
 
-    events = _peaks_to_events(peaks, data.timestamps, DEFAULTS["left_label"])
-    events.extend(_peaks_to_events(valleys, data.timestamps, DEFAULTS["right_label"]))
+    # Filter peaks based on opposite polarity
+    valid_peaks = [
+        p
+        for p in peaks
+        if (
+            left_data.array[p] > amplitude_threshold
+            and right_data.array[p] < -amplitude_threshold
+        )
+    ]
+
+    valid_valleys = [
+        v
+        for v in valleys
+        if (
+            left_data.array[v] < -amplitude_threshold
+            and right_data.array[v] > amplitude_threshold
+        )
+    ]
+
+    events = _peaks_to_events(
+        valid_peaks, difference_data.timestamps, DEFAULTS["left_label"]
+    )
+    events.extend(
+        _peaks_to_events(
+            valid_valleys, difference_data.timestamps, DEFAULTS["right_label"]
+        )
+    )
 
     return sorted(events, key=lambda x: x.start_time)
 

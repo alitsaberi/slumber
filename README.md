@@ -4,7 +4,7 @@
 
 <!--
 Provide a concise description of your project here.
-Describe what it does, the problem it solves, and why it’s useful.
+Describe what it does, the problem it solves, and why it's useful.
 -->
 
 ## Table of Contents
@@ -70,6 +70,33 @@ Optional arguments:
 - `--epoch_duration`: Duration of epochs in seconds (default: 30)
 - `--output-path`: Path to save output predictions (default: <data_dir>/utime_predictions.csv)
 
+### Detecting Eye Movements from ZMax Data
+
+To detect eye movements from ZMax data, use the following command:
+
+```bash
+poetry run detect_eye_movement <data_dir> [options]
+```
+
+Required arguments:
+- `data_dir`: Path to ZMax data directory containing EEG data files
+
+Optional arguments:
+- `--output-path`: Path to save detected eye movements (default: <data_dir>/eye_movements.csv)
+- `--difference-threshold`: Threshold for detecting peaks in the difference signal (default: 280)
+- `--amplitude-threshold`: Threshold for filtering peaks based on opposite polarity (default: 100)
+- `--min-same-event-gap`: Minimum gap between neighboring peaks in the same direction (default: 0.5s)
+- `--max-sequence-gap`: Maximum gap between consecutive eye movements in sequence (default: 1.5s)
+- `--low-cutoff`: Low cutoff frequency for FIR filters (default: 0.3 Hz)
+- `--high-cutoff`: High cutoff frequency for FIR filters (default: 2 Hz)
+- `--accepted-eye-signals`: List of accepted eye signal labels to filter results (e.g., LRL, RLR)
+
+The script will output a CSV file containing detected eye movements with their start times, end times, and labels.
+
+Example usage with accepted eye signals:
+```bash
+poetry run detect_eye_movement path/to/data --accepted-eye-signals LRL RLR
+```
 
 ## Configuration
 
