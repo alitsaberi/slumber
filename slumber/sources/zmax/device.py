@@ -1,250 +1,31 @@
-import os
 import socket
-import time
 import types
-from collections.abc import Callable
-from dataclasses import dataclass
-from enum import Enum
-from pathlib import Path
-from subprocess import Popen
 from time import sleep
 
 import numpy as np
-import psutil
-from dotenv import load_dotenv
 from loguru import logger
 
-from slumber import settings
-
-load_dotenv()
-
-
-class DongleStatus(Enum):
-    UNKNOWN = "unknown"
-    INSERTED = "inserted"
-    REMOVED = "removed"
-
-
-_LIVEMODE_SENDBYTES_COMMAND = "LIVEMODE_SENDBYTES"
-_DONGLE_MESSAGE_PREFIX = "_DONGLE"
-_SENDBYTES_MAX_RETRIES = 1
-_PACKET_TYPE_POSITION = 0
-_VALID_PACKET_TYPES = range(1, 12)
-_EXPECTED_DATA_LENGTH = 119
-
-_STIMULATION_RETRY_DELAY = 111  # Milliseconds
-_STIMULATION_FLASH_LED_COMMAND = 4
-_STIMULATION_PWM_MAX = 254  # 100% intensity
-STIMULATION_MAX_REPETITIONS = 127
-STIMULATION_MIN_REPETITIONS = 1
-STIMULATION_MIN_DURATION = 1
-STIMULATION_MAX_DURATION = 255
-LED_MIN_INTENSITY = 1
-LED_MAX_INTENSITY = 100
-SAMPLE_RATE = 256
-MIN_VOLTAGE = 3.12
-MAX_VOLTAGE = 4.24
-
-
-DEFAULTS = settings["zmax"]
-DEFAULTS["hypnodyne_suite_directory"] = DEFAULTS.get(
-    "hypnodyne_suite_directory", os.getenv("HYPNODYNE_SUITE_DIRECTORY")
+from .constants import (
+    DEFAULTS,
+    DONGLE_MESSAGE_PREFIX,
+    EXPECTED_DATA_LENGTH,
+    LED_MAX_INTENSITY,
+    LED_MIN_INTENSITY,
+    LIVEMODE_SENDBYTES_COMMAND,
+    PACKET_TYPE_POSITION,
+    SENDBYTES_MAX_RETRIES,
+    STIMULATION_FLASH_LED_COMMAND,
+    STIMULATION_MAX_DURATION,
+    STIMULATION_MAX_REPETITIONS,
+    STIMULATION_MIN_DURATION,
+    STIMULATION_MIN_REPETITIONS,
+    STIMULATION_PWM_MAX,
+    STIMULATION_RETRY_DELAY,
+    VALID_PACKET_TYPES,
 )
-QUICKSTART_APP_NAME = "QuickStart.exe"
-HYPNODYNE_PROCESSES = ["HDServiceGUI.exe", "HDRecorder.exe", "HDServer.exe"]
-
-
-class ConnectionClosedError(Exception):
-    pass
-
-
-class HDServerAlreadyRunningError(Exception):
-    pass
-
-
-class LEDColor(Enum):
-    RED = (2, 0, 0)
-    YELLOW = (2, 2, 0)
-    GREEN = (0, 2, 0)
-    CYAN = (0, 2, 2)
-    BLUE = (0, 0, 2)
-    PURPLE = (2, 0, 2)
-    WHITE = (2, 2, 2)
-    OFF = (0, 0, 0)
-
-
-def get_word_at(buffer: str, index: int) -> int:
-    return get_byte_at(buffer, index) * 256 + get_byte_at(buffer, index + 1)
-
-
-def get_byte_at(buffer: str, index: int) -> int:
-    hex_str = buffer[index * 3 : index * 3 + 2]
-    return int(hex_str, 16)
-
-
-def _scale_eeg(value: int) -> float:
-    """
-    Convert the raw EEG value to uV.
-    """
-    uv_range = 3952
-    return ((value - 32768) * uv_range) / 65536
-
-
-def _scale_accelerometer(value: int) -> float:
-    """
-    Convert the raw accelerometer value to 'g'.
-    """
-    return value * 4 / 4096 - 2
-
-
-def _scale_battery(value: int) -> float:
-    """
-    Convert the raw battery voltage value to volts.
-    """
-    return value / 1024 * 6.60
-
-
-def _scale_body_temperature(value: int) -> float:
-    """
-    Convert the raw body temperature value to Celsius.
-    """
-    return 15 + ((value / 1024 * 3.3 - 1.0446) / 0.0565537333333333)
-
-
-def _dec2hex(decimal: int, pad: int = 2) -> str:
-    """Convert decimal to hexadecimal string with padding."""
-    return format(decimal, f"0{pad}x").upper()
-
-
-def verify_hypnodyne_processes(timeout: int = 30) -> bool:
-    start_time = time.time()
-    while time.time() - start_time < timeout:
-        running_processes = {
-            proc.info["name"]
-            for proc in psutil.process_iter(["name"])
-            if proc.info["name"] in HYPNODYNE_PROCESSES
-        }
-
-        if running_processes == set(HYPNODYNE_PROCESSES):
-            logger.info("All Hypnodyne processes running")
-            return True
-
-        sleep(1)
-
-    missing = set(HYPNODYNE_PROCESSES) - running_processes
-    logger.error(f"Missing Hypnodyne processes: {missing}")
-    return False
-
-
-def close_all_hypnodyne_processes():
-    for process_name in HYPNODYNE_PROCESSES:
-        while True:
-            processes = [
-                proc
-                for proc in psutil.process_iter(["name"])
-                if proc.info["name"] == process_name
-            ]
-            if not processes:
-                break
-
-            for proc in processes:
-                try:
-                    proc.terminate()
-                    proc.wait(settings["process_termination_timeout"])
-                    logger.info(f"Terminated {process_name} with PID {proc.pid}")
-                except psutil.TimeoutExpired:
-                    proc.kill()
-                    logger.warning(f"Force killed {process_name} with PID {proc.pid}")
-                except psutil.NoSuchProcess:
-                    pass
-
-
-def open_quick_start(max_retries: int = 3, retry_delay: float = 2.0) -> Popen:
-    hypnodyne_suite_directory = Path(DEFAULTS["hypnodyne_suite_directory"])
-    quick_start_path = hypnodyne_suite_directory / QUICKSTART_APP_NAME
-
-    if not quick_start_path.exists():
-        raise FileNotFoundError(
-            f"QuickStart executable not found at {quick_start_path}"
-        )
-
-    for attempt in range(max_retries):
-        try:
-            close_all_hypnodyne_processes()
-
-            process = Popen(
-                [str(quick_start_path)],
-                cwd=hypnodyne_suite_directory,
-            )
-
-            if verify_hypnodyne_processes():
-                logger.info(
-                    "Hypnodyne QuickStart started successfully", pid=process.pid
-                )
-                return process
-
-            raise RuntimeError("Failed to start all required Hypnodyne processes")
-
-        except Exception as e:
-            logger.warning(f"Attempt {attempt + 1}/{max_retries} failed: {e}")
-            if attempt < max_retries - 1:
-                sleep(retry_delay)
-            else:
-                raise RuntimeError(
-                    f"Failed to start QuickStart after {max_retries} attempts: {e}"
-                ) from e
-    for proc in psutil.process_iter(["name"]):
-        if proc.info["name"] in HYPNODYNE_PROCESSES:
-            proc.terminate()
-            proc.wait(settings["process_termination_timeout"])
-            logger.info(f"Terminated {proc.info['name']} with PID {proc.pid}")
-
-
-def voltage_to_percentage(voltage: float) -> int:
-    voltage = max(MIN_VOLTAGE, min(voltage, MAX_VOLTAGE))
-    percentage = ((voltage - MIN_VOLTAGE) / (MAX_VOLTAGE - MIN_VOLTAGE)) * 100
-    return round(percentage)
-
-
-@dataclass
-class DataTypeConfig:
-    buffer_position: int
-    scale_function: Callable | None = None
-
-    def get_value(self, buffer: str) -> int | float:
-        value = get_word_at(buffer, self.buffer_position)
-        return self.scale_function(value) if self.scale_function else value
-
-
-class DataType(Enum):
-    EEG_RIGHT = DataTypeConfig(1, _scale_eeg)
-    EEG_LEFT = DataTypeConfig(3, _scale_eeg)
-    ACCELEROMETER_X = DataTypeConfig(5, _scale_accelerometer)
-    ACCELEROMETER_Y = DataTypeConfig(7, _scale_accelerometer)
-    ACCELEROMETER_Z = DataTypeConfig(9, _scale_accelerometer)
-    BODY_TEMP = DataTypeConfig(36, _scale_body_temperature)
-    BATTERY = DataTypeConfig(23, _scale_battery)
-    NOISE = DataTypeConfig(19)
-    LIGHT = DataTypeConfig(21)
-    NASAL_LEFT = DataTypeConfig(11)
-    NASAL_RIGHT = DataTypeConfig(13)
-    OXIMETER_INFRARED_AC = DataTypeConfig(27)
-    OXIMETER_RED_AC = DataTypeConfig(25)
-    OXIMETER_DARK_AC = DataTypeConfig(34)
-    OXIMETER_INFRARED_DC = DataTypeConfig(17)
-    OXIMETER_RED_DC = DataTypeConfig(15)
-    OXIMETER_DARK_DC = DataTypeConfig(32)
-
-    def __str__(self) -> str:
-        return self.name
-
-    @property
-    def category(self) -> str:
-        return self.name.split("_")[0]
-
-    @classmethod
-    def get_by_category(cls, category: str) -> list["DataType"]:
-        return [data_type for data_type in cls if data_type.category == category]
+from .enums import DataType, DongleStatus, LEDColor
+from .exceptions import ConnectionClosedError
+from .utils import dec2hex, get_byte_at
 
 
 def _initialize_socket(
@@ -256,7 +37,7 @@ def _initialize_socket(
 
 
 def _is_dongle_message(message: str) -> bool:
-    return message.startswith(_DONGLE_MESSAGE_PREFIX)
+    return message.startswith(DONGLE_MESSAGE_PREFIX)
 
 
 class ZMax:
@@ -387,12 +168,12 @@ class ZMax:
 
     def _is_valid_data(self, data: str) -> bool:
         """Validate the received data"""
-        packet_type = get_byte_at(data, _PACKET_TYPE_POSITION)
-        if packet_type not in _VALID_PACKET_TYPES:
+        packet_type = get_byte_at(data, PACKET_TYPE_POSITION)
+        if packet_type not in VALID_PACKET_TYPES:
             logger.warning(f"Invalid type: {packet_type}")
             return False
 
-        if len(data) != _EXPECTED_DATA_LENGTH:
+        if len(data) != EXPECTED_DATA_LENGTH:
             logger.warning(f"Invalid data length: {len(data)}")
             return False
 
@@ -465,12 +246,12 @@ class ZMax:
                 f" to {LED_MIN_INTENSITY}"
             )
 
-        led_intensity = int(led_intensity / 100 * _STIMULATION_PWM_MAX)
+        led_intensity = int(led_intensity / 100 * STIMULATION_PWM_MAX)
 
         hex_values = [
-            _dec2hex(x)
+            dec2hex(x)
             for x in [
-                _STIMULATION_FLASH_LED_COMMAND,
+                STIMULATION_FLASH_LED_COMMAND,
                 *led_color.value,  # Left eye
                 *led_color.value,  # Right eye
                 led_intensity,
@@ -484,8 +265,8 @@ class ZMax:
         ]
 
         command = (
-            f"{_LIVEMODE_SENDBYTES_COMMAND} {_SENDBYTES_MAX_RETRIES}"
-            f" {self._get_next_live_sequence_number()} {_STIMULATION_RETRY_DELAY}"
+            f"{LIVEMODE_SENDBYTES_COMMAND} {SENDBYTES_MAX_RETRIES}"
+            f" {self._get_next_live_sequence_number()} {STIMULATION_RETRY_DELAY}"
             f" {'-'.join(hex_values)}\r\n"
         )
         logger.debug(f"ZMax stimulation command: {command}")
