@@ -49,6 +49,7 @@ logging = ["logtail-python"]
 slumber = "slumber.scripts.run_session:main"
 create_task = "slumber.scripts.create_task:main"
 compile_ui_files = "slumber.scripts.compile_ui_files:main"
+score_zmax = "slumber.scripts.score_zmax:main"
 
 [build-system]
 requires = ["poetry-core"]

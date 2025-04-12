@@ -46,15 +46,30 @@ Describe what it does, the problem it solves, and why it’s useful.
 
 ## Usage
 
-<!--
-Explain how to run or use your application. Provide examples and common use cases.
--->
-
 After installing dependencies, you can start the application with:
 
 ```bash
 poetry run slumber <condition-name>
 ```
+
+### Scoring Sleep Stages from ZMax Data
+
+To score sleep stages from ZMax data, use the following command:
+
+```bash
+poetry run score_zmax <data_dir> [options]
+```
+
+Required arguments:
+- `data_dir`: Path to ZMax data directory containing EEG data files
+
+Optional arguments:
+- `--model-dir`: Path to directory containing U-Time model (default: models/utime_EEG_10)
+- `--weight-file`: Name of specific weight file to use
+- `--no-filter`: Do not apply a filter to the data
+- `--epoch_duration`: Duration of epochs in seconds (default: 30)
+- `--output-path`: Path to save output predictions (default: <data_dir>/utime_predictions.csv)
+
 
 ## Configuration
 
