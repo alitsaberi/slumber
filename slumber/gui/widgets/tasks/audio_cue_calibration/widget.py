@@ -5,7 +5,7 @@ from loguru import logger
 from PySide6.QtCore import QThread, QTimer, Signal
 from PySide6.QtWidgets import QMessageBox, QPushButton, QWidget
 
-from slumber.dag.units.home_lucid_dreaming.cueing import (
+from slumber.dag.units.cueing import (
     CueIntensityConfig,
     deliver_auditory_cue,
 )
@@ -110,8 +110,8 @@ class AudioCueCalibrationPage(TaskPage, Ui_AudioCueCalibrationPage):
         decrement: int,
         rate: int,
         text: str,
-        voice: str,
         countdown_seconds: int,
+        voice: str | None = None,
         parent: QWidget | None = None,
     ) -> None:
         super().__init__(index, title, parent=parent)

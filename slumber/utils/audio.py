@@ -1,10 +1,8 @@
-import winsound
+import platform
 from contextlib import contextmanager
 from pathlib import Path
 
-from comtypes import CLSCTX_ALL
 from loguru import logger
-from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
 
 MIN_VOLUME = 0
 MAX_VOLUME = 100
@@ -24,13 +22,28 @@ def set_system_volume(volume_level: int) -> None:
     volume.SetMasterVolumeLevelScalar(volume_level / MAX_VOLUME, None)
 
 
-def _get_audio_interface() -> IAudioEndpointVolume:
+def _get_audio_interface():
+    if platform.system() != "Windows":
+        raise NotImplementedError(
+            "Getting audio interface is not supported on non-Windows systems."
+        )
+
+    from comtypes import CLSCTX_ALL
+    from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
+
     devices = AudioUtilities.GetSpeakers()
     interface = devices.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
     return interface.QueryInterface(IAudioEndpointVolume)
 
 
 def play_sound(sound_path: Path) -> None:
+    if platform.system() != "Windows":
+        raise NotImplementedError(
+            "Playing sounds is not supported on non-Windows systems."
+        )
+
+    import winsound
+
     winsound.PlaySound(str(sound_path), winsound.SND_FILENAME)
 
 

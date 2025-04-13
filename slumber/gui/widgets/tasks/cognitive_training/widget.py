@@ -99,8 +99,8 @@ class CognitiveTrainingPage(TaskPage, Ui_CognitiveTrainingPage):
         title: str,
         protocol_path: Path | str,
         rate: int,
-        voice: str,
         countdown_seconds: int,
+        voice: str | None = None,
         parent: QWidget | None = None,
     ) -> None:
         super().__init__(index, title, parent=parent)

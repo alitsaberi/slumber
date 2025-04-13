@@ -46,7 +46,7 @@ pytest-loguru = "^0.4.0"
 logging = ["logtail-python"]
 
 [tool.poetry.scripts]
-slumber = "slumber.scripts.run_session:main"
+slumber = "slumber.scripts.run:main"
 create_task = "slumber.scripts.create_task:main"
 compile_ui_files = "slumber.scripts.compile_ui_files:main"
 score_zmax = "slumber.scripts.score_zmax:main"
