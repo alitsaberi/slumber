@@ -15,7 +15,7 @@ from pydantic import (
 )
 
 from slumber.dag.units.event_logger import Event
-from slumber.dag.units.home_lucid_dreaming.master import EventType
+from slumber.dag.units.master import EventType
 from slumber.dag.units.zmax import ZMaxStimulationSignal
 from slumber.dag.utils import PydanticSettings
 from slumber.sources.zmax import (

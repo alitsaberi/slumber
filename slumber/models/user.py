@@ -1,14 +1,24 @@
-from typing import TYPE_CHECKING
+import os
 
-from sqlmodel import Relationship
+from sqlmodel import Session as SQLModelSession
+from sqlmodel import select
 
 from slumber.models.base import BaseTable
-
-if TYPE_CHECKING:
-    from slumber.models.session import Session
+from slumber.utils.database import engine
 
 
 class User(BaseTable, table=True):
     __tablename__ = "user"
 
-    sessions: list["Session"] = Relationship(back_populates="user")
+
+def get_user(user_id: int | None = None) -> User:
+    user_id = user_id or os.getenv("USER_ID")
+
+    if user_id is None:
+        raise ValueError("No user ID provided")
+
+    with SQLModelSession(engine) as session:
+        user = session.exec(select(User).where(User.id == user_id)).first()
+        if user is None:
+            raise ValueError(f"User with ID {user_id} not found")
+        return user

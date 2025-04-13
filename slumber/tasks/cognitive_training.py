@@ -13,7 +13,7 @@ from pydantic import (
 )
 from pyttsx3 import Engine
 
-from slumber.dag.units.home_lucid_dreaming.cueing import deliver_auditory_cue
+from slumber.dag.units.cueing import deliver_auditory_cue
 from slumber.sources.zmax import (
     LED_MAX_INTENSITY,
     LED_MIN_INTENSITY,

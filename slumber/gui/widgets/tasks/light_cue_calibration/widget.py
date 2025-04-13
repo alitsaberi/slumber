@@ -4,7 +4,7 @@ from loguru import logger
 from PySide6.QtCore import QThread, QTimer, Signal
 from PySide6.QtWidgets import QMessageBox, QPushButton, QWidget
 
-from slumber.dag.units.home_lucid_dreaming.cueing import CueIntensityConfig
+from slumber.dag.units.cueing import CueIntensityConfig
 from slumber.dag.units.zmax import ZMaxStimulationSignal
 from slumber.gui.widgets.tasks.base import TaskPage
 from slumber.sources.zmax import ZMax

@@ -61,3 +61,7 @@ def create_timestamped_name(
     )
     base_name = f"{prefix}_{timestamp}"
     return f"{base_name}.{extension}" if extension else base_name
+
+
+def get_time_from_str(time_str: str) -> datetime:
+    return datetime.strptime(time_str, "%H:%M").time()

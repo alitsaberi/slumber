@@ -1,5 +1,6 @@
 time_zone: "Europe/Amsterdam"
 process_termination_timeout: 10.0
+help_page_config_path: "./configs/help.yaml"
 
 hdf5:
   compression: gzip
@@ -21,6 +22,9 @@ sleep_scoring:
     unknown: UNKNOWN
 
 logging:
+  main_log_file: "slumber.log"
+  gui_log_file: "gui.log"
+  dag_log_file: "dag.log"
   include_timestamp_in_file_name: false
   handlers:
     console:
@@ -67,3 +71,7 @@ tasks:
 
 survey:
   response_indent: 4
+
+session:
+  min_start_time: "16:00"
+  max_start_time: "02:00"

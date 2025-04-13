@@ -1,7 +1,6 @@
-name: pilot
+name: intake
 
 gui:
-  help: ../../configs/help.yaml
   pre_sleep:
     tasks:
       - title: Study Information And Software Introduction
