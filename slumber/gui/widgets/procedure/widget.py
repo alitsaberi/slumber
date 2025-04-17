@@ -7,6 +7,8 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from slumber.gui.utils import scale_widget
+
 if typing.TYPE_CHECKING:
     from slumber.dag.units.gui import Procedure, Task
 
@@ -93,6 +95,7 @@ class ProcedurePage(QWidget, Ui_ProcedurePage):
         task_page = task.widget(idx, title, **kwargs, parent=self)
         task_page.done_signal.connect(self._on_task_done)
         self.stacked_widget.addWidget(task_page)
+        scale_widget(task_page)
 
     def _on_task_done(self, index: int):
         item = self.task_list.item(index)

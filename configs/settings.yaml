@@ -75,3 +75,6 @@ survey:
 session:
   min_start_time: "16:00"
   max_start_time: "02:00"
+
+gui:
+  scale_factor: 1.0
