@@ -78,3 +78,5 @@ session:
 
 gui:
   scale_factor: 1.0
+  screen_dim_timeout: 5000
+  screen_dim_brightness: 0

@@ -6315,6 +6315,29 @@ doc = ["intersphinx_registry", "jupyterlite-pyodide-kernel", "jupyterlite-sphinx
 test = ["Cython", "array-api-strict (>=2.0,<2.1.1)", "asv", "gmpy2", "hypothesis (>=6.30)", "meson", "mpmath", "ninja ; sys_platform != \"emscripten\"", "pooch", "pytest", "pytest-cov", "pytest-timeout", "pytest-xdist", "scikit-umfpack", "threadpoolctl"]
 
 [[package]]
+name = "screen-brightness-control"
+version = "0.24.2"
+description = "A Python tool for controlling the brightness of your monitor"
+optional = false
+python-versions = ">=3.8"
+groups = ["main"]
+files = [
+    {file = "screen_brightness_control-0.24.2-py3-none-any.whl", hash = "sha256:189add826705783eba71f2e9b4ca4dbdee5e327519aebd1854834ea5c75ae27f"},
+    {file = "screen_brightness_control-0.24.2.tar.gz", hash = "sha256:96931b0d80ad3bd4449d35ce20d15d54f72c730bbfae43773464425d30a747a4"},
+]
+
+[package.dependencies]
+pypiwin32 = {version = "*", markers = "platform_system == \"Windows\""}
+pywin32 = {version = "*", markers = "platform_system == \"Windows\""}
+wmi = {version = "*", markers = "platform_system == \"Windows\""}
+
+[package.extras]
+all = ["screen_brightness_control[dev,dist,docs]"]
+dev = ["mypy", "pytest", "pytest-mock", "pytest-subtests", "ruff", "string-fixer (>=0.5.0)", "types-pywin32 ; platform_system == \"Windows\""]
+dist = ["build", "setuptools", "twine", "wheel"]
+docs = ["jsmin", "packaging", "pdoc (>=14.1.0)"]
+
+[[package]]
 name = "setuptools"
 version = "75.8.0"
 description = "Easily download, build, install, upgrade, and uninstall Python packages"
@@ -7047,6 +7070,29 @@ files = [
 dev = ["black (>=19.3b0) ; python_version >= \"3.6\"", "pytest (>=4.6.2)"]
 
 [[package]]
+name = "wmi"
+version = "1.5.1"
+description = "Windows Management Instrumentation"
+optional = false
+python-versions = "*"
+groups = ["main"]
+markers = "platform_system == \"Windows\""
+files = [
+    {file = "WMI-1.5.1-py2.py3-none-any.whl", hash = "sha256:1d6b085e5c445141c475476000b661f60fff1aaa19f76bf82b7abb92e0ff4942"},
+    {file = "WMI-1.5.1.tar.gz", hash = "sha256:b6a6be5711b1b6c8d55bda7a8befd75c48c12b770b9d227d31c1737dbf0d40a6"},
+]
+
+[package.dependencies]
+pywin32 = "*"
+
+[package.extras]
+all = ["pytest", "sphinx", "twine", "wheel"]
+dev = ["pytest", "sphinx", "twine", "wheel"]
+docs = ["sphinx"]
+package = ["twine", "wheel"]
+tests = ["pytest"]
+
+[[package]]
 name = "wrapt"
 version = "1.17.2"
 description = "Module for decorators, wrappers and monkey patching."
@@ -7175,4 +7221,4 @@ logging = ["logtail-python"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.10,<3.11"
-content-hash = "20ad56e5fba565d92dd9a72f74e3f22eb4b3b9cedd7d36e5bbb5a5f3a6255afa"
+content-hash = "45a5ffbfc76710f33c6a9164304981cd148b5210f583e3e0c11685c1ecf2bcb4"
